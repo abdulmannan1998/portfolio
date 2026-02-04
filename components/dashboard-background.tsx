@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import {
   ReactFlow,
   Background,
@@ -10,6 +11,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
 import { CustomNode } from "@/components/custom-node";
+import { debounce } from "@/lib/debounce";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -20,8 +22,42 @@ export function DashboardBackground({
 }: {
   children: React.ReactNode;
 }) {
-  const [nodes, , onNodesChange] = useNodesState(getInitialNodes());
+  // Initialize viewport with actual window dimensions if available
+  const [viewport, setViewport] = useState(() => {
+    if (typeof window !== "undefined") {
+      return { width: window.innerWidth, height: window.innerHeight };
+    }
+    return { width: 1920, height: 1080 };
+  });
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    getInitialNodes(viewport),
+  );
   const [edges, , onEdgesChange] = useEdgesState(getInitialEdges());
+
+  const updateViewport = useCallback(
+    (newViewport: typeof viewport) => {
+      setViewport(newViewport);
+      setNodes(getInitialNodes(newViewport));
+    },
+    [setNodes],
+  );
+
+  useEffect(() => {
+    // Skip if window is not available (SSR)
+    if (typeof window === "undefined") return;
+
+    // Debounced resize handler
+    const handleResize = debounce(() => {
+      updateViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }, 300);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateViewport]);
 
   return (
     <div className="relative h-screen w-screen bg-stone-950 overflow-hidden">
@@ -34,6 +70,17 @@ export function DashboardBackground({
           nodeTypes={nodeTypes}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
+          fitViewOptions={{
+            padding: { top: 140, bottom: 220, left: 100, right: 100 },
+            minZoom: 0.5,
+            maxZoom: 1.2,
+          }}
+          minZoom={0.5}
+          maxZoom={1.5}
+          translateExtent={[
+            [-500, -300],
+            [viewport.width + 500, viewport.height + 300],
+          ]}
           className="bg-stone-950"
           proOptions={{ hideAttribution: true }}
         >

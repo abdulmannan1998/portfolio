@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { CSSPreloader } from "@/components/css-preloader";
 import { RESUME_DATA } from "@/data/resume-data";
+import { useResponsiveLayout } from "@/hooks/use-responsive-layout";
 
 // Lazy load heavy components to improve initial load
 const DashboardBackground = dynamic(
@@ -27,9 +28,17 @@ const LiveMetricWidget = dynamic(
   },
 );
 
+const MobileHero = dynamic(
+  () => import("@/components/mobile-hero").then((mod) => mod.MobileHero),
+  {
+    ssr: false,
+  },
+);
+
 export default function Page() {
   const [loading, setLoading] = useState(true);
   const [contentReady, setContentReady] = useState(false);
+  const { isMobile } = useResponsiveLayout();
 
   // Hide preloader once content is mounted and ready
   useEffect(() => {
@@ -50,43 +59,47 @@ export default function Page() {
 
       {/* Main content - starts loading immediately but hidden behind preloader */}
       <div style={{ opacity: loading ? 0 : 1, transition: "opacity 0.5s" }}>
-        <DashboardBackground>
-          <div className="pointer-events-none absolute inset-0 flex flex-col p-6 md:p-12">
-            {/* Header / Nav Area */}
-            <motion.header
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              onAnimationComplete={() => setContentReady(true)}
-              className="pointer-events-auto flex items-start justify-between"
-            >
-              <div>
-                <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl">
-                  {RESUME_DATA.personal.name}
-                </h1>
-                <p className="mt-2 text-xl text-orange-500 font-mono">
-                  {RESUME_DATA.personal.title}
-                </p>
-              </div>
+        {isMobile ? (
+          <MobileHero onContentReady={() => setContentReady(true)} />
+        ) : (
+          <DashboardBackground>
+            <div className="pointer-events-none absolute inset-0 flex flex-col p-6 md:p-12">
+              {/* Header / Nav Area */}
+              <motion.header
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                onAnimationComplete={() => setContentReady(true)}
+                className="pointer-events-auto flex items-start justify-between"
+              >
+                <div>
+                  <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl">
+                    {RESUME_DATA.personal.name}
+                  </h1>
+                  <p className="mt-2 text-xl text-orange-500 font-mono">
+                    {RESUME_DATA.personal.title}
+                  </p>
+                </div>
 
-              <div className="text-right text-sm text-stone-500 font-mono">
-                <p>STATUS: ONLINE</p>
-                <p>LOC: {RESUME_DATA.personal.location}</p>
-              </div>
-            </motion.header>
+                <div className="text-right text-sm text-stone-500 font-mono">
+                  <p>STATUS: ONLINE</p>
+                  <p>LOC: {RESUME_DATA.personal.location}</p>
+                </div>
+              </motion.header>
 
-            {/* Metrics Grid */}
-            <div className="mt-auto pointer-events-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {RESUME_DATA.metrics.map((metric, i) => (
-                <LiveMetricWidget
-                  key={metric.id}
-                  data={metric}
-                  delay={1 + i * 0.1}
-                />
-              ))}
+              {/* Metrics Grid */}
+              <div className="mt-auto pointer-events-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                {RESUME_DATA.metrics.map((metric, i) => (
+                  <LiveMetricWidget
+                    key={metric.id}
+                    data={metric}
+                    delay={1 + i * 0.1}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        </DashboardBackground>
+          </DashboardBackground>
+        )}
       </div>
     </main>
   );
