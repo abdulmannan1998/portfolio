@@ -3,7 +3,6 @@
 import {
   ReactFlow,
   Background,
-  Controls,
   useNodesState,
   useEdgesState,
   ConnectionLineType,
@@ -36,9 +35,9 @@ export function DashboardBackground({
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
           className="bg-stone-950"
+          proOptions={{ hideAttribution: true }}
         >
           <Background color="#44403c" gap={24} size={1} />
-          <Controls className="bg-stone-900! border-stone-800! fill-stone-400!" />
         </ReactFlow>
       </div>
 
