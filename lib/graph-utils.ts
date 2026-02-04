@@ -17,9 +17,18 @@ export const getInitialNodes = (
     100, // sideMargin
   );
 
+  // Combine graph nodes with achievement nodes
+  const allNodes = [
+    ...RESUME_DATA.graph.nodes,
+    ...RESUME_DATA.achievements.map((achievement) => ({
+      ...achievement,
+      type: "achievement" as const,
+    })),
+  ];
+
   // Use timeline positioning algorithm
   const nodes = getTimelinePositions(
-    RESUME_DATA.graph.nodes,
+    allNodes,
     RESUME_DATA.graph.edges,
     safeArea,
   );
@@ -27,13 +36,42 @@ export const getInitialNodes = (
   return nodes;
 };
 
+function getEdgeColor(edgeType?: string): string {
+  switch (edgeType) {
+    case "career":
+      return "#3b82f6"; // blue for career progression
+    case "project":
+      return "#f97316"; // orange for company-achievement
+    case "uses-tech":
+      return "#a855f7"; // purple for achievement-tech
+    default:
+      return "#44403c"; // stone for default
+  }
+}
+
+function getEdgeWidth(edgeType?: string): number {
+  switch (edgeType) {
+    case "career":
+      return 2;
+    case "project":
+      return 1.5;
+    case "uses-tech":
+      return 1;
+    default:
+      return 1;
+  }
+}
+
 export const getInitialEdges = (): Edge[] => {
-  return RESUME_DATA.graph.edges.map((edge) => ({
-    id: `${edge.source}-${edge.target}`,
+  return RESUME_DATA.graph.edges.map((edge, index) => ({
+    id: `edge-${index}`,
     source: edge.source,
     target: edge.target,
-    type: "default",
-    animated: true,
-    style: { stroke: "#44403c" },
+    type: "smoothstep",
+    animated: edge.type === "uses-tech", // Animate tech connections
+    style: {
+      stroke: getEdgeColor(edge.type),
+      strokeWidth: getEdgeWidth(edge.type),
+    },
   }));
 };

@@ -84,7 +84,7 @@ export function getResponsiveSpacing(safeArea: SafeArea): Spacing {
  */
 export function clusterTechNodes(
   parentNode: { x: number; y: number },
-  techNodes: Array<{ id: string; label: string; type: string }>,
+  techNodes: GraphNode[],
   spacing: Spacing,
 ): Array<{ id: string; x: number; y: number }> {
   const positions: Array<{ id: string; x: number; y: number }> = [];
@@ -112,13 +112,17 @@ export function clusterTechNodes(
  */
 export type GraphNode = {
   id: string;
-  label: string;
+  label?: string;
+  title?: string; // Achievement nodes use title instead of label
   type: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // Allow additional properties for flexible node data
 };
 
 export type GraphEdge = {
   source: string;
   target: string;
+  type?: string;
 };
 
 export function getTimelinePositions(
@@ -177,13 +181,58 @@ export function getTimelinePositions(
         id: node.id,
         type: "custom",
         position: { x: config.x, y: config.y },
-        data: { label: node.label, type: node.type },
+        data: { ...node, label: node.label },
       });
       timelinePositions[node.id] = { x: config.x, y: config.y };
     }
   });
 
-  // Group tech nodes by their parent (source)
+  // Group achievement nodes by their parent company (source)
+  const achievementsByCompany: Record<string, GraphNode[]> = {};
+
+  graphNodes
+    .filter((n) => n.type === "achievement")
+    .forEach((achievementNode) => {
+      const edge = graphEdges.find((e) => e.target === achievementNode.id);
+      if (edge) {
+        const companyId = edge.source;
+        if (!achievementsByCompany[companyId]) {
+          achievementsByCompany[companyId] = [];
+        }
+        achievementsByCompany[companyId].push(achievementNode);
+      }
+    });
+
+  // Position achievement nodes below their parent companies
+  const achievementSpacing = 120; // Vertical spacing between achievements
+  const achievementOffsetY = 150; // Initial offset from company
+
+  const achievementPositions: Record<string, { x: number; y: number }> = {};
+
+  Object.entries(achievementsByCompany).forEach(([companyId, achievements]) => {
+    const companyPos = timelinePositions[companyId];
+    if (companyPos) {
+      achievements.forEach((achievement, index) => {
+        const x = companyPos.x - 125; // Center achievement node (250px wide)
+        const y =
+          companyPos.y + achievementOffsetY + index * achievementSpacing;
+
+        nodes.push({
+          id: achievement.id,
+          type: "achievement",
+          position: { x, y },
+          data: {
+            ...achievement,
+            label: achievement.title || achievement.label,
+          },
+        });
+
+        achievementPositions[achievement.id] = { x, y };
+      });
+    }
+  });
+
+  // Group tech nodes by their parent achievement (source)
   const techNodesByParent: Record<string, GraphNode[]> = {};
 
   graphNodes
@@ -199,9 +248,9 @@ export function getTimelinePositions(
       }
     });
 
-  // Position tech nodes in clusters below their parents
+  // Position tech nodes in clusters below their parent achievements
   Object.entries(techNodesByParent).forEach(([parentId, techNodes]) => {
-    const parentPos = timelinePositions[parentId];
+    const parentPos = achievementPositions[parentId];
     if (parentPos) {
       const clusteredPositions = clusterTechNodes(
         parentPos,

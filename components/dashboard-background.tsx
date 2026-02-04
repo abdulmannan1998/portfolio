@@ -11,10 +11,12 @@ import {
 import "@xyflow/react/dist/style.css";
 import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
 import { CustomNode } from "@/components/custom-node";
+import { AchievementNode } from "@/components/nodes/achievement-node";
 import { debounce } from "@/lib/debounce";
 
 const nodeTypes = {
   custom: CustomNode,
+  achievement: AchievementNode,
 };
 
 export function DashboardBackground({
@@ -82,10 +84,7 @@ export function DashboardBackground({
         </ReactFlow>
       </div>
 
-      <div className="relative z-10 pointer-events-none h-full w-full">
-        {/* Allow children to interact via pointer-events-auto */}
-        <div className="pointer-events-auto h-full w-full">{children}</div>
-      </div>
+      <div className="relative z-10 h-full w-full">{children}</div>
     </div>
   );
 }
