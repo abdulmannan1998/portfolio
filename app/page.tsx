@@ -1,34 +1,93 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
+import { CSSPreloader } from "@/components/css-preloader";
+import { RESUME_DATA } from "@/data/resume-data";
+
+// Lazy load heavy components to improve initial load
+const DashboardBackground = dynamic(
+  () =>
+    import("@/components/dashboard-background").then(
+      (mod) => mod.DashboardBackground,
+    ),
+  {
+    ssr: false, // Disable SSR for React Flow (uses browser APIs)
+  },
+);
+
+const LiveMetricWidget = dynamic(
+  () =>
+    import("@/components/live-metric-widget").then(
+      (mod) => mod.LiveMetricWidget,
+    ),
+  {
+    ssr: false,
+  },
+);
+
 export default function Page() {
+  const [loading, setLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
+
+  // Hide preloader once content is mounted and ready
+  useEffect(() => {
+    if (contentReady) {
+      // Small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [contentReady]);
+
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-stone-950 via-stone-900 to-orange-950 px-4">
-      {/* Subtle grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+    <main className="relative min-h-screen bg-stone-950 font-sans text-stone-200 selection:bg-orange-500/30">
+      {/* CSS preloader - stays visible until content is ready */}
+      {loading && <CSSPreloader />}
 
-      {/* Gradient orb effects */}
-      <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-pulse rounded-full bg-orange-500/10 blur-3xl" />
-      <div className="absolute right-1/4 bottom-1/4 h-96 w-96 animate-pulse rounded-full bg-stone-500/10 blur-3xl delay-1000" />
+      {/* Main content - starts loading immediately but hidden behind preloader */}
+      <div style={{ opacity: loading ? 0 : 1, transition: "opacity 0.5s" }}>
+        <DashboardBackground>
+          <div className="pointer-events-none absolute inset-0 flex flex-col p-6 md:p-12">
+            {/* Header / Nav Area */}
+            <motion.header
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              onAnimationComplete={() => setContentReady(true)}
+              className="pointer-events-auto flex items-start justify-between"
+            >
+              <div>
+                <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl">
+                  {RESUME_DATA.personal.name}
+                </h1>
+                <p className="mt-2 text-xl text-orange-500 font-mono">
+                  {RESUME_DATA.personal.title}
+                </p>
+              </div>
 
-      {/* Content */}
-      <div className="relative z-10 text-center">
-        <h1 className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl md:text-7xl">
-          Mannan
-        </h1>
+              <div className="text-right text-sm text-stone-500 font-mono">
+                <p>STATUS: ONLINE</p>
+                <p>LOC: {RESUME_DATA.personal.location}</p>
+              </div>
+            </motion.header>
 
-        <div className="mb-4 flex items-center justify-center gap-2 text-lg text-stone-300 sm:text-xl">
-          <div className="h-px w-8 bg-gradient-to-r from-transparent to-orange-500" />
-          <p>Senior Software Engineer</p>
-          <div className="h-px w-8 bg-gradient-to-l from-transparent to-orange-500" />
-        </div>
-
-        <p className="text-base text-stone-400 sm:text-lg">
-          Lab & Portfolio Coming Soon
-        </p>
-
-        {/* Subtle animated indicator */}
-        <div className="mt-12 flex justify-center">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-orange-500 shadow-lg shadow-orange-500/50" />
-        </div>
+            {/* Metrics Grid */}
+            <div className="mt-auto pointer-events-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {RESUME_DATA.metrics.map((metric, i) => (
+                <LiveMetricWidget
+                  key={metric.id}
+                  data={metric}
+                  delay={1 + i * 0.1}
+                />
+              ))}
+            </div>
+          </div>
+        </DashboardBackground>
       </div>
-    </div>
+    </main>
   );
 }
