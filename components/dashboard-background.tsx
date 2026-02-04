@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   ReactFlow,
   Background,
@@ -35,29 +35,23 @@ export function DashboardBackground({
   );
   const [edges, , onEdgesChange] = useEdgesState(getInitialEdges());
 
-  const updateViewport = useCallback(
-    (newViewport: typeof viewport) => {
-      setViewport(newViewport);
-      setNodes(getInitialNodes(newViewport));
-    },
-    [setNodes],
-  );
-
   useEffect(() => {
     // Skip if window is not available (SSR)
     if (typeof window === "undefined") return;
 
     // Debounced resize handler
     const handleResize = debounce(() => {
-      updateViewport({
+      const newViewport = {
         width: window.innerWidth,
         height: window.innerHeight,
-      });
+      };
+      setViewport(newViewport);
+      setNodes(getInitialNodes(newViewport));
     }, 300);
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [updateViewport]);
+  }, [setNodes]);
 
   return (
     <div className="relative h-screen w-screen bg-stone-950 overflow-hidden">

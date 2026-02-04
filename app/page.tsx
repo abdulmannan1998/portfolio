@@ -54,17 +54,14 @@ export default function Page() {
 
   return (
     <main className="relative min-h-screen bg-stone-950 font-sans text-stone-200 selection:bg-orange-500/30">
-      {/* CSS preloader - stays visible until content is ready */}
       {loading && <CSSPreloader />}
 
-      {/* Main content - starts loading immediately but hidden behind preloader */}
       <div style={{ opacity: loading ? 0 : 1, transition: "opacity 0.5s" }}>
         {isMobile ? (
           <MobileHero onContentReady={() => setContentReady(true)} />
         ) : (
           <DashboardBackground>
             <div className="pointer-events-none absolute inset-0 flex flex-col p-6 md:p-12">
-              {/* Header / Nav Area */}
               <motion.header
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -87,7 +84,6 @@ export default function Page() {
                 </div>
               </motion.header>
 
-              {/* Metrics Grid */}
               <div className="mt-auto pointer-events-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {RESUME_DATA.metrics.map((metric, i) => (
                   <LiveMetricWidget

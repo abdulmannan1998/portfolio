@@ -32,7 +32,6 @@ export function MobileHero({ onContentReady }: MobileHeroProps) {
 
   return (
     <div className="min-h-screen bg-stone-950 p-6">
-      {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -51,7 +50,6 @@ export function MobileHero({ onContentReady }: MobileHeroProps) {
         </div>
       </motion.header>
 
-      {/* Timeline Cards */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -84,7 +82,6 @@ export function MobileHero({ onContentReady }: MobileHeroProps) {
             </motion.div>
           ))}
 
-          {/* Education */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -106,7 +103,6 @@ export function MobileHero({ onContentReady }: MobileHeroProps) {
         </div>
       </motion.section>
 
-      {/* Metrics Grid */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
