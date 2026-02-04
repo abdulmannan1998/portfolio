@@ -61,13 +61,13 @@ export default function Page() {
           <MobileHero onContentReady={() => setContentReady(true)} />
         ) : (
           <DashboardBackground>
-            <div className="absolute inset-0 flex flex-col p-6 md:p-12">
+            <div className="pointer-events-none absolute inset-0 flex flex-col p-6 md:p-12">
               <motion.header
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
                 onAnimationComplete={() => setContentReady(true)}
-                className="flex items-start justify-between"
+                className="pointer-events-auto flex items-start justify-between"
               >
                 <div>
                   <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl">
@@ -84,7 +84,7 @@ export default function Page() {
                 </div>
               </motion.header>
 
-              <div className="mt-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div className="pointer-events-auto mt-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {RESUME_DATA.metrics.map((metric, i) => (
                   <LiveMetricWidget
                     key={metric.id}

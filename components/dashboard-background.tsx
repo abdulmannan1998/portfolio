@@ -84,7 +84,9 @@ export function DashboardBackground({
         </ReactFlow>
       </div>
 
-      <div className="relative z-10 h-full w-full">{children}</div>
+      <div className="pointer-events-none relative z-10 h-full w-full">
+        {children}
+      </div>
     </div>
   );
 }
