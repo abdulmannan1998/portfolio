@@ -67,15 +67,21 @@ function getEdgeWidth(edgeType?: string): number {
 }
 
 export const getInitialEdges = (): Edge[] => {
-  return RESUME_DATA.graph.edges.map((edge, index) => ({
-    id: `edge-${index}`,
-    source: edge.source,
-    target: edge.target,
-    type: "smoothstep",
-    animated: edge.type === "uses-tech", // Animate tech connections
-    style: {
-      stroke: getEdgeColor(edge.type),
-      strokeWidth: getEdgeWidth(edge.type),
-    },
-  }));
+  return RESUME_DATA.graph.edges.map((edge, index) => {
+    // Different opacity levels for visual hierarchy
+    const opacity = edge.type === "soft-skill" ? 0.3 : 0.6;
+
+    return {
+      id: `edge-${index}`,
+      source: edge.source,
+      target: edge.target,
+      type: "smoothstep",
+      animated: edge.type === "uses-tech", // Animate tech connections
+      style: {
+        stroke: getEdgeColor(edge.type),
+        strokeWidth: getEdgeWidth(edge.type),
+        opacity, // Visible with appropriate opacity
+      },
+    };
+  });
 };

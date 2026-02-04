@@ -16,6 +16,8 @@ type AchievementNodeProps = {
     technologies: string[];
     company: string;
     category: AchievementCategory;
+    animationDelay?: number;
+    animationType?: string;
   };
   selected: boolean;
 };
@@ -53,29 +55,47 @@ export function AchievementNode({
     }
   };
 
+  // Entrance animation (fade-drop)
+  const delay = data.animationDelay ?? 0;
+
   return (
     <>
       <Handle type="target" position={Position.Top} className="!bg-stone-700" />
       <motion.div
         layout
         onClick={handleClick}
+        // Entrance animation
+        initial={{ opacity: 0, y: -30, scale: 0.9 }}
+        animate={
+          isExpanded
+            ? { opacity: 1, y: 0, scale: 1 }
+            : { opacity: 1, y: 0, scale: 1 }
+        }
         className={`
           relative cursor-pointer overflow-hidden
           rounded-lg border-2 bg-stone-900
           ${selected || isExpanded ? categoryColors[data.category] : "border-stone-800"}
           transition-colors duration-200
         `}
-        animate={isExpanded ? "expanded" : "collapsed"}
         variants={{
           collapsed: { width: 250, height: 80 },
           expanded: { width: 400, height: "auto", minHeight: 300 },
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={
+          isExpanded
+            ? { type: "spring", stiffness: 300, damping: 30 }
+            : {
+                opacity: { duration: 0.5, delay },
+                y: { duration: 0.5, delay },
+                scale: { duration: 0.5, delay },
+              }
+        }
         whileHover={
           !isExpanded
             ? {
-                scale: 1.02,
-                boxShadow: "0 4px 12px rgba(249, 115, 22, 0.2)",
+                scale: 1.03,
+                y: -4,
+                boxShadow: "0 8px 20px rgba(249, 115, 22, 0.25)",
               }
             : undefined
         }

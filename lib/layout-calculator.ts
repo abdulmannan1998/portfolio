@@ -80,7 +80,8 @@ export function getResponsiveSpacing(safeArea: SafeArea): Spacing {
 }
 
 /**
- * Position tech nodes in a grid layout below their parent achievement
+ * Position tech nodes in an organic cluster below their parent achievement
+ * Uses a flowing, natural arrangement instead of rigid grid
  */
 export function clusterTechNodes(
   parentNode: { x: number; y: number },
@@ -88,28 +89,49 @@ export function clusterTechNodes(
   spacing: Spacing,
 ): Array<{ id: string; x: number; y: number }> {
   const positions: Array<{ id: string; x: number; y: number }> = [];
-  const columnsPerRow = 3;
-  const techOffsetY = 220; // Fixed offset to account for expanded node height
+  const techOffsetY = 200; // Closer to parent for tighter grouping
 
-  techNodes.forEach((node, index) => {
-    const column = index % columnsPerRow;
-    const row = Math.floor(index / columnsPerRow);
+  // Use variable columns for more organic feel: [3, 4, 3, 4...] pattern
+  const columnPattern = [3, 4, 3, 4];
+  let nodeIndex = 0;
+  let currentY = parentNode.y + techOffsetY;
 
-    // Center the grid relative to parent
-    const gridWidth = (columnsPerRow - 1) * spacing.techSpacing;
-    const startX = parentNode.x - gridWidth / 2;
+  while (nodeIndex < techNodes.length) {
+    const rowPattern =
+      columnPattern[positions.length % columnPattern.length] || 3;
+    const nodesInRow = Math.min(rowPattern, techNodes.length - nodeIndex);
 
-    const x = startX + column * spacing.techSpacing;
-    const y = parentNode.y + techOffsetY + row * spacing.techRowHeight;
+    // Calculate row width and centering
+    const rowWidth = (nodesInRow - 1) * spacing.techSpacing;
+    const startX = parentNode.x - rowWidth / 2;
 
-    positions.push({ id: node.id, x, y });
-  });
+    // Add subtle horizontal variation for organic feel
+    const rowVariation = Math.sin(nodeIndex * 0.5) * 20;
+
+    for (let col = 0; col < nodesInRow; col++) {
+      const node = techNodes[nodeIndex];
+      if (!node) break;
+
+      // Add slight random offset for natural clustering
+      const jitterX = Math.sin(nodeIndex * 2.1) * 15;
+      const jitterY = Math.cos(nodeIndex * 1.7) * 10;
+
+      const x = startX + col * spacing.techSpacing + jitterX + rowVariation;
+      const y = currentY + jitterY;
+
+      positions.push({ id: node.id, x, y });
+      nodeIndex++;
+    }
+
+    currentY += spacing.techRowHeight;
+  }
 
   return positions;
 }
 
 /**
  * Calculate timeline positions for all nodes
+ * Optimized for horizontal spread and visual storytelling
  */
 export type GraphNode = {
   id: string;
@@ -134,41 +156,51 @@ export function getTimelinePositions(
   const nodes: Node[] = [];
   const spacing = getResponsiveSpacing(safeArea);
 
-  // Level 1: Position root node at the top center
+  // Level 1: Position root node at the top center - HERO ELEMENT
   const rootNode = graphNodes.find((n) => n.type === "root");
-  const rootY = safeArea.minY + 80; // Start from top with some padding
+  const rootY = safeArea.minY + 100; // More breathing room at top
   if (rootNode) {
     nodes.push({
       id: rootNode.id,
       type: "custom",
       position: { x: safeArea.centerX, y: rootY },
-      data: { label: rootNode.label, type: rootNode.type },
+      data: {
+        label: rootNode.label,
+        type: rootNode.type,
+        animationDelay: 0, // Hero appears first
+        animationType: "hero-entrance",
+      },
     });
   }
 
-  // Position soft skills around the root node in a circular pattern
+  // Position soft skills in a more subtle arc above the root - LESS PROMINENT
   const softSkillNodes = graphNodes.filter((n) => n.type === "soft-skill");
-  const softSkillRadius = 220; // Increased from 180 for better spacing
-  const angleStep = (Math.PI * 2) / softSkillNodes.length;
-  const startAngle = -Math.PI / 2; // Start from top
+  const softSkillRadius = 180; // Tighter radius, more compact
+  const arcSpan = Math.PI; // 180 degree arc instead of full circle
+  const arcStart = -Math.PI / 2 - arcSpan / 2; // Center the arc above
+  const angleStep = arcSpan / (softSkillNodes.length - 1 || 1);
 
   softSkillNodes.forEach((skill, index) => {
-    const angle = startAngle + angleStep * index;
+    const angle = arcStart + angleStep * index;
     const x = safeArea.centerX + Math.cos(angle) * softSkillRadius;
-    const y = rootY + Math.sin(angle) * softSkillRadius;
+    const y = rootY + Math.sin(angle) * softSkillRadius * 0.5; // Flatten the arc
 
     nodes.push({
       id: skill.id,
       type: "custom",
       position: { x, y },
-      data: { label: skill.label, type: skill.type },
+      data: {
+        label: skill.label,
+        type: skill.type,
+        animationDelay: 0.3 + index * 0.1, // Sequential bloom
+        animationType: "bloom-in",
+      },
     });
   });
 
-  // Level 2: Timeline positions for companies and education
-  // Chronological order left to right: Bilkent → Layermark → Intenseye
-  const companyY = rootY + 280; // Position companies below the name (increased from 220)
-  const companySpacing = Math.min(spacing.horizontal * 2.5, 650); // Increased from 1.8x and 500
+  // Level 2: Timeline - WIDER HORIZONTAL SPREAD for better breathing room
+  const companyY = rootY + 350; // More space from root
+  const companySpacing = Math.min(spacing.horizontal * 3.5, 800); // Much wider spacing
 
   const timelineConfig: Record<
     string,
@@ -210,6 +242,8 @@ export function getTimelinePositions(
           label: node.label,
           type: node.type,
           period: node.period,
+          animationDelay: 1.0 + config.order * 0.2, // Left to right timeline reveal
+          animationType: "slide-up",
         },
       });
       timelinePositions[node.id] = { x: config.x, y: config.y };
@@ -232,18 +266,28 @@ export function getTimelinePositions(
       }
     });
 
-  // Level 3: Position achievement nodes below their parent companies
-  const achievementSpacing = 240; // Vertical spacing between achievements (increased for better readability)
-  const achievementOffsetY = 220; // Initial offset from company (increased from 200)
+  // Level 3: STAGGERED achievement layout - reduces vertical sprawl
+  const achievementSpacing = 200; // Tighter vertical spacing
+  const achievementOffsetY = 250; // Good initial offset
+  const staggerX = 150; // Horizontal stagger to create visual interest
 
   const achievementPositions: Record<string, { x: number; y: number }> = {};
 
   Object.entries(achievementsByCompany).forEach(([companyId, achievements]) => {
     const companyPos = timelinePositions[companyId];
+    const companyConfig = Object.values(timelineConfig).find((c) =>
+      Object.keys(timelineConfig).find(
+        (key) => timelineConfig[key] === c && key === companyId,
+      ),
+    );
+    const companyOrder = companyConfig?.order ?? 0;
+
     if (companyPos) {
       achievements.forEach((achievement, index) => {
-        // Center the collapsed achievement node (250px wide)
-        const x = companyPos.x - 125;
+        // Stagger achievements in a zigzag pattern to reduce height
+        const isEven = index % 2 === 0;
+        const xOffset = isEven ? -staggerX / 2 : staggerX / 2;
+        const x = companyPos.x - 125 + xOffset;
         const y =
           companyPos.y + achievementOffsetY + index * achievementSpacing;
 
@@ -254,10 +298,12 @@ export function getTimelinePositions(
           data: {
             ...achievement,
             label: achievement.title || achievement.label,
+            animationDelay: 1.8 + companyOrder * 0.3 + index * 0.15, // Cascade from parent
+            animationType: "fade-drop",
           },
         });
 
-        achievementPositions[achievement.id] = { x, y };
+        achievementPositions[achievement.id] = { x: x + 125, y }; // Store center point
       });
     }
   });
@@ -278,7 +324,7 @@ export function getTimelinePositions(
       }
     });
 
-  // Level 4: Position tech nodes in clusters below their parent achievements
+  // Level 4: ORGANIC tech node clustering - more natural feeling
   Object.entries(techNodesByParent).forEach(([parentId, techNodes]) => {
     const parentPos = achievementPositions[parentId];
     if (parentPos) {
@@ -288,14 +334,26 @@ export function getTimelinePositions(
         spacing,
       );
 
-      clusteredPositions.forEach((pos) => {
+      clusteredPositions.forEach((pos, index) => {
         const node = techNodes.find((n) => n.id === pos.id);
         if (node) {
+          // Get parent achievement's animation delay
+          const parentAchievementNode = nodes.find((n) => n.id === parentId);
+          const parentDelay =
+            (parentAchievementNode?.data?.animationDelay as
+              | number
+              | undefined) ?? 2.5;
+
           nodes.push({
             id: node.id,
             type: "custom",
             position: { x: pos.x, y: pos.y },
-            data: { label: node.label, type: node.type },
+            data: {
+              label: node.label,
+              type: node.type,
+              animationDelay: parentDelay + 0.4 + index * 0.05, // Quick sequence after parent
+              animationType: "pop-in",
+            },
           });
         }
       });

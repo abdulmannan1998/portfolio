@@ -15,94 +15,89 @@ export function GraphLegend() {
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 1, duration: 0.5 }}
-      className="fixed left-6 md:left-12 top-1/2 -translate-y-1/2 z-20 rounded-lg border border-stone-800 bg-stone-950/95 p-4 shadow-xl backdrop-blur-sm max-w-[200px]"
+      transition={{ delay: 4, duration: 0.6 }}
+      className="fixed left-6 md:left-12 top-1/2 -translate-y-1/2 z-20 rounded-lg border border-stone-800/50 bg-stone-950/80 p-4 shadow-xl backdrop-blur-sm max-w-[200px] opacity-60 hover:opacity-100 transition-opacity"
     >
-      <h3 className="mb-3 text-sm font-semibold text-stone-300">
-        Graph Legend
-      </h3>
+      <h3 className="mb-3 text-xs font-semibold text-stone-400">Legend</h3>
 
       {/* Node Types */}
-      <div className="mb-4 space-y-2">
-        <div className="text-xs font-medium text-stone-500">Node Types</div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500/20">
-            <User className="h-3 w-3 text-orange-500" />
-          </div>
-          <span className="text-xs text-stone-400">Profile</span>
+      <div className="mb-3 space-y-1.5">
+        <div className="text-[10px] font-medium text-stone-600 uppercase tracking-wider">
+          Nodes
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20">
-            <Building2 className="h-3 w-3 text-blue-500" />
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/15">
+            <User className="h-2.5 w-2.5 text-orange-500" />
           </div>
-          <span className="text-xs text-stone-400">Company</span>
+          <span className="text-[11px] text-stone-500">Profile</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-500/20">
-            <GraduationCap className="h-3 w-3 text-purple-500" />
+          <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-500/15">
+            <Building2 className="h-2.5 w-2.5 text-blue-500" />
           </div>
-          <span className="text-xs text-stone-400">Education</span>
+          <span className="text-[11px] text-stone-500">Company</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-500/20">
-            <Briefcase className="h-3 w-3 text-orange-500" />
+          <div className="flex h-5 w-5 items-center justify-center rounded bg-purple-500/15">
+            <GraduationCap className="h-2.5 w-2.5 text-purple-500" />
           </div>
-          <span className="text-xs text-stone-400">Achievement</span>
+          <span className="text-[11px] text-stone-500">Education</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500/20">
-            <Lightbulb className="h-3 w-3 text-emerald-500" />
+          <div className="flex h-5 w-5 items-center justify-center rounded bg-orange-500/15">
+            <Briefcase className="h-2.5 w-2.5 text-orange-500" />
           </div>
-          <span className="text-xs text-stone-400">Soft Skill</span>
+          <span className="text-[11px] text-stone-500">Achievement</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-stone-700/50">
-            <Code2 className="h-3 w-3 text-stone-400" />
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15">
+            <Lightbulb className="h-2.5 w-2.5 text-emerald-500" />
           </div>
-          <span className="text-xs text-stone-400">Technology</span>
+          <span className="text-[11px] text-stone-500">Soft Skill</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="flex h-5 w-5 items-center justify-center rounded bg-stone-700/30">
+            <Code2 className="h-2.5 w-2.5 text-stone-500" />
+          </div>
+          <span className="text-[11px] text-stone-500">Technology</span>
         </div>
       </div>
 
       {/* Edge Types */}
-      <div className="space-y-2 border-t border-stone-800 pt-3">
-        <div className="text-xs font-medium text-stone-500">
-          Connection Types
+      <div className="space-y-1.5 border-t border-stone-800/50 pt-2.5">
+        <div className="text-[10px] font-medium text-stone-600 uppercase tracking-wider">
+          Connections
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="h-0.5 w-6 bg-blue-500" />
-          <span className="text-xs text-stone-400">Career Path</span>
+          <div className="h-0.5 w-5 bg-blue-500/60" />
+          <span className="text-[11px] text-stone-500">Career</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="h-0.5 w-6 bg-violet-500" />
-          <span className="text-xs text-stone-400">Education</span>
+          <div className="h-0.5 w-5 bg-violet-500/60" />
+          <span className="text-[11px] text-stone-500">Education</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="h-0.5 w-6 bg-orange-500" />
-          <span className="text-xs text-stone-400">Project</span>
+          <div className="h-0.5 w-5 bg-orange-500/60" />
+          <span className="text-[11px] text-stone-500">Project</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="h-0.5 w-6 bg-emerald-500" />
-          <span className="text-xs text-stone-400">Soft Skill</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="h-0.5 w-6 bg-purple-500" />
-          <span className="text-xs text-stone-400">Uses Tech</span>
+          <div className="h-0.5 w-5 bg-purple-500/60" />
+          <span className="text-[11px] text-stone-500">Tech</span>
         </div>
       </div>
 
-      <div className="mt-3 border-t border-stone-800 pt-3 text-xs text-stone-500">
-        Click achievements to expand details
+      <div className="mt-2.5 border-t border-stone-800/50 pt-2.5 text-[10px] text-stone-600">
+        💡 Click achievements to expand
       </div>
     </motion.div>
   );
