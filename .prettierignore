@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Cache
+.cache
+.turbo
+
+# Misc
+.DS_Store
+*.log
+.vercel
+.env*.local
+
+# Public assets
+public/
