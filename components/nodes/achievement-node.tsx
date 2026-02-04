@@ -68,7 +68,7 @@ export function AchievementNode({
         animate={isExpanded ? "expanded" : "collapsed"}
         variants={{
           collapsed: { width: 250, height: 80 },
-          expanded: { width: 400, height: 300 },
+          expanded: { width: 400, height: "auto", minHeight: 300 },
         }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         whileHover={

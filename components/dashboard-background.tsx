@@ -13,6 +13,8 @@ import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
 import { CustomNode } from "@/components/custom-node";
 import { AchievementNode } from "@/components/nodes/achievement-node";
 import { debounce } from "@/lib/debounce";
+import { useGraphStore } from "@/lib/stores/graph-store";
+import { GraphLegend } from "@/components/graph-legend";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -36,6 +38,7 @@ export function DashboardBackground({
     getInitialNodes(viewport),
   );
   const [edges, , onEdgesChange] = useEdgesState(getInitialEdges());
+  const expandedNodes = useGraphStore((state) => state.expandedNodes);
 
   useEffect(() => {
     // Skip if window is not available (SSR)
@@ -55,6 +58,16 @@ export function DashboardBackground({
     return () => window.removeEventListener("resize", handleResize);
   }, [setNodes]);
 
+  // Update z-index for expanded nodes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        zIndex: expandedNodes.has(node.id) ? 1000 : undefined,
+      })),
+    );
+  }, [expandedNodes, setNodes]);
+
   return (
     <div className="relative h-screen w-screen bg-stone-950 overflow-hidden">
       <div className="absolute inset-0 z-0">
@@ -67,16 +80,18 @@ export function DashboardBackground({
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
           fitViewOptions={{
-            padding: { top: 140, bottom: 220, left: 100, right: 100 },
-            minZoom: 0.5,
-            maxZoom: 1.2,
+            padding: 0.15,
+            minZoom: 0.65,
+            maxZoom: 0.85,
+            duration: 800,
           }}
           minZoom={0.5}
           maxZoom={1.5}
           translateExtent={[
-            [-500, -300],
-            [viewport.width + 500, viewport.height + 300],
+            [-2000, -2000],
+            [viewport.width + 2000, viewport.height + 2000],
           ]}
+          elevateNodesOnSelect
           className="bg-stone-950"
           proOptions={{ hideAttribution: true }}
         >
@@ -87,6 +102,8 @@ export function DashboardBackground({
       <div className="pointer-events-none relative z-10 h-full w-full">
         {children}
       </div>
+
+      <GraphLegend />
     </div>
   );
 }

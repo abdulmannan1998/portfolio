@@ -80,7 +80,7 @@ export function getResponsiveSpacing(safeArea: SafeArea): Spacing {
 }
 
 /**
- * Position tech nodes in a grid layout below their parent company
+ * Position tech nodes in a grid layout below their parent achievement
  */
 export function clusterTechNodes(
   parentNode: { x: number; y: number },
@@ -89,6 +89,7 @@ export function clusterTechNodes(
 ): Array<{ id: string; x: number; y: number }> {
   const positions: Array<{ id: string; x: number; y: number }> = [];
   const columnsPerRow = 3;
+  const techOffsetY = 220; // Fixed offset to account for expanded node height
 
   techNodes.forEach((node, index) => {
     const column = index % columnsPerRow;
@@ -99,7 +100,7 @@ export function clusterTechNodes(
     const startX = parentNode.x - gridWidth / 2;
 
     const x = startX + column * spacing.techSpacing;
-    const y = parentNode.y + spacing.vertical + row * spacing.techRowHeight;
+    const y = parentNode.y + techOffsetY + row * spacing.techRowHeight;
 
     positions.push({ id: node.id, x, y });
   });
@@ -133,36 +134,59 @@ export function getTimelinePositions(
   const nodes: Node[] = [];
   const spacing = getResponsiveSpacing(safeArea);
 
-  // Position root node at center
+  // Level 1: Position root node at the top center
   const rootNode = graphNodes.find((n) => n.type === "root");
+  const rootY = safeArea.minY + 80; // Start from top with some padding
   if (rootNode) {
     nodes.push({
       id: rootNode.id,
       type: "custom",
-      position: { x: safeArea.centerX, y: safeArea.centerY },
+      position: { x: safeArea.centerX, y: rootY },
       data: { label: rootNode.label, type: rootNode.type },
     });
   }
 
-  // Timeline positions for companies and education
-  // Timeline order: Bilkent (left) → Layermark (middle-left) → Intenseye (middle-right)
+  // Position soft skills around the root node in a circular pattern
+  const softSkillNodes = graphNodes.filter((n) => n.type === "soft-skill");
+  const softSkillRadius = 220; // Increased from 180 for better spacing
+  const angleStep = (Math.PI * 2) / softSkillNodes.length;
+  const startAngle = -Math.PI / 2; // Start from top
+
+  softSkillNodes.forEach((skill, index) => {
+    const angle = startAngle + angleStep * index;
+    const x = safeArea.centerX + Math.cos(angle) * softSkillRadius;
+    const y = rootY + Math.sin(angle) * softSkillRadius;
+
+    nodes.push({
+      id: skill.id,
+      type: "custom",
+      position: { x, y },
+      data: { label: skill.label, type: skill.type },
+    });
+  });
+
+  // Level 2: Timeline positions for companies and education
+  // Chronological order left to right: Bilkent → Layermark → Intenseye
+  const companyY = rootY + 280; // Position companies below the name (increased from 220)
+  const companySpacing = Math.min(spacing.horizontal * 2.5, 650); // Increased from 1.8x and 500
+
   const timelineConfig: Record<
     string,
     { x: number; y: number; order: number }
   > = {
     Bilkent: {
-      x: safeArea.centerX - spacing.horizontal * 2,
-      y: safeArea.centerY,
+      x: safeArea.centerX - companySpacing,
+      y: companyY,
       order: 0,
     },
     Layermark: {
-      x: safeArea.centerX - spacing.horizontal * 0.7,
-      y: safeArea.centerY,
+      x: safeArea.centerX,
+      y: companyY,
       order: 1,
     },
     Intenseye: {
-      x: safeArea.centerX + spacing.horizontal * 0.7,
-      y: safeArea.centerY,
+      x: safeArea.centerX + companySpacing,
+      y: companyY,
       order: 2,
     },
   };
@@ -181,7 +205,12 @@ export function getTimelinePositions(
         id: node.id,
         type: "custom",
         position: { x: config.x, y: config.y },
-        data: { ...node, label: node.label },
+        data: {
+          ...node,
+          label: node.label,
+          type: node.type,
+          period: node.period,
+        },
       });
       timelinePositions[node.id] = { x: config.x, y: config.y };
     }
@@ -203,9 +232,9 @@ export function getTimelinePositions(
       }
     });
 
-  // Position achievement nodes below their parent companies
-  const achievementSpacing = 120; // Vertical spacing between achievements
-  const achievementOffsetY = 150; // Initial offset from company
+  // Level 3: Position achievement nodes below their parent companies
+  const achievementSpacing = 240; // Vertical spacing between achievements (increased for better readability)
+  const achievementOffsetY = 220; // Initial offset from company (increased from 200)
 
   const achievementPositions: Record<string, { x: number; y: number }> = {};
 
@@ -213,7 +242,8 @@ export function getTimelinePositions(
     const companyPos = timelinePositions[companyId];
     if (companyPos) {
       achievements.forEach((achievement, index) => {
-        const x = companyPos.x - 125; // Center achievement node (250px wide)
+        // Center the collapsed achievement node (250px wide)
+        const x = companyPos.x - 125;
         const y =
           companyPos.y + achievementOffsetY + index * achievementSpacing;
 
@@ -248,7 +278,7 @@ export function getTimelinePositions(
       }
     });
 
-  // Position tech nodes in clusters below their parent achievements
+  // Level 4: Position tech nodes in clusters below their parent achievements
   Object.entries(techNodesByParent).forEach(([parentId, techNodes]) => {
     const parentPos = achievementPositions[parentId];
     if (parentPos) {

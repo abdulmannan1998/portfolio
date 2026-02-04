@@ -40,10 +40,14 @@ function getEdgeColor(edgeType?: string): string {
   switch (edgeType) {
     case "career":
       return "#3b82f6"; // blue for career progression
+    case "education":
+      return "#8b5cf6"; // violet for education
     case "project":
       return "#f97316"; // orange for company-achievement
     case "uses-tech":
       return "#a855f7"; // purple for achievement-tech
+    case "soft-skill":
+      return "#10b981"; // emerald for soft skills
     default:
       return "#44403c"; // stone for default
   }

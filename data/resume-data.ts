@@ -361,12 +361,24 @@ export const RESUME_DATA = {
       { id: "Tailwind", label: "Tailwind", type: "tech", priority: 2 },
       { id: "Node.js", label: "Node.js", type: "tech", priority: 2 },
       { id: "TRPC", label: "tRPC", type: "tech", priority: 3 },
+
+      // Soft Skills
+      { id: "Leadership", label: "Leadership", type: "soft-skill" },
+      { id: "Communication", label: "Communication", type: "soft-skill" },
+      { id: "Collaboration", label: "Collaboration", type: "soft-skill" },
+      { id: "Problem-Solving", label: "Problem Solving", type: "soft-skill" },
     ],
     edges: [
       // Root → Companies & Education (career progression)
       { source: "Mannan", target: "Intenseye", type: "career" },
       { source: "Mannan", target: "Layermark", type: "career" },
       { source: "Mannan", target: "Bilkent", type: "education" },
+
+      // Root → Soft Skills
+      { source: "Mannan", target: "Leadership", type: "soft-skill" },
+      { source: "Mannan", target: "Communication", type: "soft-skill" },
+      { source: "Mannan", target: "Collaboration", type: "soft-skill" },
+      { source: "Mannan", target: "Problem-Solving", type: "soft-skill" },
 
       // Companies → Achievements (projects)
       { source: "Intenseye", target: "intenseye-dashboards", type: "project" },
