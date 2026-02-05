@@ -43,10 +43,8 @@ function DashboardBackgroundInner({
   });
 
   const reactFlowInstance = useReactFlow();
-  const hasEnteredGraph = useRef(false);
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
-  const addedAchievementsRef = useRef<Set<string>>(new Set());
   const handleNodeHoverRef = useRef<
     (nodeId: string, isEntering: boolean) => void
   >(() => {});
@@ -96,9 +94,11 @@ function DashboardBackgroundInner({
       );
 
       if (achievementNodes.length > 0) {
-        // Check if already added using ref (avoids stale closure issues)
-        if (addedAchievementsRef.current.has(nodeId)) return;
-        addedAchievementsRef.current.add(nodeId);
+        // Check if already revealed using store
+        const { isCompanyRevealed, markCompanyRevealed } =
+          useGraphStore.getState();
+        if (isCompanyRevealed(nodeId)) return;
+        markCompanyRevealed(nodeId);
 
         // Add nodes first with reset animation delay (so they appear quickly on hover)
         const nodesWithHandler = achievementNodes.map((n, index) => ({
@@ -172,8 +172,9 @@ function DashboardBackgroundInner({
 
   // Staggered reveal sequence
   const startRevealSequence = useCallback(() => {
-    if (hasEnteredGraph.current) return;
-    hasEnteredGraph.current = true;
+    const { hasStartedReveal, startReveal } = useGraphStore.getState();
+    if (hasStartedReveal) return;
+    startReveal();
 
     // Stage 1: Soft Skills (0ms, staggered by 200ms each)
     const softSkillNodes = [
@@ -209,7 +210,8 @@ function DashboardBackgroundInner({
 
   // Handle pointer enter
   const handleGraphEnter = useCallback(() => {
-    if (!hasEnteredGraph.current) {
+    const { hasStartedReveal } = useGraphStore.getState();
+    if (!hasStartedReveal) {
       startRevealSequence();
     }
   }, [startRevealSequence]);

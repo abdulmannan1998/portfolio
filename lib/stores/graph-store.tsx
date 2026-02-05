@@ -8,11 +8,20 @@ type GraphState = {
   expandNode: (id: string) => void;
   collapseNode: (id: string) => void;
   collapseAll: () => void;
+
+  // Reveal tracking state
+  hasStartedReveal: boolean;
+  revealedCompanies: string[];
+  startReveal: () => void;
+  markCompanyRevealed: (companyId: string) => void;
+  isCompanyRevealed: (companyId: string) => boolean;
 };
 
-export const useGraphStore = create<GraphState>((set) => ({
+export const useGraphStore = create<GraphState>((set, get) => ({
   // Initial state
   expandedNodes: [],
+  hasStartedReveal: false,
+  revealedCompanies: [],
 
   // Actions
   expandNode: (id) =>
@@ -28,4 +37,15 @@ export const useGraphStore = create<GraphState>((set) => ({
     })),
 
   collapseAll: () => set({ expandedNodes: [] }),
+
+  startReveal: () => set({ hasStartedReveal: true }),
+
+  markCompanyRevealed: (companyId) =>
+    set((state) => ({
+      revealedCompanies: state.revealedCompanies.includes(companyId)
+        ? state.revealedCompanies
+        : [...state.revealedCompanies, companyId],
+    })),
+
+  isCompanyRevealed: (companyId) => get().revealedCompanies.includes(companyId),
 }));
