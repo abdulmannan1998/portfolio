@@ -1,4 +1,5 @@
 import { type Node } from "@xyflow/react";
+import { SAFE_AREA, ACHIEVEMENT_LAYOUT } from "./layout-constants";
 
 export type SafeArea = {
   minX: number;
@@ -27,10 +28,10 @@ export type Spacing = {
  */
 export function calculateSafeArea(
   viewport: ViewportSize,
-  headerHeight = 140,
-  metricsHeight = 220,
-  leftMargin = 100,
-  rightMargin = 100,
+  headerHeight = SAFE_AREA.HEADER_HEIGHT,
+  metricsHeight = SAFE_AREA.METRICS_HEIGHT,
+  leftMargin = SAFE_AREA.LEFT_MARGIN,
+  rightMargin = SAFE_AREA.RIGHT_MARGIN,
 ): SafeArea {
   const minX = leftMargin;
   const maxX = viewport.width - rightMargin;
@@ -209,9 +210,9 @@ export function getTimelinePositions(
     });
 
   // Level 3: STAGGERED achievement layout - reduces vertical sprawl
-  const achievementSpacing = 200; // Tighter vertical spacing
-  const achievementOffsetY = 250; // Good initial offset
-  const staggerX = 150; // Horizontal stagger to create visual interest
+  const achievementSpacing = ACHIEVEMENT_LAYOUT.VERTICAL_SPACING; // Tighter vertical spacing
+  const achievementOffsetY = ACHIEVEMENT_LAYOUT.INITIAL_OFFSET_Y; // Good initial offset
+  const staggerX = ACHIEVEMENT_LAYOUT.HORIZONTAL_STAGGER; // Horizontal stagger to create visual interest
 
   const achievementPositions: Record<string, { x: number; y: number }> = {};
 
