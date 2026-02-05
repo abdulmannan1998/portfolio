@@ -48,16 +48,18 @@ function DashboardBackgroundInner({
   const allEdgesRef = useRef<Edge[]>([]);
 
   // Debounced fitView to batch multiple rapid calls
-  const debouncedFitView = useRef(
-    debounce(() => {
-      reactFlowInstance?.fitView({
-        padding: 0.15,
-        duration: 800,
-        maxZoom: 0.85,
-        minZoom: 0.65,
-      });
-    }, 150),
-  ).current;
+  const debouncedFitView = useMemo(
+    () =>
+      debounce(() => {
+        reactFlowInstance?.fitView({
+          padding: 0.15,
+          duration: 800,
+          maxZoom: 0.85,
+          minZoom: 0.65,
+        });
+      }, 150),
+    [reactFlowInstance],
+  );
 
   // Destructure dimensions for stable memoization dependencies
   const { width: graphWidth, height: graphHeight } = graphDimensions;
@@ -83,18 +85,6 @@ function DashboardBackgroundInner({
     allEdgesRef.current = allEdges;
   }, [allNodes, allEdges]);
   const expandedNodes = useGraphStore((state) => state.expandedNodes);
-
-  // Fit view smoothly
-  const fitViewSmooth = useCallback(() => {
-    setTimeout(() => {
-      reactFlowInstance?.fitView({
-        padding: 0.15,
-        duration: 800,
-        maxZoom: 0.85,
-        minZoom: 0.65,
-      });
-    }, 50);
-  }, [reactFlowInstance]);
 
   // Stable handler for achievement nodes - uses store for fresh state
   const achievementNodeHoverHandler = useCallback(
@@ -162,11 +152,11 @@ function DashboardBackgroundInner({
             if (existingEdge) return prev;
             return [...prev, ...achievementEdgesFiltered];
           });
-          fitViewSmooth();
+          debouncedFitView();
         }, totalAnimationTime);
       }
     },
-    [setNodes, setEdges, fitViewSmooth, achievementNodeHoverHandler],
+    [setNodes, setEdges, debouncedFitView, achievementNodeHoverHandler],
   );
 
   // Add node and its edges to the graph
@@ -217,28 +207,29 @@ function DashboardBackgroundInner({
     softSkillNodes.forEach((id, index) => {
       setTimeout(() => {
         addNodeAndEdges(id);
-        fitViewSmooth();
       }, index * 200);
     });
 
     // Stage 2: Education (1200ms)
     setTimeout(() => {
       addNodeAndEdges("Bilkent");
-      fitViewSmooth();
     }, REVEAL_TIMING.EDUCATION_DELAY_MS);
 
     // Stage 3: Work Experience - Layermark (1700ms)
     setTimeout(() => {
       addNodeAndEdges("Layermark");
-      fitViewSmooth();
     }, REVEAL_TIMING.LAYERMARK_DELAY_MS);
 
     // Stage 4: Work Experience - Intenseye (2200ms)
     setTimeout(() => {
       addNodeAndEdges("Intenseye");
-      fitViewSmooth();
     }, REVEAL_TIMING.INTENSEYE_DELAY_MS);
-  }, [addNodeAndEdges, fitViewSmooth]);
+
+    // Single fitView at sequence completion
+    setTimeout(() => {
+      debouncedFitView();
+    }, REVEAL_TIMING.INTENSEYE_DELAY_MS + 500);
+  }, [addNodeAndEdges, debouncedFitView]);
 
   // Handle pointer enter
   const handleGraphEnter = useCallback(() => {
@@ -288,8 +279,8 @@ function DashboardBackgroundInner({
     });
 
     // Fit view after dimension change
-    fitViewSmooth();
-  }, [graphDimensions, setNodes, handleNodeHover, fitViewSmooth]);
+    debouncedFitView();
+  }, [graphDimensions, setNodes, handleNodeHover, debouncedFitView]);
 
   // Update z-index for expanded nodes
   useEffect(() => {
