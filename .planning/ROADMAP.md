@@ -101,11 +101,13 @@ Plans:
 2. Reveal sequence uses cleaner timing pattern (no sequential setTimeout chains)
 3. Animation variants are defined at module level (no recreation per render)
 4. Timeline position calculations are memoized for unchanged viewport sizes
-   **Plans**: TBD
+
+**Plans:** 2 plans
 
 Plans:
 
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Extract animation variants to module-level constants and add memoization
+- [ ] 05-02-PLAN.md — Batch fitView calls with debouncing and optimize reveal sequence
 
 ## Progress
 
@@ -118,7 +120,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Constants Extraction      | 1/1            | Complete    | 2026-02-05 |
 | 3. Type Safety               | 1/1            | Complete    | 2026-02-05 |
 | 4. State Management Refactor | 1/1            | Complete    | 2026-02-05 |
-| 5. Performance Optimization  | 0/0            | Not started | -          |
+| 5. Performance Optimization  | 0/2            | Not started | -          |
 
 ---
 
