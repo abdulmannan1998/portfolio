@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 5 of 5 (Performance Optimization)
-Plan: 1 of 1 in phase
+Plan: 2 of 2 in phase
 Status: Phase 5 complete
-Last activity: 2026-02-05 — Completed 05-01-PLAN.md
+Last activity: 2026-02-05 — Completed 05-02-PLAN.md
 
-Progress: [██████████] 100% of milestone (5 of 5 phases complete)
+Progress: [██████████] 100% of milestone (6 of 6 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 5
-- Average duration: 3.6 min
-- Total execution time: 0.30 hours
+- Total plans completed: 6
+- Average duration: 3.5 min
+- Total execution time: 0.35 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [██████████] 100% of milestone (5 of 5 phases comp
 | 02-constants-extraction      | 1     | 3min  | 3min     |
 | 03-type-safety               | 1     | 4min  | 4min     |
 | 04-state-management-refactor | 1     | 4min  | 4min     |
-| 05-performance-optimization  | 1     | 5min  | 5min     |
+| 05-performance-optimization  | 2     | 8min  | 4min     |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (3min), 02-01 (3min), 03-01 (4min), 04-01 (4min), 05-01 (5min)
+- Last 5 plans: 02-01 (3min), 03-01 (4min), 04-01 (4min), 05-01 (5min), 05-02 (3min)
 - Trend: Consistent velocity maintained
 
 _Updated after each plan completion_
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 | 05    | 01   | Used Variants type from framer-motion for animation constants              | Provides proper TypeScript typing for animation variant objects defined at module level                                                    |
 | 05    | 01   | Destructured graphDimensions for primitive dependencies                    | React Compiler requires matching object access patterns with dependency arrays; avoids false recalculations                                |
 | 05    | 01   | Used as const assertion for ENTRANCE_VARIANTS in achievement-node          | Fixed TypeScript error when using both initial/animate props and variants prop; Variants type caused TS2322 error                          |
+| 05    | 02   | Used useMemo instead of useRef.current for debounced function              | React Compiler enforces no ref access during render; useMemo creates stable reference avoiding "Cannot access refs during render" error    |
+| 05    | 02   | Set 150ms debounce window for fitView                                      | Imperceptible to users (<200ms) but effectively batches all rapid calls during reveal sequence                                             |
+| 05    | 02   | Single fitView scheduled 500ms after INTENSEYE_DELAY_MS                    | Final node reveal at 2200ms + 500ms buffer allows animation to complete before layout recalculation                                        |
 
 ### Pending Todos
 
@@ -75,10 +78,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-05 (plan execution)
-Stopped at: Completed 05-01-PLAN.md - All phases complete
+Stopped at: Completed 05-02-PLAN.md - All phases complete
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-05 after completing Phase 05 Plan 01_
+_Last updated: 2026-02-05 after completing Phase 05 Plan 02_
