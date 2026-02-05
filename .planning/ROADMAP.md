@@ -80,14 +80,15 @@ Plans:
 **Requirements**: STATE-01, STATE-02, STATE-03
 **Success Criteria** (what must be TRUE):
 
-1. DashboardBackground uses minimal refs (reduced from 8+ to essential only)
-2. Graph-related state (allNodes, allEdges, addedAchievements) lives in appropriate location (store or simplified local state)
-3. Node hover handler has no stale closure risks (clean callback pattern)
-   **Plans**: TBD
+1. DashboardBackground uses minimal refs (reduced from 6 to 3 essential only)
+2. Reveal state (hasStartedReveal, revealedCompanies) lives in graph store
+3. Node hover handler has no stale closure risks (clean callback pattern using store.getState())
+
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — Move reveal state to store and eliminate stale closure workaround
 
 ### Phase 5: Performance Optimization
 
@@ -116,10 +117,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Dead Code Removal         | 1/1            | Complete    | 2026-02-05 |
 | 2. Constants Extraction      | 1/1            | Complete    | 2026-02-05 |
 | 3. Type Safety               | 1/1            | Complete    | 2026-02-05 |
-| 4. State Management Refactor | 0/0            | Not started | -          |
+| 4. State Management Refactor | 0/1            | Not started | -          |
 | 5. Performance Optimization  | 0/0            | Not started | -          |
 
 ---
 
 _Roadmap created: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 3 execution complete_
+_Last updated: 2026-02-05 after Phase 4 planning complete_
