@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { CSSPreloader } from "@/components/css-preloader";
 import { RESUME_DATA } from "@/data/resume-data";
 import { useResponsiveLayout } from "@/hooks/use-responsive-layout";
+import { GraphLegend } from "@/components/graph-legend";
 
 // Lazy load heavy components to improve initial load
 const DashboardBackground = dynamic(
@@ -60,14 +61,14 @@ export default function Page() {
         {isMobile ? (
           <MobileHero onContentReady={() => setContentReady(true)} />
         ) : (
-          <DashboardBackground>
-            <div className="pointer-events-none absolute inset-0 flex flex-col p-6 md:p-12">
+          <DashboardBackground
+            header={
               <motion.header
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
                 onAnimationComplete={() => setContentReady(true)}
-                className="pointer-events-auto flex items-start justify-between"
+                className="flex items-start justify-between"
               >
                 <div>
                   <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl">
@@ -83,8 +84,10 @@ export default function Page() {
                   <p>LOC: {RESUME_DATA.personal.location}</p>
                 </div>
               </motion.header>
-
-              <div className="pointer-events-auto mt-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            }
+            legend={<GraphLegend />}
+            bottomContent={
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {RESUME_DATA.metrics.map((metric, i) => (
                   <LiveMetricWidget
                     key={metric.id}
@@ -93,8 +96,8 @@ export default function Page() {
                   />
                 ))}
               </div>
-            </div>
-          </DashboardBackground>
+            }
+          />
         )}
       </div>
     </main>

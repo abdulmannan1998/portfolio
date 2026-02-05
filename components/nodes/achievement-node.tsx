@@ -64,13 +64,9 @@ export function AchievementNode({
       <motion.div
         layout
         onClick={handleClick}
-        // Entrance animation
-        initial={{ opacity: 0, y: -30, scale: 0.9 }}
-        animate={
-          isExpanded
-            ? { opacity: 1, y: 0, scale: 1 }
-            : { opacity: 1, y: 0, scale: 1 }
-        }
+        // Entrance animation - use only opacity/scale to avoid edge path calculation issues
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         className={`
           relative cursor-pointer overflow-hidden
           rounded-lg border-2 bg-stone-900
@@ -85,16 +81,14 @@ export function AchievementNode({
           isExpanded
             ? { type: "spring", stiffness: 300, damping: 30 }
             : {
-                opacity: { duration: 0.5, delay },
-                y: { duration: 0.5, delay },
-                scale: { duration: 0.5, delay },
+                opacity: { duration: 0.4, delay },
+                scale: { duration: 0.4, delay },
               }
         }
         whileHover={
           !isExpanded
             ? {
                 scale: 1.03,
-                y: -4,
                 boxShadow: "0 8px 20px rgba(249, 115, 22, 0.25)",
               }
             : undefined

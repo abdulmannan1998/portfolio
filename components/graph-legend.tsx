@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   Building2,
   GraduationCap,
-  Code2,
   User,
   Lightbulb,
   Briefcase,
@@ -16,7 +15,7 @@ export function GraphLegend() {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 4, duration: 0.6 }}
-      className="fixed left-6 md:left-12 top-1/2 -translate-y-1/2 z-20 rounded-lg border border-stone-800/50 bg-stone-950/80 p-4 shadow-xl backdrop-blur-sm max-w-[200px] opacity-60 hover:opacity-100 transition-opacity"
+      className="rounded-lg border border-stone-800/50 bg-stone-950/80 p-4 shadow-xl backdrop-blur-sm max-w-[200px] opacity-60 hover:opacity-100 transition-opacity"
     >
       <h3 className="mb-3 text-xs font-semibold text-stone-400">Legend</h3>
 
@@ -60,13 +59,6 @@ export function GraphLegend() {
           </div>
           <span className="text-[11px] text-stone-500">Soft Skill</span>
         </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex h-5 w-5 items-center justify-center rounded bg-stone-700/30">
-            <Code2 className="h-2.5 w-2.5 text-stone-500" />
-          </div>
-          <span className="text-[11px] text-stone-500">Technology</span>
-        </div>
       </div>
 
       {/* Edge Types */}
@@ -88,11 +80,6 @@ export function GraphLegend() {
         <div className="flex items-center gap-2">
           <div className="h-0.5 w-5 bg-orange-500/60" />
           <span className="text-[11px] text-stone-500">Project</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="h-0.5 w-5 bg-purple-500/60" />
-          <span className="text-[11px] text-stone-500">Tech</span>
         </div>
       </div>
 

@@ -143,17 +143,32 @@ export const RESUME_DATA = {
     },
     {
       company: "Layermark",
-      title: "Front-end Engineer",
-      period: "09/2021 - 04/2022",
+      title: "Software Engineer (Intern → Full Stack)",
+      period: "06/2021 - 04/2022",
       highlights: [
         {
+          id: "spring-boot",
+          text: "Developed a Spring Boot service that creates dynamic database entities for a No-Code platform",
+          type: "achievement",
+        },
+        {
+          id: "management-system",
+          text: "Developed a management system that tracks events & statistics related to user assets in the field",
+          type: "achievement",
+        },
+        {
           id: "geospatial",
-          text: "Developed custom dashboards and geospatial visualizations using Vue.js and ArcGIS.",
+          text: "Developed custom dashboards and geospatial visualizations using Vue.js and ArcGIS",
           type: "achievement",
         },
         {
           id: "persistence",
-          text: "Implemented robust application persistence layers using Hibernate and Spring Data JPA.",
+          text: "Implemented robust application persistence layers using Hibernate and Spring Data JPA",
+          type: "responsibility",
+        },
+        {
+          id: "production-code",
+          text: "Learnt to write production-level code under supervision and collaborate with backend and frontend teams",
           type: "responsibility",
         },
       ],
@@ -319,6 +334,44 @@ export const RESUME_DATA = {
       period: "2021-2022",
       category: "architecture" as const,
     },
+
+    // Bilkent University Projects
+    {
+      id: "bilkent-nito",
+      type: "achievement" as const,
+      title: "NITO - Exam Monitoring System",
+      description:
+        "JavaFX-based exam monitoring system proposed as alternative to traditional pen and paper exams with anti-cheating features",
+      impact: "Anti-cheating solution",
+      technologies: ["JavaFX", "Java"],
+      company: "Bilkent University",
+      period: "2018-2022",
+      category: "innovation" as const,
+    },
+    {
+      id: "bilkent-risk-game",
+      type: "achievement" as const,
+      title: "RISK Game Implementation",
+      description:
+        "Complete implementation of the popular Risk board game applying OOP principles and Design Patterns (Factory, Proxy, Facade, Strategy)",
+      impact: "Design patterns showcase",
+      technologies: ["React", "Node.js"],
+      company: "Bilkent University",
+      period: "2018-2022",
+      category: "innovation" as const,
+    },
+    {
+      id: "bilkent-hospital-db",
+      type: "achievement" as const,
+      title: "Hospital Database Management",
+      description:
+        "Led team of 4 in developing a web-based hospital database management system using advanced PostgreSQL features",
+      impact: "Team leadership & DB design",
+      technologies: ["PostgreSQL"],
+      company: "Bilkent University",
+      period: "2018-2022",
+      category: "architecture" as const,
+    },
   ] as const satisfies readonly AchievementNode[],
   graph: {
     nodes: [
@@ -336,7 +389,7 @@ export const RESUME_DATA = {
         id: "Layermark",
         label: "Layermark",
         type: "company",
-        period: "09/2021 - 04/2022",
+        period: "06/2021 - 04/2022",
       },
 
       // Education
@@ -347,26 +400,10 @@ export const RESUME_DATA = {
         period: "09/2018 - 06/2022",
       },
 
-      // Technologies
-      { id: "React", label: "React", type: "tech", priority: 1 },
-      { id: "TypeScript", label: "TypeScript", type: "tech", priority: 1 },
-      { id: "Next.js", label: "Next.js", type: "tech", priority: 1 },
-      { id: "React Query", label: "React Query", type: "tech", priority: 2 },
-      { id: "React Flow", label: "React Flow", type: "tech", priority: 2 },
-      { id: "ECharts", label: "ECharts", type: "tech", priority: 3 },
-      { id: "Konva", label: "Konva", type: "tech", priority: 3 },
-      { id: "Vue.js", label: "Vue.js", type: "tech", priority: 1 },
-      { id: "ArcGIS", label: "ArcGIS", type: "tech", priority: 3 },
-      { id: "Shadcn", label: "Shadcn UI", type: "tech", priority: 2 },
-      { id: "Tailwind", label: "Tailwind", type: "tech", priority: 2 },
-      { id: "Node.js", label: "Node.js", type: "tech", priority: 2 },
-      { id: "TRPC", label: "tRPC", type: "tech", priority: 3 },
-
       // Soft Skills
-      { id: "Leadership", label: "Leadership", type: "soft-skill" },
-      { id: "Communication", label: "Communication", type: "soft-skill" },
-      { id: "Collaboration", label: "Collaboration", type: "soft-skill" },
+      { id: "Collaboration", label: "Team Collaboration", type: "soft-skill" },
       { id: "Problem-Solving", label: "Problem Solving", type: "soft-skill" },
+      { id: "Quick-Learner", label: "Quick Learner", type: "soft-skill" },
     ],
     edges: [
       // Root → Companies & Education (career progression)
@@ -375,10 +412,9 @@ export const RESUME_DATA = {
       { source: "Mannan", target: "Bilkent", type: "education" },
 
       // Root → Soft Skills
-      { source: "Mannan", target: "Leadership", type: "soft-skill" },
-      { source: "Mannan", target: "Communication", type: "soft-skill" },
       { source: "Mannan", target: "Collaboration", type: "soft-skill" },
       { source: "Mannan", target: "Problem-Solving", type: "soft-skill" },
+      { source: "Mannan", target: "Quick-Learner", type: "soft-skill" },
 
       // Companies → Achievements (projects)
       { source: "Intenseye", target: "intenseye-dashboards", type: "project" },
@@ -431,180 +467,10 @@ export const RESUME_DATA = {
         type: "project",
       },
 
-      // Achievements → Technologies (uses-tech)
-      // intenseye-dashboards
-      {
-        source: "intenseye-dashboards",
-        target: "React",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-dashboards",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-dashboards",
-        target: "ECharts",
-        type: "uses-tech",
-      },
-
-      // intenseye-cli-tooling
-      {
-        source: "intenseye-cli-tooling",
-        target: "Node.js",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-cli-tooling",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-
-      // intenseye-react-query
-      {
-        source: "intenseye-react-query",
-        target: "React Query",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-react-query",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-react-query",
-        target: "React",
-        type: "uses-tech",
-      },
-
-      // intenseye-ai-poc
-      { source: "intenseye-ai-poc", target: "Next.js", type: "uses-tech" },
-      {
-        source: "intenseye-ai-poc",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-
-      // intenseye-type-safety
-      {
-        source: "intenseye-type-safety",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-type-safety",
-        target: "React",
-        type: "uses-tech",
-      },
-
-      // intenseye-konva
-      { source: "intenseye-konva", target: "Konva", type: "uses-tech" },
-      { source: "intenseye-konva", target: "React", type: "uses-tech" },
-      {
-        source: "intenseye-konva",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-
-      // intenseye-design-system
-      {
-        source: "intenseye-design-system",
-        target: "Shadcn",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-design-system",
-        target: "React",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-design-system",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-design-system",
-        target: "Tailwind",
-        type: "uses-tech",
-      },
-
-      // intenseye-react-flow
-      {
-        source: "intenseye-react-flow",
-        target: "React Flow",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-react-flow",
-        target: "React",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-react-flow",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-
-      // intenseye-cross-team
-      {
-        source: "intenseye-cross-team",
-        target: "React Query",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-cross-team",
-        target: "TypeScript",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-cross-team",
-        target: "Next.js",
-        type: "uses-tech",
-      },
-
-      // intenseye-restful-apis
-      {
-        source: "intenseye-restful-apis",
-        target: "Next.js",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-restful-apis",
-        target: "TRPC",
-        type: "uses-tech",
-      },
-      {
-        source: "intenseye-restful-apis",
-        target: "React Query",
-        type: "uses-tech",
-      },
-
-      // layermark-client-bridge
-      {
-        source: "layermark-client-bridge",
-        target: "Vue.js",
-        type: "uses-tech",
-      },
-
-      // layermark-geospatial
-      {
-        source: "layermark-geospatial",
-        target: "Vue.js",
-        type: "uses-tech",
-      },
-      {
-        source: "layermark-geospatial",
-        target: "ArcGIS",
-        type: "uses-tech",
-      },
-
-      // layermark-persistence
-      {
-        source: "layermark-persistence",
-        target: "Node.js",
-        type: "uses-tech",
-      },
+      // Education → Projects
+      { source: "Bilkent", target: "bilkent-nito", type: "project" },
+      { source: "Bilkent", target: "bilkent-risk-game", type: "project" },
+      { source: "Bilkent", target: "bilkent-hospital-db", type: "project" },
     ],
   },
   easterEggs: [

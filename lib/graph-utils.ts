@@ -9,12 +9,13 @@ import {
 export const getInitialNodes = (
   viewport: ViewportSize = { width: 1920, height: 1080 },
 ): Node[] => {
-  // Calculate safe area (avoiding header and metrics)
+  // Calculate safe area (avoiding header, metrics, and legend)
   const safeArea = calculateSafeArea(
     viewport,
     140, // headerHeight
     220, // metricsHeight
-    100, // sideMargin
+    240, // leftMargin (extra space for legend)
+    100, // rightMargin
   );
 
   // Combine graph nodes with achievement nodes
@@ -44,8 +45,6 @@ function getEdgeColor(edgeType?: string): string {
       return "#8b5cf6"; // violet for education
     case "project":
       return "#f97316"; // orange for company-achievement
-    case "uses-tech":
-      return "#a855f7"; // purple for achievement-tech
     case "soft-skill":
       return "#10b981"; // emerald for soft skills
     default:
@@ -59,8 +58,6 @@ function getEdgeWidth(edgeType?: string): number {
       return 2;
     case "project":
       return 1.5;
-    case "uses-tech":
-      return 1;
     default:
       return 1;
   }
@@ -71,17 +68,44 @@ export const getInitialEdges = (): Edge[] => {
     // Different opacity levels for visual hierarchy
     const opacity = edge.type === "soft-skill" ? 0.3 : 0.6;
 
+    // Set source/target handles for proper connections
+    let sourceHandle: string | undefined;
+    let targetHandle: string | undefined;
+
+    if (edge.type === "soft-skill") {
+      // Soft skills connect from TOP of root to BOTTOM of soft skill nodes
+      sourceHandle = "top";
+      targetHandle = "bottom";
+    }
+
+    if (edge.type === "career" || edge.type === "education") {
+      // Career and education connect from BOTTOM of root
+      // No need to specify targetHandle - company/education nodes only have one target handle
+      sourceHandle = "bottom";
+    }
+
+    if (edge.type === "project") {
+      // Project edges connect from BOTTOM of company/education to TOP of achievement
+      // This ensures proper edge path calculation
+      sourceHandle = undefined; // Let ReactFlow auto-detect (company has only one source handle at bottom)
+      targetHandle = undefined; // Let ReactFlow auto-detect (achievement has only one target handle at top)
+    }
+
     return {
       id: `edge-${index}`,
       source: edge.source,
       target: edge.target,
+      sourceHandle,
+      targetHandle,
       type: "smoothstep",
-      animated: edge.type === "uses-tech", // Animate tech connections
+      data: { edgeType: edge.type }, // Preserve original edge type for filtering
       style: {
         stroke: getEdgeColor(edge.type),
         strokeWidth: getEdgeWidth(edge.type),
-        opacity, // Visible with appropriate opacity
+        opacity,
       },
+      // Reduce edge path offset to minimize gap between node and edge
+      pathOptions: { offset: 0 },
     };
   });
 };

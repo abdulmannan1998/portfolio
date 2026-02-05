@@ -19,8 +19,6 @@ export type ViewportSize = {
 export type Spacing = {
   horizontal: number;
   vertical: number;
-  techSpacing: number;
-  techRowHeight: number;
 };
 
 /**
@@ -31,10 +29,11 @@ export function calculateSafeArea(
   viewport: ViewportSize,
   headerHeight = 140,
   metricsHeight = 220,
-  sideMargin = 100,
+  leftMargin = 100,
+  rightMargin = 100,
 ): SafeArea {
-  const minX = sideMargin;
-  const maxX = viewport.width - sideMargin;
+  const minX = leftMargin;
+  const maxX = viewport.width - rightMargin;
   const minY = headerHeight;
   const maxY = viewport.height - metricsHeight;
 
@@ -62,71 +61,13 @@ export function getResponsiveSpacing(safeArea: SafeArea): Spacing {
   // Horizontal spacing: 22% of available width, capped at 400px
   const horizontal = Math.min(safeArea.width * 0.22, 400);
 
-  // Vertical spacing: 30% of available height for tech clusters
+  // Vertical spacing: 30% of available height
   const vertical = safeArea.height * 0.3;
-
-  // Tech node spacing: 40% of horizontal spacing
-  const techSpacing = horizontal * 0.4;
-
-  // Tech row height: spacing between rows of tech nodes
-  const techRowHeight = 80;
 
   return {
     horizontal,
     vertical,
-    techSpacing,
-    techRowHeight,
   };
-}
-
-/**
- * Position tech nodes in an organic cluster below their parent achievement
- * Uses a flowing, natural arrangement instead of rigid grid
- */
-export function clusterTechNodes(
-  parentNode: { x: number; y: number },
-  techNodes: GraphNode[],
-  spacing: Spacing,
-): Array<{ id: string; x: number; y: number }> {
-  const positions: Array<{ id: string; x: number; y: number }> = [];
-  const techOffsetY = 200; // Closer to parent for tighter grouping
-
-  // Use variable columns for more organic feel: [3, 4, 3, 4...] pattern
-  const columnPattern = [3, 4, 3, 4];
-  let nodeIndex = 0;
-  let currentY = parentNode.y + techOffsetY;
-
-  while (nodeIndex < techNodes.length) {
-    const rowPattern =
-      columnPattern[positions.length % columnPattern.length] || 3;
-    const nodesInRow = Math.min(rowPattern, techNodes.length - nodeIndex);
-
-    // Calculate row width and centering
-    const rowWidth = (nodesInRow - 1) * spacing.techSpacing;
-    const startX = parentNode.x - rowWidth / 2;
-
-    // Add subtle horizontal variation for organic feel
-    const rowVariation = Math.sin(nodeIndex * 0.5) * 20;
-
-    for (let col = 0; col < nodesInRow; col++) {
-      const node = techNodes[nodeIndex];
-      if (!node) break;
-
-      // Add slight random offset for natural clustering
-      const jitterX = Math.sin(nodeIndex * 2.1) * 15;
-      const jitterY = Math.cos(nodeIndex * 1.7) * 10;
-
-      const x = startX + col * spacing.techSpacing + jitterX + rowVariation;
-      const y = currentY + jitterY;
-
-      positions.push({ id: node.id, x, y });
-      nodeIndex++;
-    }
-
-    currentY += spacing.techRowHeight;
-  }
-
-  return positions;
 }
 
 /**
@@ -173,22 +114,23 @@ export function getTimelinePositions(
     });
   }
 
-  // Position soft skills in a more subtle arc above the root - LESS PROMINENT
+  // Position soft skills flanking the root node - balanced triangular layout
   const softSkillNodes = graphNodes.filter((n) => n.type === "soft-skill");
-  const softSkillRadius = 180; // Tighter radius, more compact
-  const arcSpan = Math.PI; // 180 degree arc instead of full circle
-  const arcStart = -Math.PI / 2 - arcSpan / 2; // Center the arc above
-  const angleStep = arcSpan / (softSkillNodes.length - 1 || 1);
+
+  // Calculate positions: one above, two flanking left/right
+  const softSkillPositions = [
+    { x: safeArea.centerX - 220, y: rootY - 30 }, // Left of root, slightly above
+    { x: safeArea.centerX, y: rootY - 110 }, // Centered above root
+    { x: safeArea.centerX + 220, y: rootY - 30 }, // Right of root, slightly above
+  ];
 
   softSkillNodes.forEach((skill, index) => {
-    const angle = arcStart + angleStep * index;
-    const x = safeArea.centerX + Math.cos(angle) * softSkillRadius;
-    const y = rootY + Math.sin(angle) * softSkillRadius * 0.5; // Flatten the arc
+    const pos = softSkillPositions[index] || softSkillPositions[0];
 
     nodes.push({
       id: skill.id,
       type: "custom",
-      position: { x, y },
+      position: { x: pos.x, y: pos.y },
       data: {
         label: skill.label,
         type: skill.type,
@@ -304,58 +246,6 @@ export function getTimelinePositions(
         });
 
         achievementPositions[achievement.id] = { x: x + 125, y }; // Store center point
-      });
-    }
-  });
-
-  // Group tech nodes by their parent achievement (source)
-  const techNodesByParent: Record<string, GraphNode[]> = {};
-
-  graphNodes
-    .filter((n) => n.type === "tech")
-    .forEach((techNode) => {
-      const edge = graphEdges.find((e) => e.target === techNode.id);
-      if (edge) {
-        const parentId = edge.source;
-        if (!techNodesByParent[parentId]) {
-          techNodesByParent[parentId] = [];
-        }
-        techNodesByParent[parentId].push(techNode);
-      }
-    });
-
-  // Level 4: ORGANIC tech node clustering - more natural feeling
-  Object.entries(techNodesByParent).forEach(([parentId, techNodes]) => {
-    const parentPos = achievementPositions[parentId];
-    if (parentPos) {
-      const clusteredPositions = clusterTechNodes(
-        parentPos,
-        techNodes,
-        spacing,
-      );
-
-      clusteredPositions.forEach((pos, index) => {
-        const node = techNodes.find((n) => n.id === pos.id);
-        if (node) {
-          // Get parent achievement's animation delay
-          const parentAchievementNode = nodes.find((n) => n.id === parentId);
-          const parentDelay =
-            (parentAchievementNode?.data?.animationDelay as
-              | number
-              | undefined) ?? 2.5;
-
-          nodes.push({
-            id: node.id,
-            type: "custom",
-            position: { x: pos.x, y: pos.y },
-            data: {
-              label: node.label,
-              type: node.type,
-              animationDelay: parentDelay + 0.4 + index * 0.05, // Quick sequence after parent
-              animationType: "pop-in",
-            },
-          });
-        }
       });
     }
   });

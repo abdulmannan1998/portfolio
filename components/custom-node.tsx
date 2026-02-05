@@ -2,12 +2,11 @@
 
 import { Handle, Position } from "@xyflow/react";
 import { cn } from "@/lib/utils";
-import { Building2, GraduationCap, Code2, User, Lightbulb } from "lucide-react";
+import { Building2, GraduationCap, User, Lightbulb } from "lucide-react";
 import { motion } from "framer-motion";
 
 // Stable random values for animations (computed once at module load)
 const softSkillDuration = 3 + Math.random() * 2;
-const techDuration = 2.5 + Math.random() * 1.5;
 
 // Animation variants for entrance effects
 const getEntranceAnimation = (type?: string) => {
@@ -26,15 +25,15 @@ const getEntranceAnimation = (type?: string) => {
       };
     case "slide-up":
       return {
-        initial: { opacity: 0, y: 60, scale: 0.95 },
-        animate: { opacity: 1, y: 0, scale: 1 },
-        transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
+        initial: { opacity: 0, scale: 0.9 },
+        animate: { opacity: 1, scale: 1 },
+        transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
       };
     case "fade-drop":
       return {
-        initial: { opacity: 0, y: -30, scale: 0.9 },
-        animate: { opacity: 1, y: 0, scale: 1 },
-        transition: { duration: 0.5, ease: "easeOut" as const },
+        initial: { opacity: 0, scale: 0.9 },
+        animate: { opacity: 1, scale: 1 },
+        transition: { duration: 0.4, ease: "easeOut" as const },
       };
     case "pop-in":
       return {
@@ -57,6 +56,7 @@ const getEntranceAnimation = (type?: string) => {
 export function CustomNode({
   data,
   selected,
+  id,
 }: {
   data: {
     label: string;
@@ -64,18 +64,43 @@ export function CustomNode({
     period?: string;
     animationDelay?: number;
     animationType?: string;
+    onHoverChange?: (nodeId: string, isEntering: boolean) => void;
   };
   selected: boolean;
+  id: string;
 }) {
   const entranceAnim = getEntranceAnimation(data.animationType);
   const delay = data.animationDelay ?? 0;
-  // Root node (name) - HERO with maximum prominence
+  // Root node (name) - HERO with maximum prominence and pulsing animation
   if (data.type === "root") {
     return (
       <motion.div
         initial={entranceAnim.initial}
-        animate={entranceAnim.animate}
-        transition={{ ...entranceAnim.transition, delay }}
+        animate={{
+          ...entranceAnim.animate,
+          scale: [1, 1.05, 1],
+          boxShadow: [
+            "0 20px 40px rgba(249, 115, 22, 0.2)",
+            "0 20px 60px rgba(249, 115, 22, 0.4)",
+            "0 20px 40px rgba(249, 115, 22, 0.2)",
+          ],
+        }}
+        transition={{
+          ...entranceAnim.transition,
+          delay,
+          scale: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: delay + 0.8,
+          },
+          boxShadow: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: delay + 0.8,
+          },
+        }}
         className={cn(
           "relative rounded-xl border-2 bg-gradient-to-br from-orange-500/20 to-stone-900 px-8 py-5 shadow-2xl transition-all",
           selected
@@ -89,6 +114,13 @@ export function CustomNode({
       >
         <Handle
           type="source"
+          id="top"
+          position={Position.Top}
+          className="!bg-orange-500 !w-3 !h-3"
+        />
+        <Handle
+          type="source"
+          id="bottom"
           position={Position.Bottom}
           className="!bg-orange-500 !w-3 !h-3"
         />
@@ -102,86 +134,106 @@ export function CustomNode({
     );
   }
 
-  // Company nodes - prominent timeline markers
+  // Company nodes - prominent timeline markers (hover reveals achievement nodes)
   if (data.type === "company") {
     return (
       <motion.div
         initial={entranceAnim.initial}
         animate={entranceAnim.animate}
         transition={{ ...entranceAnim.transition, delay }}
-        className={cn(
-          "relative rounded-lg border-2 bg-stone-900 px-5 py-3 shadow-lg transition-all",
-          selected
-            ? "border-blue-500 shadow-blue-500/30 scale-105"
-            : "border-blue-500/50 hover:border-blue-500 hover:shadow-blue-500/20",
-        )}
-        whileHover={{ scale: 1.03, y: -2 }}
+        className="relative"
+        onMouseEnter={() => {
+          data.onHoverChange?.(id, true);
+        }}
+        onMouseLeave={() => {
+          data.onHoverChange?.(id, false);
+        }}
       >
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="!bg-blue-500 !w-3 !h-3"
-        />
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/20 ring-1 ring-blue-500/30">
-            <Building2 className="h-4 w-4 text-blue-500" />
-          </div>
-          <div>
-            <div className="text-base font-semibold text-blue-400">
-              {data.label}
+        <motion.div
+          className={cn(
+            "relative rounded-lg border-2 bg-stone-900 px-5 py-3 shadow-lg transition-all",
+            selected
+              ? "border-blue-500 shadow-blue-500/30 scale-105"
+              : "border-blue-500/50 hover:border-blue-500 hover:shadow-blue-500/20",
+          )}
+          whileHover={{ scale: 1.03, y: -2 }}
+        >
+          <Handle
+            type="target"
+            position={Position.Top}
+            className="!bg-blue-500 !w-3 !h-3"
+          />
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/20 ring-1 ring-blue-500/30">
+              <Building2 className="h-4 w-4 text-blue-500" />
             </div>
-            {data.period && (
-              <div className="text-xs text-stone-500">{data.period}</div>
-            )}
+            <div>
+              <div className="text-base font-semibold text-blue-400">
+                {data.label}
+              </div>
+              {data.period && (
+                <div className="text-xs text-stone-500">{data.period}</div>
+              )}
+            </div>
           </div>
-        </div>
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          className="!bg-blue-500 !w-3 !h-3"
-        />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            className="!bg-blue-500 !w-3 !h-3"
+          />
+        </motion.div>
       </motion.div>
     );
   }
 
-  // Education nodes - prominent timeline markers
+  // Education nodes - prominent timeline markers (hover reveals project nodes)
   if (data.type === "education") {
     return (
       <motion.div
         initial={entranceAnim.initial}
         animate={entranceAnim.animate}
         transition={{ ...entranceAnim.transition, delay }}
-        className={cn(
-          "relative rounded-lg border-2 bg-stone-900 px-5 py-3 shadow-lg transition-all",
-          selected
-            ? "border-purple-500 shadow-purple-500/30 scale-105"
-            : "border-purple-500/50 hover:border-purple-500 hover:shadow-purple-500/20",
-        )}
-        whileHover={{ scale: 1.03, y: -2 }}
+        className="relative"
+        onMouseEnter={() => {
+          data.onHoverChange?.(id, true);
+        }}
+        onMouseLeave={() => {
+          data.onHoverChange?.(id, false);
+        }}
       >
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="!bg-purple-500 !w-3 !h-3"
-        />
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-500/20 ring-1 ring-purple-500/30">
-            <GraduationCap className="h-4 w-4 text-purple-500" />
-          </div>
-          <div>
-            <div className="text-base font-semibold text-purple-400">
-              {data.label}
+        <motion.div
+          className={cn(
+            "relative rounded-lg border-2 bg-stone-900 px-5 py-3 shadow-lg transition-all",
+            selected
+              ? "border-purple-500 shadow-purple-500/30 scale-105"
+              : "border-purple-500/50 hover:border-purple-500 hover:shadow-purple-500/20",
+          )}
+          whileHover={{ scale: 1.03, y: -2 }}
+        >
+          <Handle
+            type="target"
+            position={Position.Top}
+            className="!bg-purple-500 !w-3 !h-3"
+          />
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-500/20 ring-1 ring-purple-500/30">
+              <GraduationCap className="h-4 w-4 text-purple-500" />
             </div>
-            {data.period && (
-              <div className="text-xs text-stone-500">{data.period}</div>
-            )}
+            <div>
+              <div className="text-base font-semibold text-purple-400">
+                {data.label}
+              </div>
+              {data.period && (
+                <div className="text-xs text-stone-500">{data.period}</div>
+              )}
+            </div>
           </div>
-        </div>
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          className="!bg-purple-500 !w-3 !h-3"
-        />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            className="!bg-purple-500 !w-3 !h-3"
+          />
+        </motion.div>
       </motion.div>
     );
   }
@@ -221,57 +273,12 @@ export function CustomNode({
       >
         <Handle
           type="target"
-          position={Position.Top}
+          id="bottom"
+          position={Position.Bottom}
           className="!bg-emerald-500 !w-2 !h-2"
         />
         <div className="flex items-center gap-2 text-xs font-medium">
           <Lightbulb className="h-3 w-3" />
-          {data.label}
-        </div>
-      </motion.div>
-    );
-  }
-
-  // Tech nodes - subtle supporting details, reduced prominence
-  if (data.type === "tech") {
-    return (
-      <motion.div
-        initial={entranceAnim.initial}
-        animate={{
-          ...entranceAnim.animate,
-          y: [0, -4, 0],
-          rotate: [-0.5, 0.5, -0.5],
-        }}
-        transition={{
-          opacity: { duration: 0.4, delay },
-          scale: { duration: 0.4, delay },
-          y: {
-            duration: techDuration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: delay + 0.4,
-          },
-          rotate: {
-            duration: techDuration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: delay + 0.4,
-          },
-        }}
-        className={cn(
-          "relative rounded border bg-stone-950/80 px-2.5 py-1 text-xs font-medium shadow-sm transition-all opacity-80",
-          selected
-            ? "border-orange-500 text-orange-400 shadow-orange-500/10 opacity-100"
-            : "border-stone-800 text-stone-500 hover:border-orange-500/50 hover:text-stone-400 hover:opacity-100",
-        )}
-      >
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="!bg-stone-700 !w-1.5 !h-1.5"
-        />
-        <div className="flex items-center gap-1.5">
-          <Code2 className="h-2.5 w-2.5" />
           {data.label}
         </div>
       </motion.div>
