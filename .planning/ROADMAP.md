@@ -66,11 +66,12 @@ Plans:
 1. Layout calculator uses discriminated union for node types (no any type escape hatches)
 2. Achievement node data has strict type definition with only needed fields
 3. Graph store uses serializable data structures (arrays instead of Sets)
-   **Plans**: TBD
+
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Create discriminated union types and fix store serialization
 
 ### Phase 4: State Management Refactor
 
@@ -114,11 +115,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | ---------------------------- | -------------- | ----------- | ---------- |
 | 1. Dead Code Removal         | 1/1            | Complete    | 2026-02-05 |
 | 2. Constants Extraction      | 1/1            | Complete    | 2026-02-05 |
-| 3. Type Safety               | 0/0            | Not started | -          |
+| 3. Type Safety               | 0/1            | Planned     | -          |
 | 4. State Management Refactor | 0/0            | Not started | -          |
 | 5. Performance Optimization  | 0/0            | Not started | -          |
 
 ---
 
 _Roadmap created: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 2 execution complete_
+_Last updated: 2026-02-05 after Phase 3 planning complete_
