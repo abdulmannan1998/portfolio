@@ -49,11 +49,12 @@ Plans:
 2. Safe area dimensions (header, metrics, margins) are defined in single source of truth
 3. Achievement positioning values (spacing, offset, stagger) are configurable via constants
 4. Reveal timing values are extracted from component logic to configuration
-   **Plans**: TBD
+
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Extract layout, positioning, and timing constants to centralized file
 
 ### Phase 3: Type Safety
 
@@ -112,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase                        | Plans Complete | Status      | Completed  |
 | ---------------------------- | -------------- | ----------- | ---------- |
 | 1. Dead Code Removal         | 1/1            | Complete    | 2026-02-05 |
-| 2. Constants Extraction      | 0/0            | Not started | -          |
+| 2. Constants Extraction      | 0/1            | Planned     | -          |
 | 3. Type Safety               | 0/0            | Not started | -          |
 | 4. State Management Refactor | 0/0            | Not started | -          |
 | 5. Performance Optimization  | 0/0            | Not started | -          |
@@ -120,4 +121,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 ---
 
 _Roadmap created: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 1 execution complete_
+_Last updated: 2026-02-05 after Phase 2 planning complete_
