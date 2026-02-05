@@ -18,6 +18,7 @@ import { CustomNode } from "@/components/custom-node";
 import { AchievementNode } from "@/components/nodes/achievement-node";
 import { useGraphStore } from "@/lib/stores/graph-store";
 import { REVEAL_TIMING } from "@/lib/layout-constants";
+import { debounce } from "@/lib/debounce";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -45,6 +46,18 @@ function DashboardBackgroundInner({
   const reactFlowInstance = useReactFlow();
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
+
+  // Debounced fitView to batch multiple rapid calls
+  const debouncedFitView = useRef(
+    debounce(() => {
+      reactFlowInstance?.fitView({
+        padding: 0.15,
+        duration: 800,
+        maxZoom: 0.85,
+        minZoom: 0.65,
+      });
+    }, 150),
+  ).current;
 
   // Destructure dimensions for stable memoization dependencies
   const { width: graphWidth, height: graphHeight } = graphDimensions;
