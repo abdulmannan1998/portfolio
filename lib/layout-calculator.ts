@@ -1,5 +1,6 @@
 import { type Node } from "@xyflow/react";
 import { SAFE_AREA, ACHIEVEMENT_LAYOUT } from "./layout-constants";
+import type { AchievementCategory } from "@/data/resume-data";
 
 export type SafeArea = {
   minX: number;
@@ -75,14 +76,50 @@ export function getResponsiveSpacing(safeArea: SafeArea): Spacing {
  * Calculate timeline positions for all nodes
  * Optimized for horizontal spread and visual storytelling
  */
-export type GraphNode = {
+
+// Discriminated union node types
+interface BaseNodeData {
   id: string;
-  label?: string;
-  title?: string; // Achievement nodes use title instead of label
-  type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any; // Allow additional properties for flexible node data
-};
+}
+
+export interface RootNodeData extends BaseNodeData {
+  type: "root";
+  label: string;
+}
+
+export interface CompanyNodeData extends BaseNodeData {
+  type: "company";
+  label: string;
+  period?: string;
+}
+
+export interface EducationNodeData extends BaseNodeData {
+  type: "education";
+  label: string;
+  period?: string;
+}
+
+export interface SoftSkillNodeData extends BaseNodeData {
+  type: "soft-skill";
+  label: string;
+}
+
+export interface AchievementNodeData extends BaseNodeData {
+  type: "achievement";
+  title: string;
+  description: string;
+  impact: string;
+  technologies: string[];
+  company: string;
+  category: AchievementCategory;
+}
+
+export type GraphNode =
+  | RootNodeData
+  | CompanyNodeData
+  | EducationNodeData
+  | SoftSkillNodeData
+  | AchievementNodeData;
 
 export type GraphEdge = {
   source: string;
@@ -194,10 +231,10 @@ export function getTimelinePositions(
   });
 
   // Group achievement nodes by their parent company (source)
-  const achievementsByCompany: Record<string, GraphNode[]> = {};
+  const achievementsByCompany: Record<string, AchievementNodeData[]> = {};
 
   graphNodes
-    .filter((n) => n.type === "achievement")
+    .filter((n): n is AchievementNodeData => n.type === "achievement")
     .forEach((achievementNode) => {
       const edge = graphEdges.find((e) => e.target === achievementNode.id);
       if (edge) {
@@ -240,7 +277,7 @@ export function getTimelinePositions(
           position: { x, y },
           data: {
             ...achievement,
-            label: achievement.title || achievement.label,
+            label: achievement.title,
             animationDelay: 1.8 + companyOrder * 0.3 + index * 0.15, // Cascade from parent
             animationType: "fade-drop",
           },

@@ -376,19 +376,19 @@ export const RESUME_DATA = {
   graph: {
     nodes: [
       // Root
-      { id: "Mannan", label: "Mannan Abdul", type: "root" },
+      { id: "Mannan", label: "Mannan Abdul", type: "root" as const },
 
       // Companies
       {
         id: "Intenseye",
         label: "Intenseye",
-        type: "company",
+        type: "company" as const,
         period: "06/2022 - 11/2025",
       },
       {
         id: "Layermark",
         label: "Layermark",
-        type: "company",
+        type: "company" as const,
         period: "06/2021 - 04/2022",
       },
 
@@ -396,14 +396,26 @@ export const RESUME_DATA = {
       {
         id: "Bilkent",
         label: "Bilkent Univ.",
-        type: "education",
+        type: "education" as const,
         period: "09/2018 - 06/2022",
       },
 
       // Soft Skills
-      { id: "Collaboration", label: "Team Collaboration", type: "soft-skill" },
-      { id: "Problem-Solving", label: "Problem Solving", type: "soft-skill" },
-      { id: "Quick-Learner", label: "Quick Learner", type: "soft-skill" },
+      {
+        id: "Collaboration",
+        label: "Team Collaboration",
+        type: "soft-skill" as const,
+      },
+      {
+        id: "Problem-Solving",
+        label: "Problem Solving",
+        type: "soft-skill" as const,
+      },
+      {
+        id: "Quick-Learner",
+        label: "Quick Learner",
+        type: "soft-skill" as const,
+      },
     ],
     edges: [
       // Root → Companies & Education (career progression)
