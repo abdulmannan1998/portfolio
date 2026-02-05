@@ -22,9 +22,9 @@ Requirements for this cleanup milestone, derived from `.planning/codebase/CONCER
 
 ### State Management
 
-- [ ] **STATE-01**: Consolidate ref management in DashboardBackground — reduce from 8+ refs
-- [ ] **STATE-02**: Move `allNodes`, `allEdges`, `addedAchievements` tracking to graph store or simplify
-- [ ] **STATE-03**: Clean up stale closure patterns around `handleNodeHoverRef`
+- [x] **STATE-01**: Consolidate ref management in DashboardBackground — reduce from 8+ refs
+- [x] **STATE-02**: Move `allNodes`, `allEdges`, `addedAchievements` tracking to graph store or simplify
+- [x] **STATE-03**: Clean up stale closure patterns around `handleNodeHoverRef`
 
 ### Type Safety
 
@@ -84,9 +84,9 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 | TYPE-01     | Phase 3 | Complete |
 | TYPE-02     | Phase 3 | Complete |
 | TYPE-03     | Phase 3 | Complete |
-| STATE-01    | Phase 4 | Pending  |
-| STATE-02    | Phase 4 | Pending  |
-| STATE-03    | Phase 4 | Pending  |
+| STATE-01    | Phase 4 | Complete |
+| STATE-02    | Phase 4 | Complete |
+| STATE-03    | Phase 4 | Complete |
 | PERF-01     | Phase 5 | Pending  |
 | PERF-02     | Phase 5 | Pending  |
 | PERF-03     | Phase 5 | Pending  |
@@ -101,4 +101,4 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 ---
 
 _Requirements defined: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 3 complete - TYPE-01, TYPE-02, TYPE-03 satisfied_
+_Last updated: 2026-02-05 after Phase 4 complete - STATE-01, STATE-02, STATE-03 satisfied_
