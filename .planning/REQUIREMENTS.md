@@ -9,9 +9,9 @@ Requirements for this cleanup milestone, derived from `.planning/codebase/CONCER
 
 ### Dead Code Removal
 
-- [ ] **DEAD-01**: Remove unused graph store features (filters, highlighting, view modes) from `graph-store.tsx`
-- [ ] **DEAD-02**: Remove unused imports and variables across all source files
-- [ ] **DEAD-03**: Audit and remove any unused component props or function parameters
+- [x] **DEAD-01**: Remove unused graph store features (filters, highlighting, view modes) from `graph-store.tsx`
+- [x] **DEAD-02**: Remove unused imports and variables across all source files
+- [x] **DEAD-03**: Audit and remove any unused component props or function parameters
 
 ### Constants & Magic Numbers
 
@@ -72,25 +72,25 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 
 ## Traceability
 
-| Requirement | Phase   | Status  |
-| ----------- | ------- | ------- |
-| DEAD-01     | Phase 1 | Pending |
-| DEAD-02     | Phase 1 | Pending |
-| DEAD-03     | Phase 1 | Pending |
-| CONST-01    | Phase 2 | Pending |
-| CONST-02    | Phase 2 | Pending |
-| CONST-03    | Phase 2 | Pending |
-| CONST-04    | Phase 2 | Pending |
-| TYPE-01     | Phase 3 | Pending |
-| TYPE-02     | Phase 3 | Pending |
-| TYPE-03     | Phase 3 | Pending |
-| STATE-01    | Phase 4 | Pending |
-| STATE-02    | Phase 4 | Pending |
-| STATE-03    | Phase 4 | Pending |
-| PERF-01     | Phase 5 | Pending |
-| PERF-02     | Phase 5 | Pending |
-| PERF-03     | Phase 5 | Pending |
-| PERF-04     | Phase 5 | Pending |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
+| DEAD-01     | Phase 1 | Complete |
+| DEAD-02     | Phase 1 | Complete |
+| DEAD-03     | Phase 1 | Complete |
+| CONST-01    | Phase 2 | Pending  |
+| CONST-02    | Phase 2 | Pending  |
+| CONST-03    | Phase 2 | Pending  |
+| CONST-04    | Phase 2 | Pending  |
+| TYPE-01     | Phase 3 | Pending  |
+| TYPE-02     | Phase 3 | Pending  |
+| TYPE-03     | Phase 3 | Pending  |
+| STATE-01    | Phase 4 | Pending  |
+| STATE-02    | Phase 4 | Pending  |
+| STATE-03    | Phase 4 | Pending  |
+| PERF-01     | Phase 5 | Pending  |
+| PERF-02     | Phase 5 | Pending  |
+| PERF-03     | Phase 5 | Pending  |
+| PERF-04     | Phase 5 | Pending  |
 
 **Coverage:**
 
@@ -101,4 +101,4 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 ---
 
 _Requirements defined: 2026-02-05_
-_Last updated: 2026-02-05 after roadmap creation - 100% coverage achieved_
+_Last updated: 2026-02-05 after Phase 1 complete - DEAD-01, DEAD-02, DEAD-03 satisfied_
