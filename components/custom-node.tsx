@@ -3,52 +3,105 @@
 import { Handle, Position } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import { Building2, GraduationCap, User, Lightbulb } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 // Stable random values for animations (computed once at module load)
 const softSkillDuration = 3 + Math.random() * 2;
 
-// Animation variants for entrance effects
-const getEntranceAnimation = (type?: string) => {
+// Module-level animation variants (computed once at module load)
+const HERO_ENTRANCE_VARIANTS: Variants = {
+  initial: { opacity: 0, scale: 0.5 },
+  animate: { opacity: 1, scale: 1 },
+};
+
+const BLOOM_IN_VARIANTS: Variants = {
+  initial: { opacity: 0, scale: 0.3, rotate: -45 },
+  animate: { opacity: 1, scale: 1, rotate: 0 },
+};
+
+const SLIDE_UP_VARIANTS: Variants = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+};
+
+const FADE_DROP_VARIANTS: Variants = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+};
+
+const POP_IN_VARIANTS: Variants = {
+  initial: { opacity: 0, scale: 0.6 },
+  animate: { opacity: 1, scale: 1 },
+};
+
+const DEFAULT_VARIANTS: Variants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+};
+
+// Module-level transition constants
+const HERO_ENTRANCE_TRANSITION = {
+  duration: 0.8,
+  ease: [0.34, 1.56, 0.64, 1] as const,
+};
+
+const BLOOM_TRANSITION = {
+  duration: 0.6,
+  ease: "easeOut" as const,
+};
+
+const SLIDE_UP_TRANSITION = {
+  duration: 0.5,
+  ease: [0.25, 0.46, 0.45, 0.94] as const,
+};
+
+const FADE_DROP_TRANSITION = {
+  duration: 0.4,
+  ease: "easeOut" as const,
+};
+
+const POP_IN_TRANSITION = {
+  duration: 0.4,
+  ease: [0.68, -0.55, 0.265, 1.55] as const,
+};
+
+const DEFAULT_TRANSITION = {
+  duration: 0.4,
+  ease: "easeOut" as const,
+};
+
+// Get animation config (returns references to module-level constants)
+const getAnimationConfig = (type?: string) => {
   switch (type) {
     case "hero-entrance":
       return {
-        initial: { opacity: 0, scale: 0.5 },
-        animate: { opacity: 1, scale: 1 },
-        transition: { duration: 0.8, ease: [0.34, 1.56, 0.64, 1] as const },
+        variants: HERO_ENTRANCE_VARIANTS,
+        transition: HERO_ENTRANCE_TRANSITION,
       };
     case "bloom-in":
       return {
-        initial: { opacity: 0, scale: 0.3, rotate: -45 },
-        animate: { opacity: 1, scale: 1, rotate: 0 },
-        transition: { duration: 0.6, ease: "easeOut" as const },
+        variants: BLOOM_IN_VARIANTS,
+        transition: BLOOM_TRANSITION,
       };
     case "slide-up":
       return {
-        initial: { opacity: 0, scale: 0.9 },
-        animate: { opacity: 1, scale: 1 },
-        transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+        variants: SLIDE_UP_VARIANTS,
+        transition: SLIDE_UP_TRANSITION,
       };
     case "fade-drop":
       return {
-        initial: { opacity: 0, scale: 0.9 },
-        animate: { opacity: 1, scale: 1 },
-        transition: { duration: 0.4, ease: "easeOut" as const },
+        variants: FADE_DROP_VARIANTS,
+        transition: FADE_DROP_TRANSITION,
       };
     case "pop-in":
       return {
-        initial: { opacity: 0, scale: 0.6 },
-        animate: { opacity: 1, scale: 1 },
-        transition: {
-          duration: 0.4,
-          ease: [0.68, -0.55, 0.265, 1.55] as const,
-        },
+        variants: POP_IN_VARIANTS,
+        transition: POP_IN_TRANSITION,
       };
     default:
       return {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        transition: { duration: 0.4, ease: "easeOut" as const },
+        variants: DEFAULT_VARIANTS,
+        transition: DEFAULT_TRANSITION,
       };
   }
 };
@@ -69,15 +122,16 @@ export function CustomNode({
   selected: boolean;
   id: string;
 }) {
-  const entranceAnim = getEntranceAnimation(data.animationType);
+  const { variants, transition } = getAnimationConfig(data.animationType);
   const delay = data.animationDelay ?? 0;
   // Root node (name) - HERO with maximum prominence and pulsing animation
   if (data.type === "root") {
     return (
       <motion.div
-        initial={entranceAnim.initial}
+        variants={variants}
+        initial="initial"
         animate={{
-          ...entranceAnim.animate,
+          ...variants.animate,
           scale: [1, 1.05, 1],
           boxShadow: [
             "0 20px 40px rgba(249, 115, 22, 0.2)",
@@ -86,7 +140,7 @@ export function CustomNode({
           ],
         }}
         transition={{
-          ...entranceAnim.transition,
+          ...transition,
           delay,
           scale: {
             duration: 2,
@@ -138,9 +192,10 @@ export function CustomNode({
   if (data.type === "company") {
     return (
       <motion.div
-        initial={entranceAnim.initial}
-        animate={entranceAnim.animate}
-        transition={{ ...entranceAnim.transition, delay }}
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        transition={{ ...transition, delay }}
         className="relative"
         onMouseEnter={() => {
           data.onHoverChange?.(id, true);
@@ -190,9 +245,10 @@ export function CustomNode({
   if (data.type === "education") {
     return (
       <motion.div
-        initial={entranceAnim.initial}
-        animate={entranceAnim.animate}
-        transition={{ ...entranceAnim.transition, delay }}
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        transition={{ ...transition, delay }}
         className="relative"
         onMouseEnter={() => {
           data.onHoverChange?.(id, true);
@@ -242,26 +298,27 @@ export function CustomNode({
   if (data.type === "soft-skill") {
     return (
       <motion.div
-        initial={entranceAnim.initial}
+        variants={variants}
+        initial="initial"
         animate={{
-          ...entranceAnim.animate,
+          ...variants.animate,
           y: [0, -8, 0],
           rotate: [-2, 2, -2],
         }}
         transition={{
-          opacity: { duration: 0.6, delay },
-          scale: { duration: 0.6, delay },
+          ...transition,
+          delay,
           y: {
             duration: softSkillDuration,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: delay + 0.6,
+            delay: delay + (transition.duration || 0.6),
           },
           rotate: {
             duration: softSkillDuration,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: delay + 0.6,
+            delay: delay + (transition.duration || 0.6),
           },
         }}
         className={cn(
