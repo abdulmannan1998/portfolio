@@ -17,6 +17,7 @@ import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
 import { CustomNode } from "@/components/custom-node";
 import { AchievementNode } from "@/components/nodes/achievement-node";
 import { useGraphStore } from "@/lib/stores/graph-store";
+import { REVEAL_TIMING } from "@/lib/layout-constants";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -191,19 +192,19 @@ function DashboardBackgroundInner({
     setTimeout(() => {
       addNodeAndEdges("Bilkent");
       fitViewSmooth();
-    }, 1200);
+    }, REVEAL_TIMING.EDUCATION_DELAY_MS);
 
     // Stage 3: Work Experience - Layermark (1700ms)
     setTimeout(() => {
       addNodeAndEdges("Layermark");
       fitViewSmooth();
-    }, 1700);
+    }, REVEAL_TIMING.LAYERMARK_DELAY_MS);
 
     // Stage 4: Work Experience - Intenseye (2200ms)
     setTimeout(() => {
       addNodeAndEdges("Intenseye");
       fitViewSmooth();
-    }, 2200);
+    }, REVEAL_TIMING.INTENSEYE_DELAY_MS);
   }, [addNodeAndEdges, fitViewSmooth]);
 
   // Handle pointer enter
