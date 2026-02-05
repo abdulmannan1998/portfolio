@@ -45,9 +45,6 @@ function DashboardBackgroundInner({
   const reactFlowInstance = useReactFlow();
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
-  const handleNodeHoverRef = useRef<
-    (nodeId: string, isEntering: boolean) => void
-  >(() => {});
 
   // Initialize nodes/edges state (refs populated in useEffect, not during render)
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -73,6 +70,22 @@ function DashboardBackgroundInner({
       });
     }, 50);
   }, [reactFlowInstance]);
+
+  // Stable handler for achievement nodes - uses store for fresh state
+  const achievementNodeHoverHandler = useCallback(
+    (nodeId: string, isEntering: boolean) => {
+      if (!isEntering) return;
+
+      // Read fresh state from store imperatively
+      const { isCompanyRevealed } = useGraphStore.getState();
+      if (!isCompanyRevealed(nodeId)) {
+        // This is an achievement node being hovered - we don't track these
+        // Only company/education nodes trigger reveal sequences
+        return;
+      }
+    },
+    [],
+  );
 
   // Handle company/education hover to show achievements
   const handleNodeHover = useCallback(
@@ -105,8 +118,7 @@ function DashboardBackgroundInner({
           ...n,
           data: {
             ...n.data,
-            onHoverChange: (id: string, entering: boolean) =>
-              handleNodeHoverRef.current(id, entering),
+            onHoverChange: achievementNodeHoverHandler,
             animationDelay: index * 0.1, // Stagger by 100ms each, not 1.8+ seconds
           },
         }));
@@ -129,13 +141,8 @@ function DashboardBackgroundInner({
         }, totalAnimationTime);
       }
     },
-    [setNodes, setEdges, fitViewSmooth],
+    [setNodes, setEdges, fitViewSmooth, achievementNodeHoverHandler],
   );
-
-  // Keep ref in sync with latest callback
-  useEffect(() => {
-    handleNodeHoverRef.current = handleNodeHover;
-  }, [handleNodeHover]);
 
   // Add node and its edges to the graph
   const addNodeAndEdges = useCallback(
