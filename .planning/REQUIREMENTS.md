@@ -28,9 +28,9 @@ Requirements for this cleanup milestone, derived from `.planning/codebase/CONCER
 
 ### Type Safety
 
-- [ ] **TYPE-01**: Replace implicit `any` in layout-calculator.ts line 83 with proper discriminated union
-- [ ] **TYPE-02**: Create strict `AchievementNodeDisplayData` type for achievement node data
-- [ ] **TYPE-03**: Fix Zustand store Set<string> serialization issue — use arrays instead
+- [x] **TYPE-01**: Replace implicit `any` in layout-calculator.ts line 83 with proper discriminated union
+- [x] **TYPE-02**: Create strict `AchievementNodeDisplayData` type for achievement node data
+- [x] **TYPE-03**: Fix Zustand store Set<string> serialization issue — use arrays instead
 
 ### Performance
 
@@ -81,9 +81,9 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 | CONST-02    | Phase 2 | Complete |
 | CONST-03    | Phase 2 | Complete |
 | CONST-04    | Phase 2 | Complete |
-| TYPE-01     | Phase 3 | Pending  |
-| TYPE-02     | Phase 3 | Pending  |
-| TYPE-03     | Phase 3 | Pending  |
+| TYPE-01     | Phase 3 | Complete |
+| TYPE-02     | Phase 3 | Complete |
+| TYPE-03     | Phase 3 | Complete |
 | STATE-01    | Phase 4 | Pending  |
 | STATE-02    | Phase 4 | Pending  |
 | STATE-03    | Phase 4 | Pending  |
@@ -101,4 +101,4 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 ---
 
 _Requirements defined: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 2 complete - CONST-01, CONST-02, CONST-03, CONST-04 satisfied_
+_Last updated: 2026-02-05 after Phase 3 complete - TYPE-01, TYPE-02, TYPE-03 satisfied_
