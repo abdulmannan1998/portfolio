@@ -34,10 +34,10 @@ Requirements for this cleanup milestone, derived from `.planning/codebase/CONCER
 
 ### Performance
 
-- [ ] **PERF-01**: Batch fitView calls — reduce from 7+ calls during reveal to single debounced call
-- [ ] **PERF-02**: Optimize reveal sequence — replace sequential setTimeout chain with cleaner pattern
-- [ ] **PERF-03**: Extract animation variants to module-level constants (avoid recreation per render)
-- [ ] **PERF-04**: Add memoization to `getTimelinePositions` for unchanged viewport sizes
+- [x] **PERF-01**: Batch fitView calls — reduce from 7+ calls during reveal to single debounced call
+- [x] **PERF-02**: Optimize reveal sequence — replace sequential setTimeout chain with cleaner pattern
+- [x] **PERF-03**: Extract animation variants to module-level constants (avoid recreation per render)
+- [x] **PERF-04**: Add memoization to `getTimelinePositions` for unchanged viewport sizes
 
 ## v2 Requirements
 
@@ -87,10 +87,10 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 | STATE-01    | Phase 4 | Complete |
 | STATE-02    | Phase 4 | Complete |
 | STATE-03    | Phase 4 | Complete |
-| PERF-01     | Phase 5 | Pending  |
-| PERF-02     | Phase 5 | Pending  |
-| PERF-03     | Phase 5 | Pending  |
-| PERF-04     | Phase 5 | Pending  |
+| PERF-01     | Phase 5 | Complete |
+| PERF-02     | Phase 5 | Complete |
+| PERF-03     | Phase 5 | Complete |
+| PERF-04     | Phase 5 | Complete |
 
 **Coverage:**
 
@@ -101,4 +101,4 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 ---
 
 _Requirements defined: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 4 complete - STATE-01, STATE-02, STATE-03 satisfied_
+_Last updated: 2026-02-05 after Phase 5 complete - PERF-01, PERF-02, PERF-03, PERF-04 satisfied_
