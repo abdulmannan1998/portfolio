@@ -4,21 +4,11 @@ import { motion } from "framer-motion";
 import { Handle, Position } from "@xyflow/react";
 import { useGraphStore } from "@/lib/stores/graph-store";
 import { X } from "lucide-react";
-import type { AchievementCategory } from "@/data/resume-data";
+import type { AchievementNodeDisplayData } from "@/lib/layout-calculator";
 
 type AchievementNodeProps = {
   id: string;
-  data: {
-    id: string;
-    title: string;
-    description: string;
-    impact: string;
-    technologies: string[];
-    company: string;
-    category: AchievementCategory;
-    animationDelay?: number;
-    animationType?: string;
-  };
+  data: AchievementNodeDisplayData;
   selected: boolean;
 };
 

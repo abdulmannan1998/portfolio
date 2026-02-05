@@ -114,6 +114,19 @@ export interface AchievementNodeData extends BaseNodeData {
   category: AchievementCategory;
 }
 
+/** Data passed to AchievementNode component */
+export interface AchievementNodeDisplayData {
+  id: string;
+  title: string;
+  description: string;
+  impact: string;
+  technologies: string[];
+  company: string;
+  category: AchievementCategory;
+  animationDelay?: number;
+  animationType?: string;
+}
+
 export type GraphNode =
   | RootNodeData
   | CompanyNodeData
@@ -276,11 +289,16 @@ export function getTimelinePositions(
           type: "achievement",
           position: { x, y },
           data: {
-            ...achievement,
-            label: achievement.title,
+            id: achievement.id,
+            title: achievement.title,
+            description: achievement.description,
+            impact: achievement.impact,
+            technologies: achievement.technologies,
+            company: achievement.company,
+            category: achievement.category,
             animationDelay: 1.8 + companyOrder * 0.3 + index * 0.15, // Cascade from parent
             animationType: "fade-drop",
-          },
+          } satisfies AchievementNodeDisplayData,
         });
 
         achievementPositions[achievement.id] = { x: x + 125, y }; // Store center point
