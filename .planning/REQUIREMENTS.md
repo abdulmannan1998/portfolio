@@ -15,10 +15,10 @@ Requirements for this cleanup milestone, derived from `.planning/codebase/CONCER
 
 ### Constants & Magic Numbers
 
-- [ ] **CONST-01**: Extract safe area constants from `layout-calculator.ts` (header: 140, metrics: 220, left margin: 240)
-- [ ] **CONST-02**: Extract achievement positioning constants (spacing: 200, offset: 250, stagger: 150)
-- [ ] **CONST-03**: Extract reveal timing constants from `dashboard-background.tsx` (1200ms, 1700ms, 2200ms)
-- [ ] **CONST-04**: Create centralized `lib/layout-constants.ts` for all extracted values
+- [x] **CONST-01**: Extract safe area constants from `layout-calculator.ts` (header: 140, metrics: 220, left margin: 240)
+- [x] **CONST-02**: Extract achievement positioning constants (spacing: 200, offset: 250, stagger: 150)
+- [x] **CONST-03**: Extract reveal timing constants from `dashboard-background.tsx` (1200ms, 1700ms, 2200ms)
+- [x] **CONST-04**: Create centralized `lib/layout-constants.ts` for all extracted values
 
 ### State Management
 
@@ -77,10 +77,10 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 | DEAD-01     | Phase 1 | Complete |
 | DEAD-02     | Phase 1 | Complete |
 | DEAD-03     | Phase 1 | Complete |
-| CONST-01    | Phase 2 | Pending  |
-| CONST-02    | Phase 2 | Pending  |
-| CONST-03    | Phase 2 | Pending  |
-| CONST-04    | Phase 2 | Pending  |
+| CONST-01    | Phase 2 | Complete |
+| CONST-02    | Phase 2 | Complete |
+| CONST-03    | Phase 2 | Complete |
+| CONST-04    | Phase 2 | Complete |
 | TYPE-01     | Phase 3 | Pending  |
 | TYPE-02     | Phase 3 | Pending  |
 | TYPE-03     | Phase 3 | Pending  |
@@ -101,4 +101,4 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 ---
 
 _Requirements defined: 2026-02-05_
-_Last updated: 2026-02-05 after Phase 1 complete - DEAD-01, DEAD-02, DEAD-03 satisfied_
+_Last updated: 2026-02-05 after Phase 2 complete - CONST-01, CONST-02, CONST-03, CONST-04 satisfied_
