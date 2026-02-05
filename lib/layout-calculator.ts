@@ -78,33 +78,33 @@ export function getResponsiveSpacing(safeArea: SafeArea): Spacing {
  */
 
 // Discriminated union node types
-interface BaseNodeData {
+type BaseNodeData = {
   id: string;
-}
+};
 
-export interface RootNodeData extends BaseNodeData {
+export type RootNodeData = BaseNodeData & {
   type: "root";
   label: string;
-}
+};
 
-export interface CompanyNodeData extends BaseNodeData {
+export type CompanyNodeData = BaseNodeData & {
   type: "company";
   label: string;
   period?: string;
-}
+};
 
-export interface EducationNodeData extends BaseNodeData {
+export type EducationNodeData = BaseNodeData & {
   type: "education";
   label: string;
   period?: string;
-}
+};
 
-export interface SoftSkillNodeData extends BaseNodeData {
+export type SoftSkillNodeData = BaseNodeData & {
   type: "soft-skill";
   label: string;
-}
+};
 
-export interface AchievementNodeData extends BaseNodeData {
+export type AchievementNodeData = BaseNodeData & {
   type: "achievement";
   title: string;
   description: string;
@@ -112,10 +112,10 @@ export interface AchievementNodeData extends BaseNodeData {
   technologies: string[];
   company: string;
   category: AchievementCategory;
-}
+};
 
 /** Data passed to AchievementNode component */
-export interface AchievementNodeDisplayData {
+export type AchievementNodeDisplayData = {
   id: string;
   title: string;
   description: string;
@@ -125,7 +125,7 @@ export interface AchievementNodeDisplayData {
   category: AchievementCategory;
   animationDelay?: number;
   animationType?: string;
-}
+};
 
 export type GraphNode =
   | RootNodeData
