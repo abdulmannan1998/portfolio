@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -46,17 +46,29 @@ function DashboardBackgroundInner({
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
 
+  // Destructure dimensions for stable memoization dependencies
+  const { width: graphWidth, height: graphHeight } = graphDimensions;
+
+  // Memoize node and edge calculations to prevent redundant recalculation
+  const allNodes = useMemo(() => {
+    return getInitialNodes({ width: graphWidth, height: graphHeight });
+  }, [graphWidth, graphHeight]);
+
+  const allEdges = useMemo(() => {
+    return getInitialEdges();
+  }, []);
+
   // Initialize nodes/edges state (refs populated in useEffect, not during render)
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    getInitialNodes(graphDimensions).filter((n) => n.data?.type === "root"),
+    allNodes.filter((n) => n.data?.type === "root"),
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // Populate refs after initial render
+  // Sync refs with memoized values
   useEffect(() => {
-    allNodesRef.current = getInitialNodes(graphDimensions);
-    allEdgesRef.current = getInitialEdges();
-  }, [graphDimensions]);
+    allNodesRef.current = allNodes;
+    allEdgesRef.current = allEdges;
+  }, [allNodes, allEdges]);
   const expandedNodes = useGraphStore((state) => state.expandedNodes);
 
   // Fit view smoothly
@@ -250,11 +262,8 @@ function DashboardBackgroundInner({
   useEffect(() => {
     if (graphDimensions.width === 0 || graphDimensions.height === 0) return;
 
-    // Update refs with new dimension calculations
-    allNodesRef.current = getInitialNodes(graphDimensions);
-    allEdgesRef.current = getInitialEdges();
-
     // Re-calculate positions for currently revealed nodes (with hover handler)
+    // Note: allNodesRef is already synced via the memoized allNodes value
     setNodes((prevNodes) => {
       const currentIds = new Set(prevNodes.map((n) => n.id));
       return allNodesRef.current
