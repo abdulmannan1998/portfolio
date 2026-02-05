@@ -31,11 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 1. Graph store contains only actively used state (no filter/highlight/view mode infrastructure)
 2. All source files have zero unused imports or variables (verified by TypeScript compiler)
 3. Component props and function parameters match actual usage patterns (no orphaned parameters)
-   **Plans**: TBD
+
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md — Remove unused graph store features and clean up component props
 
 ### Phase 2: Constants Extraction
 
@@ -110,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase                        | Plans Complete | Status      | Completed |
 | ---------------------------- | -------------- | ----------- | --------- |
-| 1. Dead Code Removal         | 0/0            | Not started | -         |
+| 1. Dead Code Removal         | 0/1            | Planned     | -         |
 | 2. Constants Extraction      | 0/0            | Not started | -         |
 | 3. Type Safety               | 0/0            | Not started | -         |
 | 4. State Management Refactor | 0/0            | Not started | -         |
@@ -119,4 +120,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 ---
 
 _Roadmap created: 2026-02-05_
-_Last updated: 2026-02-05 after initial creation_
+_Last updated: 2026-02-05 after Phase 1 planning_
