@@ -34,7 +34,7 @@ export function AchievementNode({
   selected,
 }: AchievementNodeProps) {
   const { expandedNodes, expandNode, collapseNode } = useGraphStore();
-  const isExpanded = expandedNodes.has(data.id);
+  const isExpanded = expandedNodes.includes(data.id);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

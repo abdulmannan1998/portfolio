@@ -265,7 +265,7 @@ function DashboardBackgroundInner({
     setNodes((nds) =>
       nds.map((node) => ({
         ...node,
-        zIndex: expandedNodes.has(node.id) ? 1000 : undefined,
+        zIndex: expandedNodes.includes(node.id) ? 1000 : undefined,
       })),
     );
   }, [expandedNodes, setNodes]);

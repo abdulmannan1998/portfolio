@@ -3,8 +3,8 @@
 import { create } from "zustand";
 
 type GraphState = {
-  // Expanded nodes
-  expandedNodes: Set<string>;
+  // Expanded nodes (array for JSON serializability)
+  expandedNodes: string[];
   expandNode: (id: string) => void;
   collapseNode: (id: string) => void;
   collapseAll: () => void;
@@ -12,20 +12,20 @@ type GraphState = {
 
 export const useGraphStore = create<GraphState>((set) => ({
   // Initial state
-  expandedNodes: new Set(),
+  expandedNodes: [],
 
   // Actions
   expandNode: (id) =>
     set((state) => ({
-      expandedNodes: new Set(state.expandedNodes).add(id),
+      expandedNodes: state.expandedNodes.includes(id)
+        ? state.expandedNodes
+        : [...state.expandedNodes, id],
     })),
 
   collapseNode: (id) =>
-    set((state) => {
-      const newSet = new Set(state.expandedNodes);
-      newSet.delete(id);
-      return { expandedNodes: newSet };
-    }),
+    set((state) => ({
+      expandedNodes: state.expandedNodes.filter((nodeId) => nodeId !== id),
+    })),
 
-  collapseAll: () => set({ expandedNodes: new Set() }),
+  collapseAll: () => set({ expandedNodes: [] }),
 }));
