@@ -1,10 +1,21 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Handle, Position } from "@xyflow/react";
 import { useGraphStore } from "@/lib/stores/graph-store";
 import { X } from "lucide-react";
 import type { AchievementNodeDisplayData } from "@/lib/layout-calculator";
+
+// Module-level animation variants (computed once at module load)
+const ENTRANCE_VARIANTS = {
+  initial: { opacity: 0, scale: 0.9 } as const,
+  animate: { opacity: 1, scale: 1 } as const,
+};
+
+const EXPAND_COLLAPSE_VARIANTS: Variants = {
+  collapsed: { width: 250, height: 80 },
+  expanded: { width: 400, height: "auto", minHeight: 300 },
+};
 
 type AchievementNodeProps = {
   id: string;
@@ -55,18 +66,15 @@ export function AchievementNode({
         layout
         onClick={handleClick}
         // Entrance animation - use only opacity/scale to avoid edge path calculation issues
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={ENTRANCE_VARIANTS.initial}
+        animate={ENTRANCE_VARIANTS.animate}
         className={`
           relative cursor-pointer overflow-hidden
           rounded-lg border-2 bg-stone-900
           ${selected || isExpanded ? categoryColors[data.category] : "border-stone-800"}
           transition-colors duration-200
         `}
-        variants={{
-          collapsed: { width: 250, height: 80 },
-          expanded: { width: 400, height: "auto", minHeight: 300 },
-        }}
+        variants={EXPAND_COLLAPSE_VARIANTS}
         transition={
           isExpanded
             ? { type: "spring", stiffness: 300, damping: 30 }
