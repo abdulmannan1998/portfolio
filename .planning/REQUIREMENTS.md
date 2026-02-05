@@ -72,33 +72,33 @@ Deferred to future milestones — valuable but out of scope for cleanup.
 
 ## Traceability
 
-| Requirement | Phase | Status  |
-| ----------- | ----- | ------- |
-| DEAD-01     | TBD   | Pending |
-| DEAD-02     | TBD   | Pending |
-| DEAD-03     | TBD   | Pending |
-| CONST-01    | TBD   | Pending |
-| CONST-02    | TBD   | Pending |
-| CONST-03    | TBD   | Pending |
-| CONST-04    | TBD   | Pending |
-| STATE-01    | TBD   | Pending |
-| STATE-02    | TBD   | Pending |
-| STATE-03    | TBD   | Pending |
-| TYPE-01     | TBD   | Pending |
-| TYPE-02     | TBD   | Pending |
-| TYPE-03     | TBD   | Pending |
-| PERF-01     | TBD   | Pending |
-| PERF-02     | TBD   | Pending |
-| PERF-03     | TBD   | Pending |
-| PERF-04     | TBD   | Pending |
+| Requirement | Phase   | Status  |
+| ----------- | ------- | ------- |
+| DEAD-01     | Phase 1 | Pending |
+| DEAD-02     | Phase 1 | Pending |
+| DEAD-03     | Phase 1 | Pending |
+| CONST-01    | Phase 2 | Pending |
+| CONST-02    | Phase 2 | Pending |
+| CONST-03    | Phase 2 | Pending |
+| CONST-04    | Phase 2 | Pending |
+| TYPE-01     | Phase 3 | Pending |
+| TYPE-02     | Phase 3 | Pending |
+| TYPE-03     | Phase 3 | Pending |
+| STATE-01    | Phase 4 | Pending |
+| STATE-02    | Phase 4 | Pending |
+| STATE-03    | Phase 4 | Pending |
+| PERF-01     | Phase 5 | Pending |
+| PERF-02     | Phase 5 | Pending |
+| PERF-03     | Phase 5 | Pending |
+| PERF-04     | Phase 5 | Pending |
 
 **Coverage:**
 
 - v1 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17 ⚠️
+- Mapped to phases: 17
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-02-05_
-_Last updated: 2026-02-05 after initial definition_
+_Last updated: 2026-02-05 after roadmap creation - 100% coverage achieved_
