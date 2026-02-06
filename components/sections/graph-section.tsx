@@ -20,7 +20,6 @@ import { AchievementNode } from "@/components/nodes/achievement-node";
 import { useGraphStore } from "@/lib/stores/graph-store";
 import { REVEAL_TIMING } from "@/lib/layout-constants";
 import { debounce } from "@/lib/debounce";
-import { GraphLegend } from "@/components/graph-legend";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -272,19 +271,19 @@ function GraphSectionInner() {
 
   return (
     <div id="graph" className="relative">
+      <p className="text-stone-400 mb-4">
+        Hover over companies and education to explore my achievements and
+        projects
+      </p>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         ref={graphContainerRef}
-        className="relative h-[500px] md:h-[700px] bg-stone-950 overflow-hidden"
+        className="relative h-[500px] md:h-[700px] rounded-xl border border-stone-800 bg-stone-950/50 overflow-hidden"
         onMouseEnter={handleGraphEnter}
       >
-        {/* Legend overlay */}
-        <div className="absolute top-4 left-4 z-10">
-          <GraphLegend />
-        </div>
-
         <ReactFlow
           nodes={nodes}
           edges={edges}
