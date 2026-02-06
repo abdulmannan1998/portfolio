@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { techCategories } from "@/data/tech-stack";
 import { GitHubActivity } from "@/components/github-activity";
 import { SOCIAL_LINKS } from "@/lib/social-links";
+import { initScrollAnimations } from "@/hooks/use-scroll-animation";
 
 const categoryOffsets = techCategories.reduce<number[]>((acc, cat, i) => {
   acc.push(i === 0 ? 0 : acc[i - 1] + techCategories[i - 1].items.length);
@@ -11,6 +12,11 @@ const categoryOffsets = techCategories.reduce<number[]>((acc, cat, i) => {
 }, []);
 
 export function TechAndCodeSection() {
+  useEffect(() => {
+    const cleanup = initScrollAnimations();
+    return cleanup;
+  }, []);
+
   return (
     <section className="relative py-24 bg-black overflow-hidden">
       {/* Section header */}
@@ -41,29 +47,26 @@ export function TechAndCodeSection() {
               return (
                 <div key={category.name}>
                   {/* Oversized category header */}
-                  <motion.h3
-                    initial={{ x: -30, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: catIndex * 0.1 }}
-                    className="text-2xl md:text-3xl font-black text-orange-500/25 uppercase leading-none mb-3"
+                  <h3
+                    className="text-2xl md:text-3xl font-black text-orange-500/25 uppercase leading-none mb-3 fade-in-left"
+                    style={
+                      { "--stagger-index": catIndex } as React.CSSProperties
+                    }
                   >
                     {category.name}
-                  </motion.h3>
+                  </h3>
 
                   {/* Compact icon cluster */}
                   <div className="flex flex-wrap gap-3 pl-1">
                     {category.items.map((tech, index) => (
-                      <motion.div
+                      <div
                         key={tech.name}
-                        initial={{ opacity: 0, y: 6 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{
-                          delay: (categoryStartIndex + index) * 0.03,
-                          duration: 0.3,
-                        }}
-                        className="flex items-center gap-2 cursor-default group"
+                        className="flex items-center gap-2 cursor-default group fade-in-up"
+                        style={
+                          {
+                            animationDelay: `${(categoryStartIndex + index) * 0.03}s`,
+                          } as React.CSSProperties
+                        }
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -74,7 +77,7 @@ export function TechAndCodeSection() {
                         <span className="text-[10px] font-mono uppercase text-white/40 group-hover:text-orange-500 transition-colors">
                           {tech.name}
                         </span>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
 
