@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
-**Current focus:** Phase 9 - Server-side GitHub Fetching
+**Current focus:** Phase 10 - Client Boundary Extraction
 
 ## Current Position
 
-Phase: 9 of 12 (Server-side GitHub Fetching) -- v1.2 SSR Migration in progress
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 09-01-PLAN.md (zero-flash GitHub SSR)
+Phase: 10 of 12 (Client Boundary Extraction) -- v1.2 SSR Migration in progress
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-07 -- Completed 10-01-PLAN.md (static component server migration)
 
-Progress: [█████████░░░░░░░░░░░] 42% (1/6 v1.2 plans complete, 9/12 phases complete across all milestones)
+Progress: [█████████░░░░░░░░░░░] 50% (2/6 v1.2 plans complete, 9/12 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [█████████░░░░░░░░░░░] 42% (1/
 **v1.2 Milestone (in progress):**
 
 - Total plans: 6 (target)
-- Plans complete: 1
-- Average duration: 4 min
-- Total execution time: 4 min
+- Plans complete: 2
+- Average duration: 3 min
+- Total execution time: 6 min
 - Phases: 4 (target), 1 complete
 
 **By Phase (cumulative):**
@@ -53,6 +53,7 @@ Progress: [█████████░░░░░░░░░░░] 42% (1/
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
 | 09-server-side-github-fetching | v1.2      | 1     | 4min  | 4min     |
+| 10-client-boundary-extraction  | v1.2      | 1     | 2min  | 2min     |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [09-01]: Use fetch-level ISR instead of segment-level revalidate (cacheComponents conflict)
 - [09-01]: Split page.tsx into server wrapper + client PageContent (SSR + client interactivity)
 - [09-01]: Export RedactedCommit type from lib/github.ts as single source of truth
+- [10-01]: Use module-level computation for deterministic star generation (no useMemo needed)
+- [10-01]: Move @keyframes animations from inline styles to globals.css (avoid hydration warnings)
+- [10-01]: Replace framer-motion with CSS animations for static entrance effects
 
 ### Pending Todos
 
@@ -81,10 +85,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 09-01-PLAN.md (zero-flash GitHub SSR)
+Stopped at: Completed 10-01-PLAN.md (static component server migration)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Completed Phase 09: Server-side GitHub Fetching with ISR and client boundary split_
+_Last updated: 2026-02-07 -- Completed 10-01: Static Component Server Migration (twinkling-stars, css-preloader, graph-legend)_
