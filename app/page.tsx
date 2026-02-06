@@ -271,9 +271,9 @@ export default function Page() {
               <img
                 src={tech.icon}
                 alt={tech.name}
-                className="w-10 h-10 object-contain opacity-60 group-hover:opacity-100 transition-opacity"
+                className="w-10 h-10 object-contain transition-opacity"
               />
-              <span className="text-white/60 group-hover:text-orange-500 transition-colors font-mono text-xs md:text-sm text-center uppercase">
+              <span className="text-white group-hover:text-orange-500 transition-colors font-mono text-xs md:text-sm text-center uppercase">
                 {tech.name}
               </span>
             </motion.div>
