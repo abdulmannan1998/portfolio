@@ -59,6 +59,7 @@ Plans:
 **Goal**: All four static content sections (about, metrics, timeline, tech stack) animate on scroll using CSS instead of framer-motion, with no visual regression
 **Depends on**: Phase 9 (keyframes and polyfill available)
 **Requirements**: ANIM-02, ANIM-03, ANIM-04, ANIM-05
+**Plans**: 2 plans
 **Success Criteria** (what must be TRUE):
 
 1. About section fades in with staggered left/right entrance when scrolled into view, matching current framer-motion timing and easing
@@ -66,12 +67,11 @@ Plans:
 3. Experience timeline entries fade in sequentially as user scrolls down the page
 4. Tech stack grid items animate in when the section enters the viewport
 5. None of these four sections import or reference framer-motion
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
+- [ ] 10-01-PLAN.md -- Migrate about section and metrics section to CSS scroll animations
+- [ ] 10-02-PLAN.md -- Migrate experience timeline and tech stack to CSS scroll animations
 
 ### Phase 11: Server-side GitHub Fetching
 
@@ -161,4 +161,4 @@ Critical path: 9 -> 10 -> 12 -> 13 -> 14 (Phase 11 merges at 13)
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 9 complete (3/3 plans)_
+_Last updated: 2026-02-07 -- Phase 10 planned (2 plans in 1 wave)_
