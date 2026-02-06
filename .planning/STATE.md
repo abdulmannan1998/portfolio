@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 004: Update tech stack with accurate skills and local icons
+Last activity: 2026-02-06 — Completed quick task 006: Move contact links to sticky nav and rename to PORTFOLIO
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -72,11 +72,12 @@ None.
 
 ### Quick Tasks Completed
 
-| #   | Description                               | Date       | Commit  | Directory                                                                                          |
-| --- | ----------------------------------------- | ---------- | ------- | -------------------------------------------------------------------------------------------------- |
-| 002 | Centralize social links to constants file | 2026-02-06 | 934f469 | [002-centralize-social-links](./quick/002-centralize-social-links-to-constants-fil/)               |
-| 003 | Flesh out about section personalized      | 2026-02-06 | 2573fae | [003-flesh-out-about-section](./quick/003-flesh-out-the-about-section-personalized/003-SUMMARY.md) |
-| 004 | Update tech stack with local icons        | 2026-02-06 | 16f1af4 | [004-update-tech-stack](./quick/004-update-tech-stack-section-with-accurate-/004-SUMMARY.md)       |
+| #   | Description                                           | Date       | Commit  | Directory                                                                                          |
+| --- | ----------------------------------------------------- | ---------- | ------- | -------------------------------------------------------------------------------------------------- |
+| 002 | Centralize social links to constants file             | 2026-02-06 | 934f469 | [002-centralize-social-links](./quick/002-centralize-social-links-to-constants-fil/)               |
+| 003 | Flesh out about section personalized                  | 2026-02-06 | 2573fae | [003-flesh-out-about-section](./quick/003-flesh-out-the-about-section-personalized/003-SUMMARY.md) |
+| 004 | Update tech stack with local icons                    | 2026-02-06 | 16f1af4 | [004-update-tech-stack](./quick/004-update-tech-stack-section-with-accurate-/004-SUMMARY.md)       |
+| 006 | Move contact links to sticky nav, rename to PORTFOLIO | 2026-02-06 | e409854 | [006-sticky-nav-contacts](./quick/006-move-contact-links-to-sticky-top-right-a/006-SUMMARY.md)     |
 
 ## Session Continuity
 
@@ -87,4 +88,4 @@ Resume file: None
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 — Quick task 004 (tech stack update with local icons)_
+_Last updated: 2026-02-06 — Quick task 006 (sticky nav contacts + rename to PORTFOLIO)_
