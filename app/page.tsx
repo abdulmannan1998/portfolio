@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef } from "react";
 import dynamic from "next/dynamic";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Beaker } from "lucide-react";
 import { MarqueeText } from "@/components/marquee-text";
@@ -12,6 +11,7 @@ import { TechAndCodeSection } from "@/components/sections/tech-and-code-section"
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { TwinklingStars } from "@/components/twinkling-stars";
 import { mulberry32 } from "@/lib/seeded-random";
+import { HeroParallax } from "@/components/hero-parallax";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
@@ -44,17 +44,8 @@ const backgroundPattern = [...Array(20)].map(() => ({
 }));
 
 export default function Page() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.8]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-
   return (
-    <main
-      ref={containerRef}
-      className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden"
-    >
+    <main className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden">
       {/* Fixed navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
         <div className="flex items-center justify-between p-6 md:p-8">
@@ -107,10 +98,7 @@ export default function Page() {
       </nav>
 
       {/* Hero section - Brutalist typography */}
-      <motion.section
-        style={{ scale: heroScale, opacity: heroOpacity }}
-        className="sticky top-0 min-h-screen flex flex-col justify-center items-center px-6 bg-black"
-      >
+      <HeroParallax>
         <TwinklingStars />
         {/* Giant name */}
         <div className="relative">
@@ -157,7 +145,7 @@ export default function Page() {
             className="w-px h-16 bg-gradient-to-b from-white/50 to-transparent"
           />
         </motion.div>
-      </motion.section>
+      </HeroParallax>
 
       {/* Scrolling marquee section */}
       <section className="relative bg-orange-500 py-8 -rotate-1">
