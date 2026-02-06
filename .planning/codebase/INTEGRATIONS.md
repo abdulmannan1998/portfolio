@@ -1,152 +1,173 @@
 # External Integrations
 
-**Analysis Date:** 2026-02-05
+**Analysis Date:** 2026-02-06
 
 ## APIs & External Services
 
-**Not detected** - This is a static portfolio application with no external API integrations.
+**GitHub Public API:**
 
-The application is designed as a self-contained, client-side portfolio website that:
+- Service: GitHub (github.com/api)
+- What it's used for: Fetching public activity feed showing latest commits and events
+- Location: `app/page.tsx` - `GitHubActivity` component (line 219-347)
+- Endpoint: `https://api.github.com/users/{username}/events/public?per_page=5`
+- Client: Native Fetch API (no SDK)
+- Auth: None required (public endpoints)
+- Username: `sunnyimmortal`
 
-- Does not make HTTP requests to external services
-- Contains no API client implementations (axios, fetch-based HTTP utilities)
-- Uses only locally imported modules and third-party UI libraries
+**Icon CDN:**
+
+- Service: jsDelivr CDN (cdn.jsdelivr.net/gh/devicons/devicon)
+- What it's used for: Serving technology stack icon SVGs
+- Location: `app/page.tsx` - `techStack` array (lines 42-115)
+- Usage: Dynamic image URLs for tech icons (React, TypeScript, Next.js, Node.js, etc.)
+- Auth: None required (public CDN)
 
 ## Data Storage
 
-**Databases:**
+**Database:**
 
-- Not applicable - No database integration detected
+- Type: None active
+- Status: Not integrated in current portfolio
+- Note: This is a static portfolio with client-side rendering; no persistent backend
 
 **File Storage:**
 
-- Local filesystem only
-  - Static resume data: `data/resume-data.ts` (TypeScript data structures)
-  - Static assets: `public/` directory
-  - No cloud storage service integration (S3, Firebase Storage, etc.)
+- Type: Local filesystem + CDN
+- Approach:
+  - Static assets: Next.js public directory (`/public`)
+  - Images/Icons: jsDelivr CDN (external)
+  - No cloud storage service integrated (S3, Firebase, etc.)
 
 **Caching:**
 
-- Next.js built-in client router cache:
-  - Configured in `next.config.ts`:
-    - Static cache: 180 seconds
-    - Dynamic cache: 30 seconds
-  - Browser-level caching via HTTP headers (automatic via Next.js)
-- No external caching service (Redis, Memcached, etc.)
+- Browser: Next.js client router cache configured in `next.config.ts`
+  - Dynamic routes: 30 seconds
+  - Static routes: 180 seconds
+- Service-side: None detected
 
 ## Authentication & Identity
 
 **Auth Provider:**
 
-- Not applicable - No authentication system implemented
-- Portfolio is public-facing with no user authentication
-- No login/logout functionality
-- No protected routes
+- Type: None - Portfolio is public and does not require authentication
+- Social integrations (links only, no auth backend):
+  - GitHub: `https://github.com/sunnyimmortal`
+  - LinkedIn: `https://linkedin.com/in/mannanabdul`
+  - Email: `abdul.1998.17@gmail.com`
+
+**Implementation:**
+
+- External links only - no OAuth or session management
+- GitHub activity fetched via public API without authentication
 
 ## Monitoring & Observability
 
 **Error Tracking:**
 
-- Not detected - No Sentry, Rollbar, or similar integration
+- Service: None detected
+- Status: No Sentry, LogRocket, or error tracking service integrated
 
 **Logs:**
 
-- Console logging only for development:
-  - ESLint rule: `no-console: ["warn", { allow: ["warn", "error"] }]`
-  - Console warnings/errors allowed in production code
-  - No structured logging service
+- Approach: Browser console only
+- ESLint rule: `"no-console": ["warn", { allow: ["warn", "error"] }]`
+- Production: Console warnings/errors allowed for debugging
 
 **Analytics:**
 
-- Not detected - No Google Analytics, Mixpanel, or telemetry service configured
+- Service: None detected
+- Status: No Google Analytics, Vercel Analytics, or similar integrated in current build
 
 ## CI/CD & Deployment
 
 **Hosting:**
 
-- Vercel
-  - Project: `portfolio`
+- Platform: Vercel
+- Configuration: `.vercel/project.json` present
   - Project ID: `prj_NUzrygDa4ReYYjuWu1XeWOTDMNAj`
   - Organization ID: `team_h45SsCDlspv4gYzid02Y2wZ3`
-  - Configured in `.vercel/project.json`
+  - Project Name: `portfolio`
+- Alternative: Any Node.js 18+ environment with Next.js support
+
+**Version Control:**
+
+- Repository: Git
+- Platform: GitHub (implied from git-based workflow)
+- Branches: `main`/`master` (main branch), feature branches for development
 
 **CI Pipeline:**
 
-- Vercel automatic deployments (standard Next.js deploys on git push)
-- Local pre-commit hooks via Husky and lint-staged:
-  - Linting checks run before commit
-  - Code formatting validation
-  - Configuration: `.husky/_`, `.lintstagedrc`
+- Service: None explicitly configured
+- Hooks: Pre-commit via Husky (local only)
+  - Runs ESLint and Prettier on staged files via `lint-staged`
+
+## Build & Optimization
+
+**Package Optimization (from `next.config.ts`):**
+
+```typescript
+experimental: {
+  optimizePackageImports: ["lucide-react", "framer-motion", "@xyflow/react"],
+}
+```
+
+- Reduces bundle size by tree-shaking unused exports from large icon/animation libraries
+
+**Image Optimization:**
+
+- Formats: AVIF (modern), WebP (fallback)
+- Configuration in `next.config.ts` - `images.formats`
 
 ## Environment Configuration
 
-**Required env vars:**
+**Required Environment Variables:**
 
-- None - Application is fully self-contained
+- None currently required
+- GitHub API: Uses public endpoint (no authentication token needed)
 
-**Optional env vars:**
+**Optional Configuration:**
 
-- Standard Node.js: `NODE_ENV` (set by Next.js/Vercel automatically)
+- `NEXT_PUBLIC_*` - Any public env vars (would need .env.local for dev)
+- GitHub username: Hardcoded as `"sunnyimmortal"` in `app/page.tsx` (could be moved to env)
 
-**Secrets location:**
+**Secrets Location:**
 
-- Not applicable - No secrets or API keys needed
+- None currently stored (portfolio is fully public)
+- If future secrets needed: `.env.local` (local only, ignored by git)
 
 ## Webhooks & Callbacks
 
 **Incoming:**
 
-- Not applicable - No external webhooks
+- None detected
+- Status: Portfolio does not expose any webhook endpoints
 
 **Outgoing:**
 
-- Not applicable - No HTTP requests to external services
+- None detected
+- Status: No event pushes to external services
 
-## Third-Party Integrations Summary
+## Third-Party Services Summary
 
-**Fonts:**
+| Service      | Type            | Purpose                  | Auth  | Status |
+| ------------ | --------------- | ------------------------ | ----- | ------ |
+| GitHub API   | Public REST API | Activity feed            | None  | Active |
+| jsDelivr CDN | Static CDN      | Icon hosting             | None  | Active |
+| Vercel       | Deployment      | Hosting & edge functions | OAuth | Active |
+| Next.js      | Framework       | Server/client rendering  | N/A   | Active |
 
-- Google Fonts (via `next/font/google`):
-  - Geist font family (sans-serif and monospace)
-  - Loaded in `app/layout.tsx`
-  - Automatically optimized by Next.js
+## Future Integration Opportunities
 
-**Icons:**
+**Potential Additions:**
 
-- Lucide React (local library, no external dependency)
-  - 880+ SVG icons
-  - Used throughout components
-
-## Build & Deployment Services
-
-**Build:**
-
-- Vercel builds (automatic on git push)
-- Next.js build process:
-  - React Compiler enabled for automatic memoization
-  - Package imports optimized: `lucide-react`, `framer-motion`, `@xyflow/react`
-  - Image optimization: AVIF and WebP formats
-
-**Type Checking:**
-
-- No external type checking service
-- Local TypeScript compilation (`next build` includes type checking)
-
-## Development Tools Integration
-
-**Code Quality:**
-
-- ESLint (local)
-- Prettier (local)
-- No external code quality services (CodeCov, Codacy, etc.)
-
-**Git Integration:**
-
-- GitHub repository
-- Husky pre-commit hooks (GitHub-compatible)
-- No GitHub Actions workflows detected
-- Copilot instructions present (`.github/copilot-instructions.md`) for AI coding guidance
+- GitHub Stats API integration for enhanced metrics display
+- Analytics service (Vercel Analytics, Plausible, or similar)
+- Email service (Resend, SendGrid) for contact form backend
+- Database (PostgreSQL, MongoDB) if adding dynamic content
+- CMS (Contentful, Sanity) for managing portfolio content
+- Blog API integration for syncing external blog posts
+- API routes for form handling or serverless functions
 
 ---
 
-_Integration audit: 2026-02-05_
+_Integration audit: 2026-02-06_

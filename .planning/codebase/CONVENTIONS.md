@@ -1,273 +1,284 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-02-05
+**Analysis Date:** 2026-02-06
 
 ## Naming Patterns
 
 **Files:**
 
-- **Components:** PascalCase with file extension matching purpose (e.g., `DashboardBackground.tsx`, `LiveMetricWidget.tsx`, `achievement-node.tsx`)
-  - Exception: Component folders use kebab-case (e.g., `nodes/`, `ui/`)
-- **Hooks:** camelCase with `use` prefix (e.g., `use-responsive-layout.ts`)
-- **Utilities/Libraries:** camelCase (e.g., `debounce.ts`, `graph-utils.ts`, `layout-calculator.ts`)
-- **Data files:** camelCase (e.g., `resume-data.ts`)
-- **Configuration:** kebab-case for config files in root (e.g., `.prettierrc`, `eslint.config.mjs`)
+- React components: PascalCase (e.g., `CustomNode.tsx`, `GraphSection.tsx`)
+- Utility modules: camelCase (e.g., `debounce.ts`, `graph-utils.ts`)
+- Data/constants: camelCase or SCREAMING_SNAKE_CASE for module-level constants (e.g., `resume-data.ts`, `REVEAL_TIMING` in `layout-constants.ts`)
+- Hooks: camelCase with `use` prefix (e.g., `use-responsive-layout.ts`)
+- Directories: kebab-case (e.g., `graph-section`, `ui`, `nodes`)
 
 **Functions:**
 
-- **React Components:** PascalCase exported function (e.g., `export function DashboardBackground()`, `export function LiveMetricWidget()`)
-- **Helper/Utility Functions:** camelCase (e.g., `debounce()`, `getInitialNodes()`, `getEdgeColor()`)
-- **Type predicates/guards:** camelCase starting with `is` or `get` (e.g., `getTimelinePositions()`)
+- Regular functions: camelCase (e.g., `formatTimeAgo()`, `getCommitMessage()`, `debounce()`)
+- React components: PascalCase (e.g., `CustomNode()`, `MarqueeText()`, `GitHubActivity()`)
+- Handler functions: camelCase with verb prefix (e.g., `handleResize()`, `expandNode()`, `onMouseEnter()`)
+- Getter/selector functions: camelCase starting with `get` or standalone selector names (e.g., `getAnimationConfig()`, `getEdgeColor()`)
 
 **Variables:**
 
-- **Constants:** camelCase or UPPER_SNAKE_CASE for module-level constants
-  - Example: `const nodeTypes = { custom: CustomNode, achievement: AchievementNode };` (line 21-24 in `/Users/sunny/Desktop/Sunny/portfolio/components/dashboard-background.tsx`)
-  - Data objects: camelCase (e.g., `softSkillNodes`, `expandedNodes`)
-- **State variables:** camelCase (e.g., `isMobile`, `isExpanded`, `graphDimensions`)
-- **Props objects:** camelCase (e.g., `MetricProps`, `DashboardBackgroundProps`)
+- State variables: camelCase (e.g., `expandedNodes`, `loading`, `events`)
+- Constants (module-level): SCREAMING_SNAKE_CASE or camelCase depending on context
+  - Animation constants: SCREAMING_SNAKE_CASE (e.g., `HERO_ENTRANCE_VARIANTS`, `BLOOM_TRANSITION`)
+  - Regular constants: camelCase (e.g., `nodeTypes`, `softSkillDuration`)
+- CSS class names: kebab-case from Tailwind (applied via className prop)
 
 **Types:**
 
-- **Exported types:** PascalCase (e.g., `export type ViewportSize`, `export type ResponsiveLayout`, `export type AchievementNode`)
-- **Inline/Local types:** PascalCase (e.g., `type AchievementNodeProps`, `type FilterState`)
-- **Type imports:** Use `type` keyword for type-only imports (e.g., `import type { Node, Edge } from "@xyflow/react"`)
+- Type definitions: PascalCase (e.g., `ViewportSize`, `ResponsiveLayout`, `GitHubEvent`)
+- Discriminated union types: PascalCase with literal strings (e.g., `Term`, `Highlight`)
+- Generic type parameters: Single uppercase letters or descriptive PascalCase (e.g., `T`, `GraphState`)
 
 ## Code Style
 
 **Formatting:**
 
-- **Tool:** Prettier v3.8.1
-- **Key settings:** (`/Users/sunny/Desktop/Sunny/portfolio/.prettierrc`)
-  - `semi: true` - Semicolons required
-  - `trailingComma: "all"` - Trailing commas in multi-line objects/arrays
-  - `singleQuote: false` - Double quotes for strings
-  - `printWidth: 80` - Line length limit
-  - `tabWidth: 2` - 2 spaces per indent
-  - `useTabs: false` - Spaces, not tabs
-  - `arrowParens: "always"` - Always wrap arrow function parameters in parens
-  - `bracketSpacing: true` - Space inside braces `{ key: value }`
-  - `jsxSingleQuote: false` - Double quotes in JSX
-  - `endOfLine: "lf"` - Unix line endings
+- Tool: Prettier v3.8.1
+- Print width: 80 characters
+- Tab width: 2 spaces
+- Quotes: Double quotes (not single)
+- Semicolons: Always included
+- Trailing commas: All
+- Arrow function parens: Always (even single params)
+- End of line: LF
 
 **Linting:**
 
-- **Tool:** ESLint v9 with TypeScript support
-- **Config file:** `/Users/sunny/Desktop/Sunny/portfolio/eslint.config.mjs` (flat config format)
-- **Key rules enforced:**
-  - `no-console`: warn (allow console.warn and console.error)
-  - `prefer-const`: warn
-  - `no-var`: error (enforce const/let)
-  - `eqeqeq: ["error", "always"]` - Strict equality checks
-  - `@typescript-eslint/no-unused-vars`: warn (ignore leading `_`)
-  - `@typescript-eslint/no-explicit-any`: warn
-  - `@typescript-eslint/consistent-type-imports`: warn (prefer type-only imports with inline style)
-  - `react/self-closing-comp`: warn
-  - `react-hooks/rules-of-hooks`: error
-  - `react-hooks/exhaustive-deps`: warn
+- Tool: ESLint v9 with TypeScript support
+- Parser: @typescript-eslint/parser v8.54.0
+- Key plugins: @typescript-eslint, prettier, next
+- Notable rules:
+  - `@typescript-eslint/consistent-type-imports`: Enforces type-only imports with inline syntax
+  - `no-console`: Warns except for `.warn()` and `.error()`
+  - `no-var`: Error (use const/let only)
+  - `eqeqeq`: Error (strict equality always)
+  - `react-hooks/exhaustive-deps`: Warns on missing hook dependencies
+  - Unused variables: Warnings allowed if prefixed with underscore
+
+**Configuration Files:**
+
+- `.eslintrc` generated via `eslint.config.mjs` (flat config format)
+- `.prettierrc` in JSON format
+- `tsconfig.json` with strict mode enabled
 
 ## Import Organization
 
 **Order:**
 
-1. React and Next.js imports (e.g., `import { useState } from "react"`, `import dynamic from "next/dynamic"`)
-2. Third-party libraries (e.g., `import { motion } from "framer-motion"`, `import { create } from "zustand"`)
-3. Internal absolute imports using `@/` alias (e.g., `import { RESUME_DATA } from "@/data/resume-data"`)
-4. Type imports with `type` keyword grouped separately (e.g., `import type { Node } from "@xyflow/react"`)
+1. React/Next.js core imports
+2. Third-party libraries (framer-motion, lucide-react, etc.)
+3. Relative imports from `@/` alias (absolute path imports)
+4. Type imports (via `type` keyword, inline style)
 
-**Example from `/Users/sunny/Desktop/Sunny/portfolio/components/dashboard-background.tsx`:**
+**Pattern Examples:**
 
 ```typescript
-"use client";
-
-import { useState, useEffect, useRef, useCallback } from "react";
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  Background,
-  useNodesState,
-  useEdgesState,
-  ConnectionLineType,
-  useReactFlow,
-  type Node,
-  type Edge,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
-import { CustomNode } from "@/components/custom-node";
-import { AchievementNode } from "@/components/nodes/achievement-node";
-import { useGraphStore } from "@/lib/stores/graph-store";
+// app/page.tsx
+import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
+import { Github, Linkedin, Mail } from "lucide-react";
+import { RESUME_DATA } from "@/data/resume-data";
+import type { Metadata } from "next";
 ```
 
 **Path Aliases:**
 
-- `@/` points to project root (configured in `tsconfig.json`: `"@/*": ["./*"]`)
-- Used throughout codebase for absolute imports
+- `@/*` maps to root directory (monorepo-style, allows `@/components`, `@/lib`, `@/data`, etc.)
+
+**"use client" Directive:**
+
+- Applied to interactive components (client-side state, event handlers)
+- Examples: `app/page.tsx`, `components/custom-node.tsx`, `lib/stores/graph-store.tsx`
+- Server components use default export without directive
 
 ## Error Handling
 
 **Patterns:**
 
-- No explicit try-catch patterns found in production code
-- Defensive null checks and optional chaining used where applicable
-  - Example: `data.onHoverChange?.(id, entering)` (line 107 in `/Users/sunny/Desktop/Sunny/portfolio/components/nodes/achievement-node.tsx`)
-- Ref guards: `if (!graphContainerRef.current) return;` pattern
-- State validation before operations: `if (graphDimensions.width === 0 || graphDimensions.height === 0) return;` (line 241 in dashboard-background.tsx)
-- Boundary checks in React Flow interactions: Filter checks before state updates
+- Try-catch blocks for async operations (fetch, API calls)
+- Null/undefined checks via optional chaining (`?.`)
+- Fallback UI for loading/error states
 
-**Recommended approach for new code:**
+**Examples:**
 
-- Use optional chaining (`?.`) for property access on potentially null values
-- Use nullish coalescing (`??`) for default values
-- Validate refs before using them
-- Return early from hooks/functions on invalid conditions
-- No throwing errors in component code (use state/UI feedback instead)
+```typescript
+// Async error handling
+async function fetchGitHubActivity() {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch");
+    const data = await response.json();
+    setEvents(data);
+  } catch {
+    setError("Unable to load activity");
+  } finally {
+    setLoading(false);
+  }
+}
+
+// Optional chaining
+const message = event.payload.commits?.[0].message;
+
+// Fallback for conditional rendering
+{loading ? <Loading /> : error ? <Error message={error} /> : <Content />}
+```
 
 ## Logging
 
-**Framework:** `console` object (not abstracted)
+**Framework:** `console` (built-in)
 
 **Patterns:**
 
-- ESLint `no-console` rule set to warn with allowlist: `["warn", "error"]`
-- Only `console.warn()` and `console.error()` allowed in production code
-- `console.log()` discouraged (will be caught as warning by linter)
+- ESLint restricts console to `.warn()` and `.error()` only
+- No debug-level logging in production code
+- Examples in codebase: No direct logging found; typically avoided
 
-**When to log:**
+**When to Log:**
 
-- Use `console.error()` for error conditions that should be tracked
-- Use `console.warn()` for non-critical issues or deprecation warnings
-- Prefer explicit error UI over logging for user-facing issues
+- Errors and warnings only
+- Use console.error for exceptions
+- Use console.warn for deprecation notices or unusual conditions
 
 ## Comments
 
 **When to Comment:**
 
-- Explain the "why" not the "what" - code should be self-documenting
-- Comment complex logic that isn't immediately clear from reading the code
-- Example from `/Users/sunny/Desktop/Sunny/portfolio/components/dashboard-background.tsx`:
-  - Line 38: `// Track the graph container dimensions`
-  - Line 45: `// Fit view smoothly`
-  - Line 84: `// Note: edge.type is "smoothstep" (ReactFlow type), original type is in edge.data.edgeType`
-- Use inline comments for non-obvious calculations or workarounds
-- Link to related code or external documentation when helpful
+- Complex algorithm explanation (e.g., timeline positioning logic in `layout-calculator.ts`)
+- Non-obvious business logic (e.g., handle assignments in graph edges)
+- Temporary workarounds or hacks (prefix with `TODO`, `FIXME`, `HACK`)
 
 **JSDoc/TSDoc:**
 
-- Used sparingly for exported functions and types
-- Type signatures are self-documenting (full type information visible)
-- Example pattern in `/Users/sunny/Desktop/Sunny/portfolio/lib/debounce.ts`:
-  ```typescript
-  export function debounce<T extends (...args: unknown[]) => unknown>(
-    func: T,
-    wait: number,
-  ): (...args: Parameters<T>) => void {
-  ```
+- Not strictly enforced but used for public APIs
+- Example from `graph-store.tsx`: Functions documented via type annotations
+- Type definitions serve as primary documentation
+
+**Examples:**
+
+```typescript
+// layout-calculator.ts - Algorithm comments
+const safeArea = calculateSafeArea(
+  viewport,
+  140, // headerHeight
+  220, // metricsHeight
+  240, // leftMargin
+  100, // rightMargin
+);
+
+// graph-utils.ts - Complex logic
+if (edge.type === "soft-skill") {
+  // Soft skills connect from TOP of root to BOTTOM of soft skill nodes
+  sourceHandle = "top";
+  targetHandle = "bottom";
+}
+```
 
 ## Function Design
 
-**Size:**
-
-- Keep functions focused and reasonably sized (20-50 lines preferred)
-- Larger functions like `DashboardBackgroundInner` (331 lines) are component-specific and contain multiple concerns (state, rendering, event handling)
-- Extract utility functions when complexity reaches 100+ lines
+**Size:** Keep functions small and focused. Typical range: 10-50 lines
 
 **Parameters:**
 
-- Use object destructuring for multiple parameters (especially in components)
-- Example: `function CustomNode({ data, selected, id }: ComponentProps)`
-- Single parameters without destructuring acceptable for simple values (e.g., `debounce(func, wait)`)
-- Type each parameter explicitly
+- Prefer object parameters for multiple related values
+- Example: `ViewportSize = { width: number; height: number }`
+- Optional parameters use default values or trailing `?`
 
 **Return Values:**
 
-- Explicitly type return values for public/exported functions
-- Use `void` for functions that don't return values
-- React components return `React.ReactNode` implicitly (via JSX)
-- Utility functions should be clear about what they return
+- Explicit return type annotations required for public functions
+- Example: `function useResponsiveLayout(): ResponsiveLayout`
+- Arrow functions infer types from simple return statements
 
-**Callbacks:**
+**Examples:**
 
-- Type callbacks with `(args: Type) => ReturnType` signature
-- Example from achievement-node.tsx: `onHoverChange?: (nodeId: string, isEntering: boolean) => void`
-- Pass callbacks through props when crossing component boundaries
-- Use `useCallback` hook to memoize callbacks (see dashboard-background.tsx extensively)
+```typescript
+// Utility function with object destructuring
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// Hook with explicit return type
+export function useResponsiveLayout(): ResponsiveLayout {
+  // Implementation
+  return { isMobile, isTablet, isDesktop, viewport };
+}
+
+// Component with typed props
+export function CustomNode({
+  data,
+  selected,
+  id,
+}: {
+  data: {
+    label: string;
+    type: string;
+    animationDelay?: number;
+    onHoverChange?: (nodeId: string, isEntering: boolean) => void;
+  };
+  selected: boolean;
+  id: string;
+}) {
+  // Implementation
+}
+```
 
 ## Module Design
 
 **Exports:**
 
-- **Components:** Export as named functions (`export function ComponentName()`)
-- **Hooks:** Export as named functions (`export function useHookName()`)
-- **Utilities:** Export as named functions/constants (`export function utilName()`, `export const CONSTANT = ...`)
-- **Types:** Export as type-only (`export type TypeName = ...`)
-- Avoid default exports for components/functions; use named exports
+- Named exports for utilities and types
+- Default export for React components (when single component per file)
+- Example from `button.tsx`: `export { Button, buttonVariants }`
 
 **Barrel Files:**
 
-- Not used in this codebase
-- Each file exports its specific functionality
+- Not used in this codebase; each component has its own import path
+- UI components live in `components/ui/` with direct imports like `@/components/ui/button`
 
-**Example structure from `/Users/sunny/Desktop/Sunny/portfolio/lib/graph-utils.ts`:**
+**File Organization:**
 
-```typescript
-export const getInitialNodes = (...): Node[] => { ... };
-
-function getEdgeColor(edgeType?: string): string { ... }  // private helper
-
-function getEdgeWidth(edgeType?: string): number { ... }  // private helper
-
-export const getInitialEdges = (): Edge[] => { ... };
+```
+components/
+├── ui/                    # Reusable UI components
+│   ├── button.tsx
+│   ├── card.tsx
+│   └── ...
+├── nodes/                 # React Flow node components
+│   ├── achievement-node.tsx
+│   ├── custom-node.tsx
+├── sections/              # Page sections
+│   └── graph-section.tsx
+└── mobile-hero.tsx        # Standalone components
 ```
 
-## TypeScript Specific
+**Private vs Public:**
+
+- Files in `lib/` are utilities (public by convention)
+- Files in `data/` hold static data (public constants)
+- Files in `components/` are reusable UI (public) or internal (private by context)
+
+## TypeScript-Specific Patterns
 
 **Type Imports:**
 
-- Always use `import type` for type-only imports (ESLint enforced)
-- Inline style preferred: `import type { Node, Edge } from "@xyflow/react"`
-- Never import types with regular `import` unless also importing values
+- Use inline type-only imports: `import type { ViewportSize } from "@/hooks/use-responsive-layout"`
+- Enforced by ESLint rule `@typescript-eslint/consistent-type-imports`
 
-**Any Type:**
+**Discriminated Unions:**
 
-- `@typescript-eslint/no-explicit-any` set to warn
-- Avoid `any` type - use generics or union types instead
-- If forced to use `any`, add explanatory comment
+- Used for complex type safety (e.g., `Term` type union in `resume-data.ts`)
+- Enable exhaustive pattern matching in switch statements
 
-**Non-null Assertions:**
+**Generic Constraints:**
 
-- `@typescript-eslint/no-non-null-assertion` set to warn
-- Prefer type guards and optional chaining over `!`
-- Use only when certainty is absolute and unrefactorable
-
-## Responsive/Conditional Styles
-
-**Tailwind CSS:**
-
-- Use responsive prefixes: `sm:`, `md:`, `lg:`, `xl:` for breakpoints
-- Example from page.tsx: `className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl"`
-- Use `clsx` and `cn()` utility for conditional classes
-- Tool: `tailwindcss` v4 with `@tailwindcss/postcss`
-
-## Component Patterns
-
-**Client Components:**
-
-- Marked with `"use client"` directive when using hooks or browser APIs
-- Example: All interactive components in `/Users/sunny/Desktop/Sunny/portfolio/components/` start with `"use client"`
-
-**Server Components:**
-
-- Default in Next.js 13+
-- Used in layouts and data-fetching components
-- Example: `/Users/sunny/Desktop/Sunny/portfolio/app/layout.tsx` is a server component
-
-**State Management:**
-
-- Zustand stores for global state (`/Users/sunny/Desktop/Sunny/portfolio/lib/stores/graph-store.tsx`)
-- Local React state (useState) for component-level state
-- Zustand pattern: `const useStore = create<StateType>((set) => ({ ... }))`
+- Used in utility functions like `debounce<T extends (...args: unknown[]) => unknown>`
 
 ---
 
-_Convention analysis: 2026-02-05_
+_Convention analysis: 2026-02-06_

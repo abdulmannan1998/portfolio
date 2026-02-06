@@ -1,501 +1,509 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-02-05
+**Analysis Date:** 2026-02-06
 
 ## Test Framework
 
-**Status:** Not Configured
+**Current Status:** Not detected
 
-**Findings:**
+**Framework Setup:**
 
-- No test runner installed (Jest, Vitest, or other)
-- No test files found in codebase (_.test.ts, _.test.tsx, _.spec.ts, _.spec.tsx)
-- No testing dependencies in `package.json` (line 14-48 in `/Users/sunny/Desktop/Sunny/portfolio/package.json`)
-- No test configuration files (jest.config._, vitest.config._)
+- No test runner configured (Jest, Vitest, or other)
+- No test configuration files found (`jest.config.ts`, `vitest.config.ts`, etc.)
+- No test dependencies in `package.json`
+- No `.test.ts`, `.test.tsx`, `.spec.ts`, or `.spec.tsx` files in source directory
 
-**Recommendation:**
-When test infrastructure is added, use Vitest (modern, fast, Vite-compatible) or Jest with TypeScript support.
+**Development Stack:**
 
-## Run Commands (If Configured)
+- ESLint enabled for static analysis (catches many issues)
+- TypeScript strict mode (compile-time safety)
+- Prettier for code consistency (prevents style-related bugs)
 
-When testing is implemented, add commands to `package.json`:
+## Testing Recommendations
 
-```bash
-npm run test              # Run all tests
-npm run test:watch       # Watch mode
-npm run test:coverage    # Generate coverage report
+### Framework Choice
+
+Given this is a Next.js 16 portfolio with React 19, recommended frameworks:
+
+**Option 1: Vitest (Recommended)**
+
+- Modern, fast, Vite-native
+- Works seamlessly with TypeScript
+- Supports React component testing with `@testing-library/react`
+
+**Option 2: Jest**
+
+- More established, industry standard
+- Native Next.js support
+- Slightly slower build time
+
+### Setup Pattern
+
+If implementing Vitest:
+
+```typescript
+// vitest.config.ts (example)
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./test/setup.ts"],
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./"),
+    },
+  },
+});
 ```
 
-## Test File Organization (Recommended)
+## Test File Organization
 
-**Location:**
+**Recommended Structure:**
 
-- Co-located with source code (recommended pattern for Next.js/React)
-- Each component/utility with tests alongside: `Component.tsx` + `Component.test.tsx` or `Component.spec.tsx`
+- Location: Co-located with source files
+- Naming pattern: `[ComponentName].test.tsx` (alongside component)
+- Alternative pattern: `__tests__/` directory per feature
 
-**Naming:**
-
-- `ComponentName.test.tsx` for component tests
-- `utilityName.test.ts` for utility/function tests
-- `hookName.test.ts` for custom hook tests
-
-**Directory structure:**
+**Example Organization:**
 
 ```
 components/
-├── dashboard-background.tsx
-├── dashboard-background.test.tsx
 ├── custom-node.tsx
-├── custom-node.test.tsx
-├── nodes/
-│   ├── achievement-node.tsx
-│   └── achievement-node.test.tsx
+├── custom-node.test.tsx        # Co-located test
+├── sections/
+│   ├── graph-section.tsx
+│   └── graph-section.test.tsx
 lib/
-├── debounce.ts
-├── debounce.test.ts
 ├── graph-utils.ts
-└── graph-utils.test.ts
-hooks/
-├── use-responsive-layout.ts
-└── use-responsive-layout.test.ts
+├── graph-utils.test.ts
+└── debounce.ts
+    └── debounce.test.ts
 ```
 
-## Test Structure (Recommended Pattern)
+## Test Structure
 
-Based on codebase structure and dependencies, recommended test patterns:
-
-**Component Test Pattern:**
+**Standard Pattern (Recommended):**
 
 ```typescript
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { LiveMetricWidget } from "@/components/live-metric-widget";
+import { CustomNode } from "./custom-node";
 
-describe("LiveMetricWidget", () => {
-  it("renders metric data correctly", () => {
-    const mockData = {
-      id: "productivity",
-      label: "Team Productivity",
-      value: "+40%",
-      context: "Internal tooling",
-      company: "Intenseye",
-      relatedAchievements: [],
-      relatedTechnologies: [],
-    };
-
-    render(<LiveMetricWidget data={mockData} delay={0} />);
-
-    expect(screen.getByText("Team Productivity")).toBeInTheDocument();
-    expect(screen.getByText("+40%")).toBeInTheDocument();
-  });
-
-  it("applies animation delay prop", () => {
-    const { container } = render(
-      <LiveMetricWidget data={mockData} delay={0.5} />,
-    );
-    // Verify motion.div received delay prop via data attributes
-  });
-});
-```
-
-**Hook Test Pattern (using @testing-library/react):**
-
-```typescript
-import { renderHook, act } from "@testing-library/react";
-import { useResponsiveLayout } from "@/hooks/use-responsive-layout";
-
-describe("useResponsiveLayout", () => {
-  it("returns correct breakpoint for desktop", () => {
-    // Mock window size
-    Object.defineProperty(window, "innerWidth", {
-      writable: true,
-      configurable: true,
-      value: 1920,
-    });
-
-    const { result } = renderHook(() => useResponsiveLayout());
-
-    expect(result.current.isDesktop).toBe(true);
-    expect(result.current.isMobile).toBe(false);
-  });
-
-  it("handles resize events with debounce", async () => {
-    const { result, rerender } = renderHook(() => useResponsiveLayout());
-
-    act(() => {
-      Object.defineProperty(window, "innerWidth", { value: 500 });
-      window.dispatchEvent(new Event("resize"));
-    });
-
-    // Verify debounce delays update
-  });
-});
-```
-
-**Utility Function Test Pattern:**
-
-```typescript
-import { debounce } from "@/lib/debounce";
-import { vi } from "vitest"; // or jest.fn() for Jest
-
-describe("debounce", () => {
+describe("CustomNode", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    // Setup before each test
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    // Cleanup after each test
   });
 
-  it("delays function execution", () => {
-    const mockFn = vi.fn();
-    const debouncedFn = debounce(mockFn, 300);
+  describe("root node type", () => {
+    it("should render root node with label", () => {
+      const data = { label: "Mannan", type: "root" };
+      render(<CustomNode data={data} selected={false} id="root" />);
+      expect(screen.getByText("Mannan")).toBeInTheDocument();
+    });
 
-    debouncedFn("test");
-    expect(mockFn).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(300);
-    expect(mockFn).toHaveBeenCalledWith("test");
+    it("should have orange styling when selected", () => {
+      const data = { label: "Mannan", type: "root" };
+      const { container } = render(
+        <CustomNode data={data} selected={true} id="root" />,
+      );
+      expect(container.querySelector(".border-orange-500")).toBeInTheDocument();
+    });
   });
 
-  it("cancels previous call when invoked again", () => {
-    const mockFn = vi.fn();
-    const debouncedFn = debounce(mockFn, 300);
-
-    debouncedFn("first");
-    vi.advanceTimersByTime(150);
-    debouncedFn("second");
-    vi.advanceTimersByTime(300);
-
-    expect(mockFn).toHaveBeenCalledOnce();
-    expect(mockFn).toHaveBeenCalledWith("second");
+  describe("company node type", () => {
+    it("should render company node with period", () => {
+      const data = { label: "Intenseye", type: "company", period: "2022-2025" };
+      render(<CustomNode data={data} selected={false} id="company-1" />);
+      expect(screen.getByText("2022-2025")).toBeInTheDocument();
+    });
   });
+});
+```
+
+**Suite Organization:**
+
+- Use `describe()` for logical grouping (by component/function)
+- Nest describe blocks for related test suites
+- Each `it()` focuses on single behavior
+
+**Common Setup Pattern:**
+
+```typescript
+// test/setup.ts
+import { expect, afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
+
+// Cleanup after each test
+afterEach(() => {
+  cleanup();
+});
+
+// Custom matchers or globals if needed
+expect.extend({
+  // Custom matchers here
 });
 ```
 
 ## Mocking
 
-**Recommended Framework:** Vitest's built-in mocking or Jest
+**Framework:** `vitest` has built-in mocking via `vi`
 
-**Patterns for common scenarios:**
+**Patterns:**
 
-**Mocking React Flow (complex library):**
+### Mocking Modules
 
 ```typescript
-// Mock @xyflow/react components
-vi.mock("@xyflow/react", () => ({
-  ReactFlow: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="react-flow">{children}</div>
-  ),
-  ReactFlowProvider: ({ children }: { children: React.ReactNode }) =>
-    children,
-  useNodesState: vi.fn(() => [[], vi.fn()]),
-  useEdgesState: vi.fn(() => [[], vi.fn()]),
-  Background: () => null,
-  Handle: () => null,
-  Position: { Top: "top", Bottom: "bottom" },
+import { vi } from "vitest";
+
+// Mock entire module
+vi.mock("@/lib/debounce", () => ({
+  debounce: vi.fn((fn) => fn), // Debounce becomes synchronous in tests
 }));
-```
 
-**Mocking Zustand store:**
-
-```typescript
-// For testing components that use useGraphStore
-import { useGraphStore } from "@/lib/stores/graph-store";
-
-vi.mock("@/lib/stores/graph-store", () => ({
-  useGraphStore: vi.fn(() => ({
-    expandedNodes: new Set(),
-    expandNode: vi.fn(),
-    collapseNode: vi.fn(),
-    highlightedConnections: new Set(),
-    hoveredNode: null,
-  })),
-}));
-```
-
-**Mocking framer-motion:**
-
-```typescript
-// Skip animation delays in tests
-vi.mock("framer-motion", async () => {
-  const actual = await vi.importActual("framer-motion");
+// Mock specific exports
+vi.mock("@xyflow/react", async () => {
+  const actual = await vi.importActual("@xyflow/react");
   return {
     ...actual,
-    motion: {
-      div: (props: any) => <div {...props} />,
-    },
+    useReactFlow: vi.fn(() => ({
+      fitView: vi.fn(),
+      getNodes: vi.fn(() => []),
+      getEdges: vi.fn(() => []),
+    })),
   };
 });
 ```
 
-**Mocking window/DOM APIs:**
+### Mocking Fetch
 
 ```typescript
-// Mock ResizeObserver (used in dashboard-background.tsx line 221)
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+it("should handle GitHub API errors", async () => {
+  global.fetch = vi.fn().mockRejectedValue(
+    new Error("Failed to fetch"),
+  );
 
-// Mock window.matchMedia
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
-```
+  render(<GitHubActivity username="test" />);
 
-## What to Mock
-
-- **External libraries:** React Flow, Framer Motion, Zustand stores
-- **Window APIs:** ResizeObserver, matchMedia, requestAnimationFrame
-- **Next.js features:** `next/dynamic`, `next/font`, routes
-- **API calls:** Would be mocked if backend integration existed
-
-## What NOT to Mock
-
-- **Utility functions:** Test actual debounce, cn(), date parsing
-- **React hooks (useState, useEffect, useCallback):** Use real implementations
-- **DOM elements:** Render actual components; query with testing-library selectors
-- **Type definitions:** No need to mock types
-
-## Fixtures and Test Data
-
-**Test Data Location:**
-Create `__tests__/fixtures/` or `*.fixtures.ts` files alongside test files
-
-**Pattern for mock RESUME_DATA:**
-
-```typescript
-// lib/__tests__/fixtures/resume-data.ts
-import type { Node, Edge } from "@xyflow/react";
-
-export const mockMetric = {
-  id: "test-metric",
-  label: "Test Metric",
-  value: "+50%",
-  context: "Test context",
-  company: "Test Company",
-  relatedAchievements: [],
-  relatedTechnologies: ["TypeScript"],
-};
-
-export const mockAchievementNode = {
-  id: "test-achievement",
-  type: "achievement" as const,
-  title: "Test Achievement",
-  description: "A test achievement",
-  impact: "High impact",
-  technologies: ["React", "TypeScript"],
-  company: "Test Company",
-  period: "2024-2025",
-  category: "architecture" as const,
-};
-
-export const mockGraphNodes: Node[] = [
-  {
-    id: "root",
-    type: "custom",
-    data: { label: "Test Name", type: "root" },
-    position: { x: 0, y: 0 },
-  },
-];
-```
-
-**Usage in tests:**
-
-```typescript
-import { mockMetric, mockAchievementNode } from "@/__tests__/fixtures/resume-data";
-
-describe("Components using resume data", () => {
-  it("renders metric widget", () => {
-    render(<LiveMetricWidget data={mockMetric} />);
-    expect(screen.getByText("Test Metric")).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByText("Unable to load activity")).toBeInTheDocument();
   });
 });
 ```
+
+### Mocking Zustand Store
+
+```typescript
+import { useGraphStore } from "@/lib/stores/graph-store";
+import { vi } from "vitest";
+
+vi.mock("@/lib/stores/graph-store", () => ({
+  useGraphStore: vi.fn((selector) =>
+    selector({
+      expandedNodes: ["node-1"],
+      expandNode: vi.fn(),
+      collapseNode: vi.fn(),
+      isCompanyRevealed: vi.fn(() => true),
+    }),
+  ),
+}));
+```
+
+**What to Mock:**
+
+- External API calls (GitHub, third-party services)
+- React Flow instance and methods
+- Zustand store for state testing
+- Framer Motion for animation testing
+- Dynamic imports
+
+**What NOT to Mock:**
+
+- Utility functions like `debounce()`, `cn()`, `formatTimeAgo()`
+- Simple data transformations
+- Component rendering internals (test behavior, not implementation)
+
+## Fixtures and Factories
+
+**Test Data Pattern:**
+
+```typescript
+// test/fixtures.ts
+export const mockGitHubEvent = {
+  id: "event-1",
+  type: "PushEvent",
+  repo: { name: "owner/repo", url: "https://github.com/owner/repo" },
+  payload: {
+    commits: [{ message: "Fix bug", sha: "abc123" }],
+    ref: "main",
+  },
+  created_at: new Date().toISOString(),
+  public: true,
+};
+
+export const mockAchievementNode = {
+  id: "achievement-1",
+  type: "achievement" as const,
+  title: "Design System",
+  description: "Built scalable design system",
+  impact: "30% faster component development",
+  technologies: ["React", "TypeScript"],
+  company: "Intenseye",
+  period: "2022-2023",
+  category: "design-system" as const,
+};
+
+// Factory function
+export function createMockGraphState(overrides = {}) {
+  return {
+    expandedNodes: [],
+    hasStartedReveal: false,
+    revealedCompanies: [],
+    ...overrides,
+  };
+}
+```
+
+**Usage in Tests:**
+
+```typescript
+it("should format GitHub event message", () => {
+  const message = getCommitMessage(mockGitHubEvent);
+  expect(message).toBe("Fix bug");
+});
+
+it("should reveal company achievements", () => {
+  const state = createMockGraphState({ revealedCompanies: ["intenseye"] });
+  expect(state.isCompanyRevealed("intenseye")).toBe(true);
+});
+```
+
+**Location:**
+
+- `test/fixtures.ts` - Shared test data
+- `test/factories.ts` - Factory functions
+- Or co-located in `__tests__/` directories per feature
 
 ## Coverage
 
 **Requirements:** Not enforced
 
-**When tests are implemented:**
+**Recommended Configuration:**
 
-- Recommend minimum 70% coverage for components
-- Recommend minimum 80% coverage for utilities and hooks
-- Focus on critical paths first (user interactions, state management)
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "json"],
+      exclude: ["node_modules/", "test/", "**/*.d.ts", "**/*.config.*"],
+      lines: 70, // Target 70% coverage
+      functions: 70,
+      branches: 65,
+      statements: 70,
+    },
+  },
+});
+```
 
-**View Coverage (once configured):**
+**View Coverage:**
 
 ```bash
-npm run test:coverage
-# or
-vitest --coverage
+npm run test:coverage    # Generate coverage report
+npm run test:coverage:ui # View HTML report
 ```
 
 ## Test Types
 
 **Unit Tests:**
 
-- **Scope:** Individual functions, utilities, hooks, components in isolation
-- **Approach:** Test one thing per test; mock external dependencies
-- **Location:** Alongside source files (`component.test.tsx`)
-- **Examples to write:**
-  - `debounce()` function behavior with timers
-  - `useResponsiveLayout()` hook with mocked window events
-  - Utility functions like `getInitialNodes()`, `getEdgeColor()`
+- Scope: Individual functions and utilities
+- Location: `lib/debounce.test.ts`, `lib/graph-utils.test.ts`
+- Approach: Pure function testing
+
+**Example:**
+
+```typescript
+import { debounce } from "@/lib/debounce";
+import { vi } from "vitest";
+
+it("should debounce function calls", async () => {
+  const mockFn = vi.fn();
+  const debouncedFn = debounce(mockFn, 100);
+
+  debouncedFn();
+  debouncedFn();
+  debouncedFn();
+
+  expect(mockFn).not.toHaveBeenCalled();
+
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  expect(mockFn).toHaveBeenCalledOnce();
+});
+```
+
+**Component Tests:**
+
+- Scope: React components in isolation
+- Location: `components/custom-node.test.tsx`
+- Approach: User interaction and state changes
+
+**Example:**
+
+```typescript
+import { render, screen, fireEvent } from "@testing-library/react";
+import { CustomNode } from "@/components/custom-node";
+
+it("should call onHoverChange when mouse enters company node", () => {
+  const mockOnHover = vi.fn();
+  const data = {
+    label: "Intenseye",
+    type: "company",
+    onHoverChange: mockOnHover,
+  };
+
+  const { container } = render(
+    <CustomNode data={data} selected={false} id="company-1" />,
+  );
+
+  const node = container.querySelector(".relative");
+  fireEvent.mouseEnter(node!);
+
+  expect(mockOnHover).toHaveBeenCalledWith("company-1", true);
+});
+```
 
 **Integration Tests:**
 
-- **Scope:** Multiple components working together, state flow
-- **Approach:** Minimal mocking; test real interactions
-- **Examples to write:**
-  - `DashboardBackground` component with graph rendering
-  - Achievement node expansion/collapse with store updates
-  - Responsive layout changes affecting component rendering
+- Scope: Multiple components working together
+- Location: `__tests__/integration/` or feature directories
+- Approach: Full feature workflows
+
+**Example:**
+
+```typescript
+// graph-section.integration.test.tsx
+it("should expand achievements when company node is hovered", async () => {
+  const { getByText, getAllByText } = render(<GraphSection />);
+
+  const companyNode = getByText("Intenseye");
+  fireEvent.mouseEnter(companyNode);
+
+  await waitFor(() => {
+    expect(
+      getAllByText(/Design System|CLI Tooling|React Query/),
+    ).toBeDefined();
+  });
+});
+```
 
 **E2E Tests:**
 
-- **Framework:** Not configured (would use Playwright or Cypress)
-- **Approach:** Full browser testing of user journeys
-- **Not currently implemented**
+- Framework: Not configured
+- Recommended: Playwright or Cypress
+- Approach: Full user journeys in real browser
 
 ## Common Patterns
 
 **Async Testing:**
 
 ```typescript
-it("handles async data loading", async () => {
-  render(<Component />);
+import { waitFor } from "@testing-library/react";
 
-  // Wait for element to appear
-  const element = await screen.findByRole("heading", { name: /loaded/ });
-  expect(element).toBeInTheDocument();
-});
-
-// With userEvent
-it("handles user interaction", async () => {
-  const user = userEvent.setup();
-  render(<Component />);
-
-  await user.click(screen.getByRole("button", { name: /expand/ }));
-  expect(screen.getByText("expanded")).toBeInTheDocument();
-});
-```
-
-**State Updates in React:**
-
-```typescript
-import { act } from "@testing-library/react";
-
-it("updates state correctly", async () => {
-  const { result } = renderHook(() => useState(0));
-
-  act(() => {
-    // Trigger state update
-    result.current[1](5);
+it("should fetch and display GitHub activity", async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => [mockGitHubEvent],
   });
 
-  expect(result.current[0]).toBe(5);
+  render(<GitHubActivity username="sunnyimmortal" />);
+
+  // Wait for async operations to complete
+  await waitFor(() => {
+    expect(screen.getByText(/Latest Push/i)).toBeInTheDocument();
+  });
 });
 ```
 
-**Testing Custom Hooks with Dependencies:**
+**Error Testing:**
 
 ```typescript
-it("responds to prop changes", () => {
-  const { rerender } = renderHook(({ nodeId }) => useExpandedState(nodeId), {
-    initialProps: { nodeId: "node-1" },
-  });
+it("should display error message when fetch fails", async () => {
+  global.fetch = vi.fn().mockRejectedValue(
+    new Error("Network error"),
+  );
 
-  rerender({ nodeId: "node-2" });
-  // Verify hook behavior with new nodeId
+  render(<GitHubActivity username="test" />);
+
+  await waitFor(() => {
+    expect(
+      screen.getByText("Unable to load activity"),
+    ).toBeInTheDocument();
+  });
 });
 ```
 
-**Testing Zustand Store:**
+**State Testing with Zustand:**
 
 ```typescript
 import { renderHook, act } from "@testing-library/react";
 import { useGraphStore } from "@/lib/stores/graph-store";
 
-it("expands and collapses nodes", () => {
+it("should expand and collapse nodes", () => {
   const { result } = renderHook(() => useGraphStore());
 
   act(() => {
-    result.current.expandNode("achievement-1");
+    result.current.expandNode("node-1");
   });
 
-  expect(result.current.expandedNodes.has("achievement-1")).toBe(true);
+  expect(result.current.expandedNodes).toContain("node-1");
 
   act(() => {
-    result.current.collapseNode("achievement-1");
+    result.current.collapseNode("node-1");
   });
 
-  expect(result.current.expandedNodes.has("achievement-1")).toBe(false);
+  expect(result.current.expandedNodes).not.toContain("node-1");
 });
 ```
 
-## Setup/Teardown Patterns
-
-**Global test setup (vitest.config.ts or jest.setup.ts):**
+**Animation Testing (Framer Motion):**
 
 ```typescript
-import { expect, afterEach, vi } from "vitest";
-import { cleanup } from "@testing-library/react";
+it("should render with initial motion properties", () => {
+  const { container } = render(
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      Content
+    </motion.div>,
+  );
 
-// Cleanup after each test
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
-
-// Mock window.matchMedia globally
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+  // Note: Motion animations are difficult to test without disabling
+  // Skip detailed animation testing or use motion's testing utilities
+  expect(container.querySelector("div")).toBeInTheDocument();
 });
 ```
 
-**Per-test setup:**
+## Scripts
 
-```typescript
-beforeEach(() => {
-  vi.useFakeTimers();
-  vi.clearAllMocks();
-});
+**Run Commands (Recommended):**
 
-afterEach(() => {
-  vi.restoreAllMocks();
-});
+```bash
+# package.json additions
+npm run test              # Run all tests
+npm run test:watch       # Watch mode
+npm run test:coverage    # Generate coverage report
+npm run test:ui          # Test UI dashboard (Vitest)
 ```
 
 ---
 
-_Testing analysis: 2026-02-05_
-
-**Note:** This document describes recommended testing patterns for when test infrastructure is implemented. Currently, no tests exist in the codebase. Priority areas for test coverage when implemented:
-
-1. Utility functions (debounce, layout calculations)
-2. Zustand store actions
-3. Custom hooks (useResponsiveLayout)
-4. Component interaction patterns (node expansion, state sync)
+_Testing analysis: 2026-02-06_
