@@ -22,7 +22,7 @@ See `.planning/MILESTONES.md` for details.
 
 - [x] **Phase 6: Dead Code & Directory Cleanup** - Remove unused files and empty scaffolded directories
 - [x] **Phase 7: Code Splitting** - Extract inline components to separate files
-- [ ] **Phase 8: Technical Debt** - Fix async patterns and update documentation
+- [x] **Phase 8: Technical Debt** - Fix async patterns and update documentation
 
 ## Phase Details
 
@@ -73,22 +73,22 @@ Plans:
 
 Plans:
 
-- [ ] 08-01-PLAN.md — Fix debounce cleanup and graph timer tracking
-- [ ] 08-02-PLAN.md — Add GitHub API caching with 5-minute TTL
-- [ ] 08-03-PLAN.md — Update documentation to reflect current structure
+- [x] 08-01-PLAN.md — Fix debounce cleanup and graph timer tracking
+- [x] 08-02-PLAN.md — Add GitHub API caching with 5-minute TTL
+- [x] 08-03-PLAN.md — Update documentation to reflect current structure
 
 ## Progress
 
 **Execution Order:** Phases 6 -> 7 -> 8
 
-| Phase                            | Milestone | Plans Complete | Status      | Completed  |
-| -------------------------------- | --------- | -------------- | ----------- | ---------- |
-| 1-5                              | v1.0      | 6/6            | Complete    | 2026-02-05 |
-| 6. Dead Code & Directory Cleanup | v1.1      | 1/1            | Complete    | 2026-02-06 |
-| 7. Code Splitting                | v1.1      | 2/2            | Complete    | 2026-02-06 |
-| 8. Technical Debt                | v1.1      | 0/3            | Not started | -          |
+| Phase                            | Milestone | Plans Complete | Status   | Completed  |
+| -------------------------------- | --------- | -------------- | -------- | ---------- |
+| 1-5                              | v1.0      | 6/6            | Complete | 2026-02-05 |
+| 6. Dead Code & Directory Cleanup | v1.1      | 1/1            | Complete | 2026-02-06 |
+| 7. Code Splitting                | v1.1      | 2/2            | Complete | 2026-02-06 |
+| 8. Technical Debt                | v1.1      | 3/3            | Complete | 2026-02-06 |
 
 ---
 
 _Roadmap created: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 8 planned_
+_Last updated: 2026-02-06 — Phase 8 complete (v1.1 shipped)_

@@ -27,10 +27,10 @@ Cleanup and polish requirements based on codebase audit.
 
 ### Technical Debt
 
-- [ ] **DEBT-01**: Add cleanup to setTimeout chains in graph reveal sequence
-- [ ] **DEBT-02**: Fix debounce to return cleanup function
-- [ ] **DEBT-03**: Add caching/deduplication for GitHub API calls
-- [ ] **DEBT-04**: Update PROJECT.md/codebase docs to reflect current state
+- [x] **DEBT-01**: Add cleanup to setTimeout chains in graph reveal sequence
+- [x] **DEBT-02**: Fix debounce to return cleanup function
+- [x] **DEBT-03**: Add caching/deduplication for GitHub API calls
+- [x] **DEBT-04**: Update PROJECT.md/codebase docs to reflect current state
 
 ## Future Requirements
 
@@ -57,10 +57,10 @@ None — v1.1 is focused cleanup.
 | SPLIT-02    | 7     | Complete |
 | SPLIT-03    | 7     | Complete |
 | SPLIT-04    | 7     | Complete |
-| DEBT-01     | 8     | Pending  |
-| DEBT-02     | 8     | Pending  |
-| DEBT-03     | 8     | Pending  |
-| DEBT-04     | 8     | Pending  |
+| DEBT-01     | 8     | Complete |
+| DEBT-02     | 8     | Complete |
+| DEBT-03     | 8     | Complete |
+| DEBT-04     | 8     | Complete |
 
 **Coverage:**
 
@@ -71,4 +71,4 @@ None — v1.1 is focused cleanup.
 ---
 
 _Requirements defined: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 7 requirements complete_
+_Last updated: 2026-02-06 — Phase 8 requirements complete (v1.1 shipped)_
