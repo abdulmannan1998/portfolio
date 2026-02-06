@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Github, ExternalLink, GitCommit, Lock, Globe } from "lucide-react";
+import { Github, ExternalLink, Lock, Globe, ShieldAlert } from "lucide-react";
 
-export type GitHubEvent = {
+// RedactedCommit type - matches app/api/github/route.ts
+export type RedactedCommit = {
   id: string;
-  type: string;
-  repo: { name: string; url: string };
-  payload: {
-    commits?: { message: string; sha: string }[];
-    ref?: string;
-    action?: string;
-  };
-  created_at: string;
-  public: boolean;
+  repo: string;
+  repoShort: string;
+  message: string;
+  sha: string;
+  timestamp: string;
+  visibility: "public" | "own-private" | "org-private";
+  repoUrl: string | null;
+  commitUrl: string | null;
 };
 
 export type GitHubActivityProps = {
@@ -22,30 +22,30 @@ export type GitHubActivityProps = {
 
 // Module-level cache (outside component)
 type CacheEntry = {
-  data: GitHubEvent[];
+  data: RedactedCommit[];
   timestamp: number;
 };
 
-const eventCache = new Map<string, CacheEntry>();
+const commitCache = new Map<string, CacheEntry>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-function getCachedEvents(username: string): GitHubEvent[] | null {
-  const cacheKey = `github_events_${username}`;
-  const cached = eventCache.get(cacheKey);
+function getCachedCommits(): RedactedCommit[] | null {
+  const cacheKey = "github_commits";
+  const cached = commitCache.get(cacheKey);
 
   if (!cached) return null;
   if (Date.now() - cached.timestamp > CACHE_TTL) {
-    eventCache.delete(cacheKey);
+    commitCache.delete(cacheKey);
     return null;
   }
 
   return cached.data;
 }
 
-function setCachedEvents(username: string, events: GitHubEvent[]): void {
-  const cacheKey = `github_events_${username}`;
-  eventCache.set(cacheKey, {
-    data: events,
+function setCachedCommits(commits: RedactedCommit[]): void {
+  const cacheKey = "github_commits";
+  commitCache.set(cacheKey, {
+    data: commits,
     timestamp: Date.now(),
   });
 }
@@ -63,46 +63,45 @@ function formatTimeAgo(dateString: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function getCommitMessage(event: GitHubEvent): string {
-  if (event.type === "PushEvent" && event.payload.commits?.length) {
-    const message = event.payload.commits[0].message;
-    return message.length > 50 ? message.substring(0, 50) + "..." : message;
-  }
-  if (event.type === "CreateEvent")
-    return `Created ${event.payload.ref || "repository"}`;
-  if (event.type === "PullRequestEvent")
-    return `${event.payload.action} pull request`;
-  return event.type.replace("Event", "");
+// Redaction visual component
+function Redacted({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="relative inline-block px-2 py-0.5 bg-gradient-to-r from-orange-500/10 via-orange-500/25 to-orange-500/10 border-l-2 border-orange-500 overflow-hidden animate-pulse">
+      <span className="text-orange-500/60 font-mono text-xs uppercase tracking-wider">
+        {children}
+      </span>
+    </span>
+  );
 }
 
-export function GitHubActivity({
-  username = "sunnyimmortal",
-}: GitHubActivityProps) {
-  const [events, setEvents] = useState<GitHubEvent[]>([]);
+export function GitHubActivity({ username = "" }: GitHubActivityProps) {
+  const [commits, setCommits] = useState<RedactedCommit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchGitHubActivity() {
       // Check cache first
-      const cached = getCachedEvents(username);
+      const cached = getCachedCommits();
       if (cached) {
-        setEvents(cached);
+        setCommits(cached);
         setLoading(false);
         return;
       }
 
-      // Fetch from API
+      // Fetch from our API route
       try {
-        const response = await fetch(
-          `https://api.github.com/users/${username}/events/public?per_page=5`,
-        );
+        const response = await fetch("/api/github");
         if (!response.ok) throw new Error("Failed to fetch");
         const data = await response.json();
 
-        // Cache the response
-        setCachedEvents(username, data);
-        setEvents(data);
+        if (data.error) {
+          setError(data.error);
+        } else {
+          // Cache the response
+          setCachedCommits(data.commits || []);
+          setCommits(data.commits || []);
+        }
       } catch {
         setError("Unable to load activity");
       } finally {
@@ -110,9 +109,7 @@ export function GitHubActivity({
       }
     }
     fetchGitHubActivity();
-  }, [username]);
-
-  const latestEvent = events[0];
+  }, []);
 
   return (
     <div className="relative bg-stone-900 p-6">
@@ -129,7 +126,7 @@ export function GitHubActivity({
             </span>
             <h3 className="text-lg font-black text-white">GITHUB</h3>
           </div>
-          {!loading && latestEvent && (
+          {!loading && commits.length > 0 && (
             <span className="ml-auto flex items-center gap-1.5 px-2 py-0.5 bg-orange-500/20 text-orange-500 text-xs font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
               LIVE
@@ -137,72 +134,99 @@ export function GitHubActivity({
           )}
         </div>
 
-        {/* Latest Push */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-xs font-mono text-white/40 uppercase tracking-wider">
-              Latest Push
-            </span>
-            {!loading && latestEvent && (
-              <span className="text-xs font-mono text-white/30">
-                {formatTimeAgo(latestEvent.created_at)}
-              </span>
-            )}
-          </div>
-
-          {loading ? (
-            <div className="h-6 w-3/4 bg-white/10 animate-pulse" />
-          ) : error ? (
-            <p className="text-white/40 font-mono text-sm">{error}</p>
-          ) : latestEvent ? (
-            <>
-              <p className="text-lg md:text-xl text-white font-black leading-tight mb-3">
-                &quot;{getCommitMessage(latestEvent)}&quot;
-              </p>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-white/40 font-mono">REPO:</span>
-                {latestEvent.public ? (
-                  <a
-                    href={`https://github.com/${latestEvent.repo.name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-orange-500 hover:text-orange-400 transition-colors flex items-center gap-1 font-bold"
-                  >
-                    <Globe className="h-3 w-3" />
-                    {latestEvent.repo.name.split("/")[1]}
-                  </a>
-                ) : (
-                  <span className="text-orange-500 flex items-center gap-1 font-bold">
-                    <Lock className="h-3 w-3" />
-                    PRIVATE
-                  </span>
-                )}
+        {/* Commits list */}
+        {loading ? (
+          <div className="space-y-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-5 w-full bg-white/10 animate-pulse" />
+                <div className="h-4 w-2/3 bg-white/10 animate-pulse" />
               </div>
-            </>
-          ) : (
-            <p className="text-white/40 font-mono">No recent activity</p>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : error ? (
+          <p className="text-white/40 font-mono text-sm">{error}</p>
+        ) : commits.length === 0 ? (
+          <p className="text-white/40 font-mono text-sm">No recent commits</p>
+        ) : (
+          <div className="space-y-5">
+            {commits.map((commit, index) => (
+              <div
+                key={commit.id}
+                className={`space-y-2 ${index === 0 ? "pb-5 border-b border-white/10" : ""}`}
+              >
+                {/* Visibility indicator + message */}
+                <div className="flex items-start gap-3">
+                  {/* Icon */}
+                  <div className="shrink-0 mt-0.5">
+                    {commit.visibility === "public" ? (
+                      <Globe className="h-4 w-4 text-white/40" />
+                    ) : commit.visibility === "own-private" ? (
+                      <Lock className="h-4 w-4 text-orange-500" />
+                    ) : (
+                      <ShieldAlert className="h-4 w-4 text-orange-500" />
+                    )}
+                  </div>
 
-        {/* Recent Activity */}
-        {!loading && events.length > 1 && (
-          <div className="pt-6 border-t border-white/10">
-            <p className="text-xs font-mono text-white/40 uppercase tracking-wider mb-3">
-              Recent Activity
-            </p>
-            <div className="space-y-2">
-              {events.slice(1, 4).map((event) => (
-                <div key={event.id} className="flex items-center gap-2 text-sm">
-                  <GitCommit className="h-3 w-3 text-white/40 shrink-0" />
-                  <span className="text-white/60 truncate flex-1 font-mono text-xs">
-                    {getCommitMessage(event)}
-                  </span>
-                  <span className="text-white/30 text-xs font-mono shrink-0">
-                    {formatTimeAgo(event.created_at)}
+                  {/* Message */}
+                  <div className="flex-1 min-w-0">
+                    {commit.message === "[CLASSIFIED]" ? (
+                      <Redacted>[CLASSIFIED]</Redacted>
+                    ) : (
+                      <p
+                        className={`font-mono ${index === 0 ? "text-base md:text-lg" : "text-sm"} text-white leading-snug`}
+                      >
+                        {commit.message.length > 60
+                          ? `${commit.message.substring(0, 60)}...`
+                          : commit.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Timestamp */}
+                  <span className="text-white/30 font-mono text-xs shrink-0">
+                    {formatTimeAgo(commit.timestamp)}
                   </span>
                 </div>
-              ))}
-            </div>
+
+                {/* Repo + SHA */}
+                <div className="flex items-center gap-3 ml-7">
+                  {/* Repo */}
+                  {commit.repo === "[REDACTED]" ? (
+                    <Redacted>[REDACTED]</Redacted>
+                  ) : commit.repoUrl ? (
+                    <a
+                      href={commit.repoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-500 hover:text-orange-400 transition-colors font-bold text-sm"
+                    >
+                      {commit.repoShort}
+                    </a>
+                  ) : (
+                    <span className="text-white/40 text-sm font-mono">
+                      {commit.repoShort}
+                    </span>
+                  )}
+
+                  {/* SHA */}
+                  {commit.commitUrl ? (
+                    <a
+                      href={commit.commitUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/20 hover:text-white/40 transition-colors font-mono text-[10px]"
+                    >
+                      {commit.sha.substring(0, 7)}
+                    </a>
+                  ) : (
+                    <span className="text-white/20 font-mono text-[10px]">
+                      {commit.sha.substring(0, 7)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
