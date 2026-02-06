@@ -40,18 +40,18 @@ See MILESTONES.md for details.
 **Goal**: CSS animation infrastructure exists and hero parallax is isolated so subsequent phases can migrate animations without touching page-level concerns
 **Depends on**: Phase 8 (v1.1 complete)
 **Requirements**: ANIM-01, ANIM-06, ANIM-07, RSC-02
+**Plans**: 2 plans
 **Success Criteria** (what must be TRUE):
 
 1. CSS keyframe animations (fade-in-up, fade-in-down, fade-in-left, scale-in) are defined in globals.css and can be applied to any element via class names
 2. Hero section parallax scroll effect works identically to current behavior but the scroll logic lives in its own client wrapper component, not in page.tsx
 3. A test element with animation-timeline: view() animates on scroll in Chrome, and an Intersection Observer polyfill activates the same animation in Safari/Firefox
 4. Hero wrapper accepts server-rendered children (static content passed as props/children, not rendered inside the client component)
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- CSS keyframe animations, scroll-driven utility classes, and IO polyfill hook
+- [ ] 09-02-PLAN.md -- Hero parallax extraction into client wrapper component
 
 ### Phase 10: Section Animation Migration
 
@@ -160,4 +160,4 @@ Critical path: 9 -> 10 -> 12 -> 13 -> 14 (Phase 11 merges at 13)
 
 ---
 
-_Last updated: 2026-02-07 -- Roadmap created for v1.2 SSR Migration_
+_Last updated: 2026-02-07 -- Phase 9 plans created_
