@@ -28,7 +28,7 @@ See MILESTONES.md for details.
 
 **Strategy pivot:** Phases 9-10 (CSS animation replacement) were reverted after UAT revealed animation-timeline: view() doesn't work reliably. New approach: keep framer-motion, wrap animated sections in client boundary components, and achieve SSR benefits through component architecture rather than animation replacement.
 
-- [ ] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
+- [x] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
 - [ ] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
 - [ ] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
 - [ ] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
@@ -49,7 +49,7 @@ See MILESTONES.md for details.
 
 Plans:
 
-- [ ] 09-01-PLAN.md -- Extract server-side GitHub fetch with ISR, refactor GitHubActivity to presentational
+- [x] 09-01-PLAN.md -- Extract server-side GitHub fetch with ISR, refactor GitHubActivity to presentational
 
 ### Phase 10: Client Boundary Extraction
 
@@ -109,13 +109,13 @@ Phases execute in numeric order: 9, 10, 11, 12.
 Phase 9 and 10 can potentially run in parallel. Phase 11 requires 9+10 done. Phase 12 requires 11 done.
 Critical path: 9 -> 10 -> 11 -> 12
 
-| Phase                          | Milestone | Plans Complete | Status      | Completed |
-| ------------------------------ | --------- | -------------- | ----------- | --------- |
-| 9. Server-side GitHub Fetching | v1.2      | 0/1            | Not started | -         |
-| 10. Client Boundary Extraction | v1.2      | 0/2            | Not started | -         |
-| 11. Server Component Page      | v1.2      | 0/1            | Not started | -         |
-| 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -         |
+| Phase                          | Milestone | Plans Complete | Status      | Completed  |
+| ------------------------------ | --------- | -------------- | ----------- | ---------- |
+| 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
+| 10. Client Boundary Extraction | v1.2      | 0/2            | Not started | -          |
+| 11. Server Component Page      | v1.2      | 0/1            | Not started | -          |
+| 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phases 9-10 reverted (CSS animations approach abandoned), roadmap restructured around framer-motion + client boundaries_
+_Last updated: 2026-02-07 -- Phase 9 complete (server-side GitHub fetching with ISR, zero-flash rendering)_

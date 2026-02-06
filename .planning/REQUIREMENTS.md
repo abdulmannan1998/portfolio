@@ -28,10 +28,10 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Data Fetching
 
-- [ ] **DATA-01**: GitHub activity data is fetched server-side in page.tsx (no client-side loading flash)
-- [ ] **DATA-02**: GitHub data uses ISR with 5-minute revalidation
-- [ ] **DATA-03**: Module-level Map cache removed from github-activity component
-- [ ] **DATA-04**: GitHub-activity is a presentational component receiving data as props
+- [x] **DATA-01**: GitHub activity data is fetched server-side in page.tsx (no client-side loading flash)
+- [x] **DATA-02**: GitHub data uses ISR with 5-minute revalidation
+- [x] **DATA-03**: Module-level Map cache removed from github-activity component
+- [x] **DATA-04**: GitHub-activity is a presentational component receiving data as props
 
 ### Image Optimization
 
@@ -90,10 +90,10 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | ANIM-06     | 9     | Complete |
 | ANIM-07     | 9     | Complete |
 | ANIM-08     | 12    | Pending  |
-| DATA-01     | 11    | Pending  |
-| DATA-02     | 11    | Pending  |
-| DATA-03     | 11    | Pending  |
-| DATA-04     | 11    | Pending  |
+| DATA-01     | 9     | Complete |
+| DATA-02     | 9     | Complete |
+| DATA-03     | 9     | Complete |
+| DATA-04     | 9     | Complete |
 | IMG-01      | 14    | Pending  |
 | IMG-02      | 14    | Pending  |
 | PPR-01      | 14    | Pending  |
@@ -113,4 +113,4 @@ Deferred to future milestone. Tracked but not in current roadmap.
 ---
 
 _Requirements defined: 2026-02-07_
-_Last updated: 2026-02-07 -- Phase 10 complete (ANIM-02, ANIM-03, ANIM-04, ANIM-05)_
+_Last updated: 2026-02-07 -- Phase 9 complete (DATA-01, DATA-02, DATA-03, DATA-04)_
