@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Github, Linkedin, ExternalLink } from "lucide-react";
 import { techCategories } from "@/data/tech-stack";
 import { GitHubActivity } from "@/components/github-activity";
 import { SOCIAL_LINKS } from "@/lib/social-links";
@@ -72,50 +71,8 @@ export function TechAndCodeSection() {
           </div>
 
           {/* Right Column - Activity Panel */}
-          <div className="space-y-6">
-            {/* Card 1: GitHub Live Feed */}
+          <div>
             <GitHubActivity username={SOCIAL_LINKS.github.username} />
-
-            {/* Card 2: Social CTAs */}
-            <div className="space-y-3">
-              {/* GitHub CTA */}
-              <a
-                href={SOCIAL_LINKS.github.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center justify-between bg-stone-900 p-4 hover:bg-stone-800 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Github className="h-6 w-6 text-white" />
-                  <div>
-                    <h4 className="text-sm font-black text-white">GITHUB</h4>
-                    <p className="text-xs text-white/40 font-mono">
-                      VIEW OPEN SOURCE WORK
-                    </p>
-                  </div>
-                </div>
-                <ExternalLink className="h-4 w-4 text-white/40 group-hover:text-orange-500 transition-colors" />
-              </a>
-
-              {/* LinkedIn CTA */}
-              <a
-                href={SOCIAL_LINKS.linkedin.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center justify-between bg-stone-900 p-4 hover:bg-stone-800 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Linkedin className="h-6 w-6 text-blue-400" />
-                  <div>
-                    <h4 className="text-sm font-black text-white">LINKEDIN</h4>
-                    <p className="text-xs text-white/40 font-mono">
-                      CONNECT PROFESSIONALLY
-                    </p>
-                  </div>
-                </div>
-                <ExternalLink className="h-4 w-4 text-white/40 group-hover:text-blue-400 transition-colors" />
-              </a>
-            </div>
           </div>
         </div>
       </div>
