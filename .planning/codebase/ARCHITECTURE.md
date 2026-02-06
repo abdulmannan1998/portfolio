@@ -1,198 +1,221 @@
 # Architecture
 
-**Analysis Date:** 2026-02-05
+**Analysis Date:** 2026-02-06
 
 ## Pattern Overview
 
-**Overall:** Component-driven Next.js app with React Flow graph visualization and Zustand state management.
+**Overall:** Next.js 16 full-stack portfolio application with client-side interactive features, progressive component loading, and state management via Zustand.
 
 **Key Characteristics:**
 
-- Single-page responsive portfolio with interactive graph visualization
-- Lazy-loaded components to minimize initial bundle (React Flow is client-only)
-- Responsive design with separate mobile/desktop rendering strategies
-- Zustand store for graph state (expand/collapse, filters, view modes)
-- Timeline-based graph layout with staggered reveal animations
+- Next.js App Router with client-side rendering for interactive sections
+- Brutalist design language with motion primitives (Framer Motion)
+- Lazy-loaded React Flow graph visualization
+- Zustand for client state (graph expansion, reveal tracking)
+- Static data-driven content from centralized resume data structure
+- Component-driven architecture with shared UI primitives
 
 ## Layers
 
-**Presentation Layer:**
+**Page/Route Layer:**
 
-- Purpose: React components responsible for rendering UI and handling user interactions
-- Location: `components/` directory (e.g., `dashboard-background.tsx`, `custom-node.tsx`, `mobile-hero.tsx`)
-- Contains: Client components using Framer Motion for animations, ReactFlow for graph visualization, Lucide icons
-- Depends on: Data layer (`data/resume-data.ts`), utilities layer (`lib/`), state management (`lib/stores/`)
-- Used by: Next.js page component (`app/page.tsx`)
+- Purpose: Define application routes and entry points
+- Location: `app/`
+- Contains: Page components, layouts, and route segments
+- Depends on: Sections, designs, data
+- Used by: Next.js router
 
-**State Management Layer:**
+**Section Layer:**
 
-- Purpose: Zustand store for graph-related state (expanded nodes, filters, view modes, hover states)
-- Location: `lib/stores/graph-store.tsx`
-- Contains: Single store with actions for node expansion, highlighting, filtering
-- Depends on: Nothing external (self-contained)
-- Used by: Components like `achievement-node.tsx`, `dashboard-background.tsx`
+- Purpose: Compose full-page sections with specific functionality
+- Location: `components/sections/`
+- Contains: GraphSection (interactive career graph visualization)
+- Depends on: Custom nodes, stores, utilities, Framer Motion
+- Used by: Page components
+
+**Component Layer:**
+
+- Purpose: Reusable UI components and feature components
+- Location: `components/`
+- Contains: CustomNode, AchievementNode, MobileHero, DashboardBackground, GraphLegend, LiveMetricWidget
+- Depends on: UI primitives, libraries (lucide-react, framer-motion, @xyflow/react)
+- Used by: Sections, pages, designs
+
+**Design System Layer:**
+
+- Purpose: Encapsulate design variants for different portfolio themes
+- Location: `components/designs/`
+- Contains: 16+ design directories (artdeco, bento, blueprint, brutalist, editorial, glass, isometric, newspaper, noir, organic, pixel, synthwave, terminal, vaporwave, zen, shared)
+- Depends on: UI components, CSS utilities
+- Used by: App routes for design switching
+
+**UI Primitives Layer:**
+
+- Purpose: Low-level reusable components (form controls, feedback, etc.)
+- Location: `components/ui/`
+- Contains: Button, Input, Textarea, Select, Combobox, Badge, Field, Label, AlertDialog, Dropdown, Separator, InputGroup, Card
+- Depends on: Tailwind CSS, Base UI, Radix UI
+- Used by: Feature components, sections
 
 **Data Layer:**
 
-- Purpose: Resume data structure and achievement/role definitions
-- Location: `data/resume-data.ts`
-- Contains: Personal info, metrics, roles, achievements, graph nodes/edges
-- Depends on: TypeScript types defined in same file
-- Used by: Layout calculator, graph utilities, and presentation components
+- Purpose: Static content structure for resume, metrics, graph nodes/edges
+- Location: `data/`
+- Contains: `resume-data.ts` - centralized resume, achievement, metric, graph structure definitions
+- Depends on: None
+- Used by: Components, sections, utilities
 
-**Layout & Calculation Layer:**
+**State Management Layer:**
 
-- Purpose: Algorithmic positioning of graph nodes based on viewport and layout rules
-- Location: `lib/layout-calculator.ts`, `lib/graph-utils.ts`
-- Contains: Timeline positioning algorithm, safe area calculation, responsive spacing
-- Depends on: Data layer (resume data), React Flow types
-- Used by: Dashboard component, graph initialization
+- Purpose: Client-side state for graph interactions
+- Location: `lib/stores/`
+- Contains: `graph-store.tsx` (Zustand store for node expansion, reveal tracking)
+- Depends on: Zustand
+- Used by: GraphSection, CustomNode
 
-**Utilities Layer:**
+**Utility/Helper Layer:**
 
-- Purpose: Shared helper functions and hooks
-- Location: `lib/` (e.g., `utils.ts`, `debounce.ts`), `hooks/` (e.g., `use-responsive-layout.ts`)
-- Contains: Class merging (`cn`), debounce, viewport tracking
-- Depends on: Nothing external
-- Used by: Various components and hooks
+- Purpose: Shared logic for graph calculations, responsive behavior, styling
+- Location: `lib/`
+- Contains: Graph utilities, layout calculator, layout constants, debounce, responsive layout hook, utils
+- Depends on: Types from @xyflow/react
+- Used by: Sections, components
+
+**Hooks Layer:**
+
+- Purpose: Custom React hooks for specialized behavior
+- Location: `hooks/`
+- Contains: `useResponsiveLayout` - track viewport changes with debouncing
+- Depends on: Debounce utility, React hooks
+- Used by: Responsive components
 
 ## Data Flow
 
-**Initial Page Load:**
+**Page Initialization:**
 
-1. `app/page.tsx` renders and checks `useResponsiveLayout()` hook
-2. Page determines mobile vs. desktop path
-3. **Desktop path:** Dynamic import of `DashboardBackground` component
-4. `DashboardBackground` initializes React Flow with minimal nodes (only root visible)
-5. All nodes/edges fetched from `getInitialNodes()` and `getInitialEdges()` (which use `RESUME_DATA`)
-6. Graph dimensions are tracked via ResizeObserver for responsive repositioning
+1. User navigates to `/` → `app/page.tsx` renders
+2. Page imports static `RESUME_DATA` from `data/resume-data.ts`
+3. Page renders static sections (hero, marquee, about, tech stack, experience, metrics)
+4. GraphSection dynamically imported with no SSR (`ssr: false`)
+5. GitHub activity fetched client-side from GitHub API
 
-**Graph Reveal Sequence (Desktop):**
+**Graph Visualization Flow:**
 
-1. User hovers over graph container → `handleGraphEnter()` triggers
-2. `startRevealSequence()` executes staggered reveal:
-   - Stage 1 (0-600ms): Soft skills appear sequentially, left to right
-   - Stage 2 (1200ms): Education (Bilkent)
-   - Stage 3 (1700ms): Layermark company
-   - Stage 4 (2200ms): Intenseye company
-3. Each node triggers `addNodeAndEdges()` which:
-   - Adds node to graph with animation handler
-   - Delays edges by 500ms for smooth appearance
-   - Calls `fitViewSmooth()` to center graph
-4. After complete reveal, `fitView` animates smoothly over 800ms
-
-**Achievement Expansion (on hover):**
-
-1. User hovers over company/education node
-2. `handleNodeHover()` detects achievement edges connected to that node
-3. Achievement nodes are added with staggered animation delays (100ms each)
-4. Edges added after nodes animate in (calculated delay based on node count)
-5. Z-index managed via Zustand store to layer expanded nodes on top
-
-**Mobile Path:**
-
-1. `MobileHero` component renders simplified card-based timeline
-2. No graph visualization
-3. Metrics displayed as a grid
-4. Content ready callback triggers after 500ms
+1. GraphSection mounted → ReactFlowProvider wraps GraphSectionInner
+2. `getInitialNodes()` and `getInitialEdges()` compute positions using viewport dimensions
+3. Only root node initially rendered
+4. User hovers over graph container → `handleGraphEnter()` triggers
+5. `startRevealSequence()` runs via useGraphStore:
+   - Soft skill nodes added (Problem-Solving, Collaboration, Quick-Learner)
+   - Education node added (Bilkent) at EDUCATION_DELAY_MS
+   - Company nodes added (Layermark, Intenseye) at specified delays
+6. Hovering company/education node → `handleNodeHover()`:
+   - Achievement nodes for that company added to state
+   - Related edges added after animation completes
+   - `debouncedFitView()` refits viewport
+7. ResizeObserver watches container → recalculates dimensions → rerenders graph
 
 **State Management Flow:**
 
-1. `useGraphStore` tracks:
-   - `expandedNodes`: Set of node IDs currently expanded
-   - `highlightedConnections`: For future connection highlighting
-   - `activeFilters`: Technology/company/category filters (unused but structured for future)
-   - `viewMode`: "timeline" | "technology" | "impact" | "compact" (not currently used)
-   - `hoveredNode`: Current hovered node (reserved for future)
-2. Achievement node clicks dispatch `expandNode(id)` or `collapseNode(id)`
-3. Z-index updated via effect listening to `expandedNodes` changes
+1. Zustand `useGraphStore` maintains:
+   - `expandedNodes`: array of expanded node IDs
+   - `revealedCompanies`: tracks which companies have been hovered
+   - `hasStartedReveal`: prevents re-triggering reveal sequence
+2. Store accessed via `useGraphStore.getState()` in callbacks
+3. State changes trigger re-renders of affected components
+
+**Component Rendering Flow:**
+
+Static sections render directly from page component with Framer Motion animations:
+
+- Hero: Scale/opacity transforms on scroll
+- Marquee: Infinite scroll animation
+- About: Split grid with motion variants
+- Tech Stack: Grid with staggered item animations
+- Experience: Timeline with left-to-right slide animations
+- Metrics: Horizontal scroll cards with AnimatedCounter
+- GitHub Activity: Fetched and formatted client-side
 
 ## Key Abstractions
 
-**Graph Timeline Layout:**
+**CustomNode:**
 
-- Purpose: Positions nodes in a 3-level hierarchy (root → timeline → achievements) with responsive spacing
-- Examples: `layout-calculator.ts`
-- Pattern: Functional algorithm that takes viewport, safe area, and nodes → returns positioned Node[] array
-  - Level 1: Root node centered at top
-  - Level 2: Soft skills around root, timeline nodes (companies/education) horizontally spread
-  - Level 3: Achievement nodes staggered below their parent company
+- Purpose: Render React Flow nodes with type-specific styling and animations
+- Examples: `components/custom-node.tsx`
+- Pattern: Type-based conditional rendering with Framer Motion variants. Different types (root, company, education, soft-skill) get distinct visual treatments, animations, and interactivity patterns.
 
-**Node Types:**
+**Layout Calculator:**
 
-- Purpose: Define different node representations in graph
-- Examples: `CustomNode` (root, company, education, soft-skill), `AchievementNode` (expandable achievement cards)
-- Pattern: React components receiving `data`, `selected`, and `id` props
-  - `CustomNode` has multiple render paths based on `data.type`
-  - `AchievementNode` integrates with Zustand store for expand/collapse
+- Purpose: Compute node positions within safe viewport area avoiding layout overlap
+- Examples: `lib/layout-calculator.ts`
+- Pattern: Viewport-aware positioning that calculates timeline x-positions and safe area bounds to prevent nodes from rendering outside visible area.
 
-**Animation Variants:**
+**Resume Data Schema:**
 
-- Purpose: Reusable Framer Motion animation definitions
-- Examples: `hero-entrance`, `bloom-in`, `slide-up`, `fade-drop`, `pop-in` in `custom-node.tsx`
-- Pattern: Function mapping animation type string to Framer Motion configuration object
+- Purpose: Single source of truth for all content
+- Examples: `data/resume-data.ts`
+- Pattern: Typed data structure with achievements, metrics, graph nodes/edges. Referenced throughout components avoiding hardcoded content.
 
-**Responsive Layout Hook:**
+**Graph Store (Zustand):**
 
-- Purpose: Centralize viewport tracking and breakpoint logic
-- Examples: `useResponsiveLayout()` in `hooks/use-responsive-layout.ts`
-- Pattern: Returns `{ isMobile, isTablet, isDesktop, viewport }` with debounced resize listener
+- Purpose: Client-side state for interactive graph behavior
+- Examples: `lib/stores/graph-store.tsx`
+- Pattern: Immutable state updates with getState() for outside-component access. Tracks expand/collapse and reveal progression.
+
+**Motion Variants:**
+
+- Purpose: Encapsulate animation configurations
+- Examples: `components/custom-node.tsx` (HERO_ENTRANCE_VARIANTS, BLOOM_IN_VARIANTS, etc.)
+- Pattern: Module-level constants for variants/transitions preventing recreation on each render. Switch case for type-based animation selection.
 
 ## Entry Points
 
-**Root Page Component:**
-
-- Location: `app/page.tsx`
-- Triggers: Direct page navigation
-- Responsibilities:
-  - Determine responsive layout (mobile vs. desktop)
-  - Manage loading state and content-ready transitions
-  - Pass header, legend, and metrics to desktop view
-  - Route to `MobileHero` or `DashboardBackground`
-
-**React Layout:**
+**Main App Entry:**
 
 - Location: `app/layout.tsx`
-- Triggers: All pages (applies to entire app)
-- Responsibilities:
-  - Load Google fonts (Geist Sans/Mono)
-  - Set metadata and favicon
-  - Wrap with global styles
+- Triggers: Server startup
+- Responsibilities: Set up root HTML structure, load fonts (Geist), apply CSS globals, provide metadata
 
-**CSS Preloader:**
+**Main Page:**
 
-- Location: `components/css-preloader.tsx`
-- Triggers: Page load (while `loading` state is true)
-- Responsibilities: Display loading animation before content renders
+- Location: `app/page.tsx`
+- Triggers: GET `/`
+- Responsibilities: Render full-page portfolio with all sections (hero, about, tech, experience, metrics, graph, github), manage scroll state for hero animations, fetch GitHub events client-side
+
+**Graph Section:**
+
+- Location: `components/sections/graph-section.tsx`
+- Triggers: User scrolls to graph section
+- Responsibilities: Initialize React Flow with nodes/edges, manage reveal sequence, handle viewport resizing and node hover interactions
 
 ## Error Handling
 
-**Strategy:** Graceful degradation with minimal error handling visible
+**Strategy:** Graceful degradation for optional features, silent failures for non-critical API calls.
 
 **Patterns:**
 
-- No explicit error boundaries visible in code
-- React's strict mode enabled (`reactStrictMode: true`)
-- Dynamic imports for client-only components use fallback (implicit: renders nothing if failed)
-- No error logging infrastructure visible
+- GitHub API fetch wrapped in try-catch with error state and fallback UI ("Unable to load activity")
+- Graph initially renders with only root node; missing nodes/edges don't break rendering
+- Dynamic imports use loading fallback UI ("Loading graph...")
+- ResizeObserver errors don't break component (wrapped in effect cleanup)
 
 ## Cross-Cutting Concerns
 
-**Logging:** None detected - no logging framework in use
+**Logging:** Console-only, no structured logging infrastructure. Errors in GitHub API fetch logged implicitly via try-catch.
 
-**Validation:** Minimal - data types defined in TypeScript, no runtime validation
+**Validation:** TypeScript provides compile-time validation. Runtime validation minimal. Resume data and graph structure validated by TypeScript types.
 
-**Authentication:** None - static portfolio site
+**Authentication:** Not applicable - portfolio is public. No auth layer needed.
 
-**Performance:**
+**Performance Optimization:**
 
-- Dynamic imports with SSR disabled for React Flow (browser-only)
-- Package import optimization in Next.js config (lucide-react, framer-motion, @xyflow/react)
-- React Compiler enabled (`reactCompiler: true`)
-- Component caching enabled (`cacheComponents: true`)
-- Debounced resize handler (300ms) for graph repositioning
-- Layout calculations memoized via `useCallback` in dashboard component
+- React Compiler enabled (`reactCompiler: true` in next.config.ts)
+- Component-level code splitting with dynamic imports
+- Package import optimization (`optimizePackageImports` for lucide-react, framer-motion, @xyflow/react)
+- Debounced resize handler (300ms) and fitView (150ms)
+- useMemo for expensive graph calculations
+- ResizeObserver for responsive layout recalculation
 
 ---
 
-_Architecture analysis: 2026-02-05_
+_Architecture analysis: 2026-02-06_

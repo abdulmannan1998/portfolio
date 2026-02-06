@@ -1,172 +1,198 @@
 # Technology Stack
 
-**Analysis Date:** 2026-02-05
+**Analysis Date:** 2026-02-06
 
 ## Languages
 
 **Primary:**
 
-- TypeScript 5.x - All source code uses strict TypeScript for type safety
+- TypeScript 5 - Application code, components, utilities, and configuration
+- CSS/Tailwind - Styling and layout
 
 **Secondary:**
 
-- JavaScript (ES2017+) - Used in configuration files (`.mjs` modules)
-- CSS - Utility-first with Tailwind CSS
+- JavaScript (JSX/TSX) - React component files
+- MDX - Documentation (potential future use)
 
 ## Runtime
 
 **Environment:**
 
-- Node.js 20+ (inferred from `@types/node: ^20`)
+- Node.js (version not explicitly pinned, inferred as LTS from Next.js 16 compatibility)
 
 **Package Manager:**
 
-- pnpm - Primary package manager (referenced in documentation)
-- Lockfile: `pnpm-lock.yaml` present
+- npm (implied by package.json)
+- Lockfile: present (implied by pnpm-lock.yaml reference in .eslintignore)
 
 ## Frameworks
 
 **Core:**
 
-- Next.js 16.1.6 - Full-stack React framework with App Router
-  - Configuration: `next.config.ts`
-  - Features enabled: React Compiler, Partial Prerendering (PPR), cacheComponents
-  - Experimental features: `optimizePackageImports`, `staleTimes` for client router cache
+- Next.js 16.1.6 - Full-stack React framework for server-side rendering, API routes, and deployment
+- React 19.2.3 - UI library and component framework
+- React DOM 19.2.3 - DOM rendering for React
 
-**UI & Visualization:**
+**UI & Styling:**
 
-- React 19.2.3 - UI library
-- React DOM 19.2.3 - DOM rendering
+- Tailwind CSS 4 - Utility-first CSS framework with PostCSS
+- Shadcn 3.8.2 - Pre-built component library built on Radix UI
+- Class Variance Authority 0.7.1 - Type-safe component variants
+- Tailwind Merge 3.4.0 - Merge conflicting Tailwind classes
+- Lucide React 0.563.0 - Icon library with React components
 
-**Component Libraries:**
+**Animation & Interaction:**
 
-- Radix UI 1.4.3 - Unstyled accessible component primitives
-- Base UI 1.1.0 - Additional UI primitives
-- Lucide React 0.563.0 - Icon library (880+ icons)
+- Framer Motion 12.31.0 - Production animation library
+- tw-animate-css 1.4.0 - Tailwind animation utilities
 
-**Animation & Motion:**
+**UI Primitives:**
 
-- Framer Motion 12.31.0 - Motion and animation library for micro-interactions
-
-**Graph Visualization:**
-
-- @xyflow/react 12.10.0 - React Flow library for interactive graph rendering
-  - Used in `DashboardBackground` component for resume data visualization
-
-**Styling:**
-
-- Tailwind CSS 4 - Utility-first CSS framework
-- PostCSS 4 - CSS processing (via `@tailwindcss/postcss`)
-- class-variance-authority 0.7.1 - Variant management for styled components
-- tailwind-merge 3.4.0 - Utility merge helper (prevents class conflicts)
-- tw-animate-css 1.4.0 - Animation utilities for Tailwind
+- Radix UI 1.4.3 - Low-level accessible component primitives
+- Base UI React 1.1.0 - React component foundation library
 
 **State Management:**
 
-- Zustand 5.0.11 - Lightweight state management store
-  - Usage: `GraphState` in `lib/stores/graph-store.tsx` (view modes, filters, highlighting, expanded nodes)
+- Zustand 5.0.11 - Lightweight state management
 
-**Testing & Development:**
+**Data Visualization & Graphs:**
 
-- ESLint 9 - Linting (flat config with `eslint.config.mjs`)
-  - `@typescript-eslint/parser`: ^8.54.0
-  - `@typescript-eslint/eslint-plugin`: ^8.54.0
-  - Configured for Next.js core web vitals and TypeScript best practices
+- @xyflow/react 12.10.0 (React Flow) - Interactive graph/diagram library with node-based editing
+- Konva (referenced in code) - Canvas library for drawing and visualization
+
+**Utilities:**
+
+- clsx 2.1.1 - Conditional classname utility
+
+## Build & Development
+
+**Compiler & Bundler:**
+
+- Babel Plugin React Compiler 1.0.0 - React compiler optimization plugin for Next.js
+
+**Code Quality:**
+
+- ESLint 9 - JavaScript/TypeScript linter
+- @typescript-eslint/parser 8.54.0 - TypeScript parser for ESLint
+- @typescript-eslint/eslint-plugin 8.54.0 - TypeScript-specific ESLint rules
 - Prettier 3.8.1 - Code formatter
-  - Config: `.prettierrc` (semicolons, trailing commas, 80 char width)
-  - Integration: via `eslint-plugin-prettier`
-- Husky 9.1.7 - Git hooks framework
-  - Configured in `.husky/_` directory
-- lint-staged 16.2.7 - Run linters on staged files
-  - Config: `.lintstagedrc`
-- TypeScript compiler plugins: Babel React Compiler (^1.0.0) for optimizations
+- eslint-config-prettier 10.1.8 - Disable ESLint rules that conflict with Prettier
+- eslint-plugin-prettier 5.5.5 - Prettier as ESLint plugin
+- eslint-config-next 16.1.6 - Next.js ESLint configuration
 
-**Type Definitions:**
+**Git Hooks:**
 
-- @types/react: ^19 - React type definitions
-- @types/react-dom: ^19 - React DOM types
-- @types/node: ^20 - Node.js types
+- Husky 9.1.7 - Git hooks manager
+- Lint-staged 16.2.7 - Run linters on staged files
 
-**UI Component Generator:**
+**PostCSS:**
 
-- shadcn 3.8.2 - UI component CLI (for adding pre-built components)
+- @tailwindcss/postcss 4 - Tailwind CSS PostCSS plugin
 
 ## Key Dependencies
 
 **Critical:**
 
-- Next.js (16.1.6) - Server-side rendering, static generation, API routes support
-- React (19.2.3) - Core UI framework
-- TypeScript (5.x) - Type safety across codebase
-- Tailwind CSS (4) - Styling infrastructure
+- Next.js 16.1.6 - Core framework enabling Server Components, optimization, and deployment
+- React 19.2.3 - UI rendering engine
+- TypeScript 5 - Type safety across codebase
 
-**Visualization & Interactivity:**
+**UI & Components:**
 
-- @xyflow/react (12.10.0) - Interactive graph/node visualization (primary graph component)
-- Framer Motion (12.31.0) - Smooth animations and transitions
-- Zustand (5.0.11) - State management for graph interactions, filters, view modes
+- Shadcn 3.8.2 - Design system component library (Radix-based)
+- Tailwind CSS 4 - Styling backbone
+- Lucide React 0.563.0 - Icon primitives
 
-**UI Infrastructure:**
+**Visualization & Interaction:**
 
-- Radix UI (1.4.3) - Accessible component primitives
-- Base UI (1.1.0) - Additional primitive components
-- Lucide React (0.563.0) - Icon set
+- Framer Motion 12.31.0 - Complex animations (hero section, transitions, scroll effects)
+- @xyflow/react 12.10.0 - Interactive career graph visualization with node editing
+- Zustand 5.0.11 - Graph state management (`/lib/stores/graph-store.tsx`)
 
-**Build & Development:**
+**Infrastructure:**
 
-- Babel React Compiler (1.0.0) - Automatic component memoization
-- PostCSS (4) - CSS transformation pipeline
+- Vercel (deployment platform - `.vercel/project.json` present)
 
-## Configuration
+## Configuration Files
 
-**Environment:**
+**TypeScript:**
 
-- No external environment variables detected in source code
-- No `.env*` files detected (all data is static)
-- Not deployed to require secrets/API keys
-
-**Build:**
-
-- Build config: `next.config.ts` with React Compiler and package import optimization
-- TypeScript config: `tsconfig.json`
+- `tsconfig.json` - TypeScript compiler options
   - Target: ES2017
   - Module: esnext
-  - Path aliases: `@/*` maps to root directory
   - Strict mode enabled
-- ESLint config: `eslint.config.mjs` (flat config format)
-- PostCSS config: `postcss.config.mjs`
-- Component generation: `components.json` (shadcn/ui configuration)
-  - Style: radix-lyra
-  - Icon library: lucide
-  - Base color: stone
-  - RSC: enabled (React Server Components)
+  - Path aliases: `@/*` maps to project root
+  - JSX: react-jsx (automatic JSX transform)
 
-**Code Quality:**
+**Next.js:**
 
-- Prettier settings in `.prettierrc`:
-  - Print width: 80 characters
-  - Semicolons: enabled
-  - Single quotes: disabled (double quotes)
-  - Tab width: 2 spaces
-  - Trailing commas: all
-- Ignore files: `.prettierignore`, `.gitignore` (standard Next.js ignores)
+- `next.config.ts` - Next.js configuration
+  - React Compiler enabled (`reactCompiler: true`)
+  - Component caching enabled (`cacheComponents: true`)
+  - Package imports optimized for Lucide React, Framer Motion, @xyflow/react
+  - Static cache: 180s, dynamic cache: 30s (staleTimes)
+  - Image formats: AVIF and WebP
+  - React strict mode enabled
+
+**ESLint:**
+
+- `eslint.config.mjs` - Flat config format (ESLint 9+)
+  - Next.js Core Web Vitals rules
+  - Next.js TypeScript rules
+  - TypeScript-specific rules with warnings for unused vars (argsIgnorePattern: `^_`)
+  - React hooks enforcement
+  - No var, prefer const, strict equality (`eqeqeq`)
+
+**PostCSS:**
+
+- `postcss.config.mjs` - Tailwind CSS plugin configuration
+
+**Formatting:**
+
+- `.prettierrc` - Prettier configuration (referenced but content controlled via eslint-config-prettier)
+
+## Development Workflow
+
+**Commands (from `package.json`):**
+
+```bash
+npm run dev          # Start Next.js dev server
+npm run build        # Build for production
+npm start            # Start production server
+npm run lint         # Run ESLint
+npm run format       # Format code with Prettier
+npm run format:check # Check formatting without modifying
+npm run prepare      # Husky setup hook
+```
+
+**Git Integration:**
+
+- Husky pre-commit hooks with lint-staged (enforces linting/formatting on staged files)
 
 ## Platform Requirements
 
 **Development:**
 
-- Node.js 20+
-- pnpm package manager
-- macOS/Linux/Windows (cross-platform compatible)
+- Node.js (LTS recommended for Next.js 16)
+- npm or compatible package manager
+- Git (for Husky hooks)
 
 **Production:**
 
-- Deployment target: Vercel (configured via `.vercel/project.json`)
-- Next.js serverless functions supported
-- Static export capable (no API routes in use)
-- Project ID: `prj_NUzrygDa4ReYYjuWu1XeWOTDMNAj`
-- Organization: Vercel team deployment
+- Vercel deployment platform (primary target - `.vercel/project.json` configured)
+- Alternative: Any Node.js 18+ compatible environment
+
+**Environment:**
+
+- No environment variables detected in codebase (portfolio uses public GitHub API)
+- Optional: GitHub API access (used for public activity feed, no auth key required)
+
+## Build Output
+
+- `.next/` - Next.js build artifacts (included in .eslintignore)
+- `out/` - Static export target (if configured)
+- `dist/` or `build/` - Alternative build outputs
 
 ---
 
-_Stack analysis: 2026-02-05_
+_Stack analysis: 2026-02-06_

@@ -13,9 +13,10 @@ export function GraphLegend() {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 4, duration: 0.6 }}
-      className="rounded-lg border border-stone-800/50 bg-stone-950/80 p-4 shadow-xl backdrop-blur-sm max-w-[200px] opacity-60 hover:opacity-100 transition-opacity"
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className="rounded-lg border border-stone-800/50 bg-stone-950/80 p-4 shadow-xl backdrop-blur-sm max-w-[200px] opacity-80 hover:opacity-100 transition-opacity"
     >
       <h3 className="mb-3 text-xs font-semibold text-stone-400">Legend</h3>
 

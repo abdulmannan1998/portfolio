@@ -13,6 +13,7 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { motion } from "framer-motion";
 import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
 import { CustomNode } from "@/components/custom-node";
 import { AchievementNode } from "@/components/nodes/achievement-node";
@@ -25,19 +26,8 @@ const nodeTypes = {
   achievement: AchievementNode,
 };
 
-interface DashboardBackgroundProps {
-  header: React.ReactNode;
-  legend: React.ReactNode;
-  bottomContent: React.ReactNode;
-}
-
-function DashboardBackgroundInner({
-  header,
-  legend,
-  bottomContent,
-}: DashboardBackgroundProps) {
+function GraphSectionInner() {
   const graphContainerRef = useRef<HTMLDivElement>(null);
-  // Track the graph container dimensions
   const [graphDimensions, setGraphDimensions] = useState({
     width: 800,
     height: 600,
@@ -46,8 +36,8 @@ function DashboardBackgroundInner({
   const reactFlowInstance = useReactFlow();
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
+  const timersRef = useRef<NodeJS.Timeout[]>([]);
 
-  // Debounced fitView to batch multiple rapid calls
   const debouncedFitView = useMemo(
     () =>
       debounce(() => {
@@ -61,10 +51,14 @@ function DashboardBackgroundInner({
     [reactFlowInstance],
   );
 
-  // Destructure dimensions for stable memoization dependencies
+  const addTimer = useCallback((callback: () => void, delay: number) => {
+    const id = setTimeout(callback, delay);
+    timersRef.current.push(id);
+    return id;
+  }, []);
+
   const { width: graphWidth, height: graphHeight } = graphDimensions;
 
-  // Memoize node and edge calculations to prevent redundant recalculation
   const allNodes = useMemo(() => {
     return getInitialNodes({ width: graphWidth, height: graphHeight });
   }, [graphWidth, graphHeight]);
@@ -73,42 +67,33 @@ function DashboardBackgroundInner({
     return getInitialEdges();
   }, []);
 
-  // Initialize nodes/edges state (refs populated in useEffect, not during render)
   const [nodes, setNodes, onNodesChange] = useNodesState(
     allNodes.filter((n) => n.data?.type === "root"),
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // Sync refs with memoized values
   useEffect(() => {
     allNodesRef.current = allNodes;
     allEdgesRef.current = allEdges;
   }, [allNodes, allEdges]);
+
   const expandedNodes = useGraphStore((state) => state.expandedNodes);
 
-  // Stable handler for achievement nodes - uses store for fresh state
   const achievementNodeHoverHandler = useCallback(
     (nodeId: string, isEntering: boolean) => {
       if (!isEntering) return;
-
-      // Read fresh state from store imperatively
       const { isCompanyRevealed } = useGraphStore.getState();
       if (!isCompanyRevealed(nodeId)) {
-        // This is an achievement node being hovered - we don't track these
-        // Only company/education nodes trigger reveal sequences
         return;
       }
     },
     [],
   );
 
-  // Handle company/education hover to show achievements
   const handleNodeHover = useCallback(
     (nodeId: string, isEntering: boolean) => {
-      if (!isEntering) return; // Keep achievements visible once revealed
+      if (!isEntering) return;
 
-      // Find all achievement nodes connected to this company/education
-      // Note: edge.type is "smoothstep" (ReactFlow type), original type is in edge.data.edgeType
       const achievementEdges = allEdgesRef.current.filter(
         (e) => e.source === nodeId && e.data?.edgeType === "project",
       );
@@ -122,30 +107,25 @@ function DashboardBackgroundInner({
       );
 
       if (achievementNodes.length > 0) {
-        // Check if already revealed using store
         const { isCompanyRevealed, markCompanyRevealed } =
           useGraphStore.getState();
         if (isCompanyRevealed(nodeId)) return;
         markCompanyRevealed(nodeId);
 
-        // Add nodes first with reset animation delay (so they appear quickly on hover)
         const nodesWithHandler = achievementNodes.map((n, index) => ({
           ...n,
           data: {
             ...n.data,
             onHoverChange: achievementNodeHoverHandler,
-            animationDelay: index * 0.1, // Stagger by 100ms each, not 1.8+ seconds
+            animationDelay: index * 0.1,
           },
         }));
         setNodes((prev) => [...prev, ...nodesWithHandler]);
 
-        // Calculate delay based on number of nodes (100ms per node + 500ms animation + buffer)
         const totalAnimationTime = achievementNodes.length * 100 + 600;
 
-        // Delay edges until after nodes have animated in
-        setTimeout(() => {
+        addTimer(() => {
           setEdges((prev) => {
-            // Double-check edges aren't already added
             const existingEdge = prev.find((e) =>
               achievementIds.includes(e.target),
             );
@@ -156,10 +136,15 @@ function DashboardBackgroundInner({
         }, totalAnimationTime);
       }
     },
-    [setNodes, setEdges, debouncedFitView, achievementNodeHoverHandler],
+    [
+      setNodes,
+      setEdges,
+      debouncedFitView,
+      achievementNodeHoverHandler,
+      addTimer,
+    ],
   );
 
-  // Add node and its edges to the graph
   const addNodeAndEdges = useCallback(
     (nodeId: string) => {
       const node = allNodesRef.current.find((n) => n.id === nodeId);
@@ -168,18 +153,15 @@ function DashboardBackgroundInner({
       );
 
       if (node) {
-        // Add node first with hover handler
         const nodeWithHandler = {
           ...node,
           data: { ...node.data, onHoverChange: handleNodeHover },
         };
         setNodes((prev) => [...prev, nodeWithHandler]);
 
-        // Delay edges until after node has animated in
         if (relatedEdges.length > 0) {
-          setTimeout(() => {
+          addTimer(() => {
             setEdges((prev) => {
-              // Filter out edges that already exist
               const newEdges = relatedEdges.filter(
                 (edge) => !prev.some((e) => e.id === edge.id),
               );
@@ -189,49 +171,42 @@ function DashboardBackgroundInner({
         }
       }
     },
-    [setNodes, setEdges, handleNodeHover],
+    [setNodes, setEdges, handleNodeHover, addTimer],
   );
 
-  // Staggered reveal sequence
   const startRevealSequence = useCallback(() => {
     const { hasStartedReveal, startReveal } = useGraphStore.getState();
     if (hasStartedReveal) return;
     startReveal();
 
-    // Stage 1: Soft Skills (0ms, staggered by 200ms each)
     const softSkillNodes = [
       "Problem-Solving",
       "Collaboration",
       "Quick-Learner",
     ];
     softSkillNodes.forEach((id, index) => {
-      setTimeout(() => {
+      addTimer(() => {
         addNodeAndEdges(id);
       }, index * 200);
     });
 
-    // Stage 2: Education (1200ms)
-    setTimeout(() => {
+    addTimer(() => {
       addNodeAndEdges("Bilkent");
     }, REVEAL_TIMING.EDUCATION_DELAY_MS);
 
-    // Stage 3: Work Experience - Layermark (1700ms)
-    setTimeout(() => {
+    addTimer(() => {
       addNodeAndEdges("Layermark");
     }, REVEAL_TIMING.LAYERMARK_DELAY_MS);
 
-    // Stage 4: Work Experience - Intenseye (2200ms)
-    setTimeout(() => {
+    addTimer(() => {
       addNodeAndEdges("Intenseye");
     }, REVEAL_TIMING.INTENSEYE_DELAY_MS);
 
-    // Single fitView at sequence completion
-    setTimeout(() => {
+    addTimer(() => {
       debouncedFitView();
     }, REVEAL_TIMING.INTENSEYE_DELAY_MS + 500);
-  }, [addNodeAndEdges, debouncedFitView]);
+  }, [addNodeAndEdges, debouncedFitView, addTimer]);
 
-  // Handle pointer enter
   const handleGraphEnter = useCallback(() => {
     const { hasStartedReveal } = useGraphStore.getState();
     if (!hasStartedReveal) {
@@ -239,7 +214,6 @@ function DashboardBackgroundInner({
     }
   }, [startRevealSequence]);
 
-  // Observe graph container size changes
   useEffect(() => {
     if (!graphContainerRef.current) return;
 
@@ -262,12 +236,9 @@ function DashboardBackgroundInner({
     };
   }, []);
 
-  // Update nodes when graph dimensions change
   useEffect(() => {
     if (graphDimensions.width === 0 || graphDimensions.height === 0) return;
 
-    // Re-calculate positions for currently revealed nodes (with hover handler)
-    // Note: allNodesRef is already synced via the memoized allNodes value
     setNodes((prevNodes) => {
       const currentIds = new Set(prevNodes.map((n) => n.id));
       return allNodesRef.current
@@ -278,11 +249,9 @@ function DashboardBackgroundInner({
         }));
     });
 
-    // Fit view after dimension change
     debouncedFitView();
   }, [graphDimensions, setNodes, handleNodeHover, debouncedFitView]);
 
-  // Update z-index for expanded nodes
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => ({
@@ -292,18 +261,24 @@ function DashboardBackgroundInner({
     );
   }, [expandedNodes, setNodes]);
 
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+      debouncedFitView.cancel();
+    };
+  }, [debouncedFitView]);
+
   return (
-    <div className="h-screen w-screen bg-stone-950 overflow-hidden grid grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr]">
-      {/* Header - spans full width */}
-      <div className="col-span-2 p-6 md:p-12 pb-4">{header}</div>
+    <div id="graph" className="relative lg:pt-[9.5rem]">
+      <p className="text-stone-400 mb-4">Interact with nodes to explore</p>
 
-      {/* Legend - left column */}
-      <div className="row-start-2 p-6 md:pl-12 flex items-center">{legend}</div>
-
-      {/* Graph Area - center/right */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
         ref={graphContainerRef}
-        className="row-start-2 relative rounded-lg m-4 mr-6 md:mr-12 overflow-hidden"
+        className="relative h-[500px] md:h-[700px] rounded-xl border border-stone-800 bg-stone-950/50 overflow-hidden"
         onMouseEnter={handleGraphEnter}
       >
         <ReactFlow
@@ -328,27 +303,15 @@ function DashboardBackgroundInner({
         >
           <Background color="#44403c" gap={24} size={1} />
         </ReactFlow>
-      </div>
-
-      {/* Bottom Content - spans full width */}
-      <div className="col-span-2 p-6 md:p-12 pt-4">{bottomContent}</div>
+      </motion.div>
     </div>
   );
 }
 
-// Wrapper component with ReactFlowProvider
-export function DashboardBackground({
-  header,
-  legend,
-  bottomContent,
-}: DashboardBackgroundProps) {
+export function GraphSection() {
   return (
     <ReactFlowProvider>
-      <DashboardBackgroundInner
-        header={header}
-        legend={legend}
-        bottomContent={bottomContent}
-      />
+      <GraphSectionInner />
     </ReactFlowProvider>
   );
 }
