@@ -272,70 +272,42 @@ function GraphSectionInner() {
 
   return (
     <div id="graph" className="relative">
-      <div className="relative">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-px flex-1 bg-gradient-to-r from-orange-500/50 to-transparent max-w-16" />
-            <span className="text-xs font-mono text-orange-500 uppercase tracking-[0.2em]">
-              Interactive
-            </span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            Career Graph
-          </h2>
-          <p className="text-stone-400">
-            Hover over companies and education to explore my achievements and
-            projects
-          </p>
-        </motion.div>
-
-        {/* Graph container */}
-        <div className="relative grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6">
-          {/* Legend */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <GraphLegend />
-          </div>
-
-          {/* Graph */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            ref={graphContainerRef}
-            className="relative h-[500px] md:h-[600px] rounded-xl border border-stone-800 bg-stone-950/50 overflow-hidden"
-            onMouseEnter={handleGraphEnter}
-          >
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              nodeTypes={nodeTypes}
-              connectionLineType={ConnectionLineType.SmoothStep}
-              fitView
-              fitViewOptions={{
-                padding: 0.15,
-                minZoom: 0.65,
-                maxZoom: 0.85,
-                duration: 800,
-              }}
-              minZoom={0.5}
-              maxZoom={1.5}
-              elevateNodesOnSelect
-              className="bg-stone-950"
-              proOptions={{ hideAttribution: true }}
-            >
-              <Background color="#44403c" gap={24} size={1} />
-            </ReactFlow>
-          </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        ref={graphContainerRef}
+        className="relative h-[500px] md:h-[700px] bg-stone-950 overflow-hidden"
+        onMouseEnter={handleGraphEnter}
+      >
+        {/* Legend overlay */}
+        <div className="absolute top-4 left-4 z-10">
+          <GraphLegend />
         </div>
-      </div>
+
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          fitView
+          fitViewOptions={{
+            padding: 0.15,
+            minZoom: 0.65,
+            maxZoom: 0.85,
+            duration: 800,
+          }}
+          minZoom={0.5}
+          maxZoom={1.5}
+          elevateNodesOnSelect
+          className="bg-stone-950"
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background color="#44403c" gap={24} size={1} />
+        </ReactFlow>
+      </motion.div>
     </div>
   );
 }
