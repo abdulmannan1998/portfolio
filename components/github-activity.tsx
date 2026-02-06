@@ -20,6 +20,36 @@ export type GitHubActivityProps = {
   username?: string;
 };
 
+// Module-level cache (outside component)
+type CacheEntry = {
+  data: GitHubEvent[];
+  timestamp: number;
+};
+
+const eventCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCachedEvents(username: string): GitHubEvent[] | null {
+  const cacheKey = `github_events_${username}`;
+  const cached = eventCache.get(cacheKey);
+
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > CACHE_TTL) {
+    eventCache.delete(cacheKey);
+    return null;
+  }
+
+  return cached.data;
+}
+
+function setCachedEvents(username: string, events: GitHubEvent[]): void {
+  const cacheKey = `github_events_${username}`;
+  eventCache.set(cacheKey, {
+    data: events,
+    timestamp: Date.now(),
+  });
+}
+
 function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -54,12 +84,24 @@ export function GitHubActivity({
 
   useEffect(() => {
     async function fetchGitHubActivity() {
+      // Check cache first
+      const cached = getCachedEvents(username);
+      if (cached) {
+        setEvents(cached);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch from API
       try {
         const response = await fetch(
           `https://api.github.com/users/${username}/events/public?per_page=5`,
         );
         if (!response.ok) throw new Error("Failed to fetch");
         const data = await response.json();
+
+        // Cache the response
+        setCachedEvents(username, data);
         setEvents(data);
       } catch {
         setError("Unable to load activity");
