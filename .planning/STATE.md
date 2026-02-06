@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 006: Move contact links to sticky nav and rename to PORTFOLIO
+Last activity: 2026-02-06 — Completed quick task 007: Add twinkling stars to hero section
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -61,6 +61,8 @@ Key decisions from v1.0 milestone logged in PROJECT.md.
 | local-icons                | Q004  | Download icons locally vs CDN                         | Local assets more reliable, no external dependencies     |
 | icon-fallbacks             | Q004  | Use react/typescript icons for unavailable libraries  | Better to show related icon than generic placeholder     |
 | full-opacity               | Q004  | Remove opacity-60 from icons and text                 | Tech stack should be prominent, not dimmed               |
+| seeded-prng-hydration      | Q007  | Use seeded PRNG (mulberry32) instead of Math.random   | Prevents SSR/client hydration mismatches                 |
+| css-animations-performance | Q007  | CSS @keyframes instead of Framer Motion per-star      | GPU-composited, far more performant for 40 elements      |
 
 ### Pending Todos
 
@@ -78,14 +80,15 @@ None.
 | 003 | Flesh out about section personalized                  | 2026-02-06 | 2573fae | [003-flesh-out-about-section](./quick/003-flesh-out-the-about-section-personalized/003-SUMMARY.md) |
 | 004 | Update tech stack with local icons                    | 2026-02-06 | 16f1af4 | [004-update-tech-stack](./quick/004-update-tech-stack-section-with-accurate-/004-SUMMARY.md)       |
 | 006 | Move contact links to sticky nav, rename to PORTFOLIO | 2026-02-06 | e409854 | [006-sticky-nav-contacts](./quick/006-move-contact-links-to-sticky-top-right-a/006-SUMMARY.md)     |
+| 007 | Add twinkling stars to hero section                   | 2026-02-06 | abca6fb | [007-twinkling-stars](./quick/007-add-twinkling-stars-to-hero-section/007-SUMMARY.md)              |
 
 ## Session Continuity
 
-Last session: 2026-02-06T16:15:29Z
-Stopped at: Completed quick task 004 (Update tech stack with local icons)
+Last session: 2026-02-06T18:49:59Z
+Stopped at: Completed quick task 007 (Add twinkling stars to hero section)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 — Quick task 006 (sticky nav contacts + rename to PORTFOLIO)_
+_Last updated: 2026-02-06 — Quick task 007 (twinkling stars in hero section)_
