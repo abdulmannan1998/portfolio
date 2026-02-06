@@ -186,46 +186,37 @@ export default function Page() {
         {/* Right - Text */}
         <div className="relative bg-black flex items-center p-12 md:p-16">
           <div>
-            <motion.span
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              className="text-orange-500 font-mono text-sm uppercase tracking-widest"
-            >
+            <span className="text-orange-500 font-mono text-sm uppercase tracking-widest fade-in-up">
               About
-            </motion.span>
-            <motion.h2
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight"
+            </span>
+            <h2
+              className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight fade-in-up"
+              style={{ "--stagger-index": 1 } as React.CSSProperties}
             >
               BUILDING
               <br />
               <span className="text-orange-500">INTERFACES</span>
               <br />
               THAT FEEL ALIVE
-            </motion.h2>
-            <motion.p
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-white/60 text-lg leading-relaxed max-w-md mb-4"
+            </h2>
+            <p
+              className="text-white/60 text-lg leading-relaxed max-w-md mb-4 fade-in-up"
+              style={{ "--stagger-index": 2 } as React.CSSProperties}
             >
               I build data-dense dashboards, complex state systems, and the
               architectural scaffolding that makes frontend codebases scale. My
               work tends toward the internal tooling and pattern-setting that
               raises the ceiling for entire engineering teams.
-            </motion.p>
-            <motion.p
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-white/60 text-lg leading-relaxed max-w-md"
+            </p>
+            <p
+              className="text-white/60 text-lg leading-relaxed max-w-md fade-in-up"
+              style={{ "--stagger-index": 3 } as React.CSSProperties}
             >
               I tend to be the engineer who gets routed the unclear or difficult
               problems — the ones other developers would rather avoid.
               That&apos;s where I do my best work: absorbing complexity and
               turning it into something maintainable.
-            </motion.p>
+            </p>
           </div>
         </div>
       </section>
