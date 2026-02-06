@@ -54,7 +54,26 @@ The portfolio must remain visually polished and performant — changes should im
 
 ### Active
 
-None — planning next milestone.
+- [ ] Convert page.tsx from client to server component
+- [ ] Extract client boundaries to minimal interactive wrappers
+- [ ] Replace framer-motion entrance animations with CSS alternatives where possible
+- [ ] Server-side GitHub data fetching with ISR (eliminate client fetch + loading flash)
+- [ ] Implement Suspense streaming for dynamic content
+- [ ] Enable Partial Prerendering (PPR) with proper static shell
+- [ ] Replace raw `<img>` with `next/image` for tech stack icons
+- [ ] Convert pure-static components to server components (css-preloader, twinkling-stars, graph-legend)
+
+## Current Milestone: v1.2 SSR Migration
+
+**Goal:** Restructure the portfolio from a fully client-rendered app to a server-first architecture, leveraging Next.js static generation, server components, ISR, and PPR.
+
+**Target features:**
+
+- Server component page with minimal client boundaries
+- Server-side GitHub data fetching with 5-minute ISR (no loading flash)
+- CSS-based entrance animations replacing framer-motion where possible
+- Partial Prerendering with static shell + dynamic streaming holes
+- next/image optimization for all images
 
 ### Out of Scope
 
@@ -119,4 +138,4 @@ None — planning next milestone.
 
 ---
 
-_Last updated: 2026-02-07 after v1.1 milestone_
+_Last updated: 2026-02-07 after v1.2 milestone started_
