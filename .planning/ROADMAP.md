@@ -50,11 +50,12 @@ Plans:
 4. techStack data lives in data/tech-stack.ts, imported by page.tsx
 5. page.tsx is significantly smaller (target: under 400 lines)
 
-**Plans:** 1 plan
+**Plans:** 2 plans
 
 Plans:
 
-- [ ] 07-01-PLAN.md — Extract techStack data and inline components (MarqueeText, AnimatedCounter, GitHubActivity) to dedicated files
+- [x] 07-01-PLAN.md — Extract techStack data and inline components (MarqueeText, AnimatedCounter, GitHubActivity) to dedicated files
+- [ ] 07-02-PLAN.md — Gap closure: Extract Experience timeline and Metrics sections to reach 400-line target
 
 ### Phase 8: Technical Debt
 
@@ -81,10 +82,10 @@ Plans:
 | -------------------------------- | --------- | -------------- | ----------- | ---------- |
 | 1-5                              | v1.0      | 6/6            | Complete    | 2026-02-05 |
 | 6. Dead Code & Directory Cleanup | v1.1      | 1/1            | Complete    | 2026-02-06 |
-| 7. Code Splitting                | v1.1      | 0/1            | Not started | -          |
+| 7. Code Splitting                | v1.1      | 1/2            | In progress | -          |
 | 8. Technical Debt                | v1.1      | 0/TBD          | Not started | -          |
 
 ---
 
 _Roadmap created: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 7 planned_
+_Last updated: 2026-02-06 — Phase 7 gap closure plan added_
