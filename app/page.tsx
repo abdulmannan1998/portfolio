@@ -248,22 +248,14 @@ export default function Page() {
       {/* Tech stack + GitHub activity combined */}
       <TechAndCodeSection />
 
-      {/* Experience timeline */}
-      <ExperienceTimeline />
-
-      {/* React Flow Graph Section */}
+      {/* Experience + Career Graph side by side */}
       <section className="relative py-24 bg-stone-950">
-        <div className="px-6 md:px-12 mb-12">
-          <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
-            Interactive
-          </span>
-          <h2 className="text-5xl md:text-6xl font-black mt-2">CAREER GRAPH</h2>
-          <p className="text-white/60 mt-4 max-w-xl">
-            Explore my career journey through an interactive node graph. Click
-            on achievements to reveal detailed insights.
-          </p>
+        <div className="max-w-[1800px] mx-auto px-6 md:px-12 lg:px-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,400px)_1fr] gap-12 lg:gap-16">
+            <ExperienceTimeline />
+            <GraphSection />
+          </div>
         </div>
-        <GraphSection />
       </section>
 
       {/* CTA / Footer */}
