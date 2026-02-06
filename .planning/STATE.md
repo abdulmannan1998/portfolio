@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
-**Current focus:** Phase 11 - Server-side GitHub Fetching
+**Current focus:** Phase 9 - Server-side GitHub Fetching
 
 ## Current Position
 
-Phase: 10 of 14 (Section Animation Migration) -- v1.2 SSR Migration in progress
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-07 -- Phase 10 complete (goal verified)
+Phase: 9 of 12 (Server-side GitHub Fetching) -- v1.2 SSR Migration in progress
+Plan: 0 of 1 in current phase
+Status: Not started
+Last activity: 2026-02-07 -- Phases 9-10 reverted, roadmap restructured (4 phases remaining)
 
-Progress: [████████████░░░░░░░░] 60% (5/11 v1.2 plans complete, 10/14 phases complete across all milestones)
+Progress: [████████░░░░░░░░░░░░] 40% (0/6 v1.2 plans complete, 8/12 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -34,11 +34,11 @@ Progress: [████████████░░░░░░░░] 60% (5/
 
 **v1.2 Milestone (in progress):**
 
-- Total plans: 10 (target)
-- Plans complete: 5
-- Average duration: 1.6 min/plan
-- Total execution time: 9 min
-- Phases: 6 (target)
+- Total plans: 6 (target)
+- Plans complete: 0
+- Average duration: TBD
+- Total execution time: 0 min
+- Phases: 4 (target)
 
 **By Phase (cumulative):**
 
@@ -52,8 +52,6 @@ Progress: [████████████░░░░░░░░] 60% (5/
 | 06-dead-code-directory-cleanup | v1.1      | 1     | 1min  | 1min     |
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
-| 09-animation-foundation        | v1.2      | 3     | 5min  | 1.7min   |
-| 10-section-animation-migration | v1.2      | 2     | 4min  | 2min     |
 
 ## Accumulated Context
 
@@ -64,21 +62,9 @@ Recent decisions affecting current work:
 
 - [v1.1]: Extract sections to components (enables per-section SSR migration)
 - [v1.1]: Memory cache over localStorage (will be replaced by ISR in v1.2)
-- [09-01]: Use animation-timeline: view() for native scroll-driven behavior in Chrome/Safari
-- [09-01]: Custom Intersection Observer polyfill over npm package for minimal bundle size
-- [09-01]: Longhand animation properties instead of shorthand to prevent animation-timeline reset
-- [09-01]: Opacity-only fades for reduced-motion users (0.4s) vs full transform animations (0.6s)
-- [09-01]: Negative rootMargin (-10% bottom) for early animation trigger
-- [09-02]: Replace framer-motion useScroll/useTransform with requestAnimationFrame for hero parallax
-- [09-02]: Extract parallax logic to client wrapper, keep hero content in page.tsx
-- [09-02]: Use window.scrollY with 0.15vh threshold to match framer-motion behavior
-- [09-03]: Use (scrollHeight - innerHeight) \* 0.15 for total scroll distance (matches framer-motion scrollYProgress)
-- [10-01]: Use stagger-index custom property with index values for clean sequential delays
-- [10-01]: Keep hero section framer-motion untouched (page-load animations, not scroll-driven)
-- [10-01]: Initialize IO polyfill once per section component via useEffect
-- [10-02]: Use 0.1s stagger-index for experience timeline entries (0s, 0.1s, 0.2s)
-- [10-02]: Use 0.03s per-item animation-delay for tech stack items matching original framer-motion timing
-- [10-02]: Inline animationDelay style for precise per-element stagger vs CSS variable for calc-based patterns
+- [v1.2]: Keep framer-motion for all animations -- CSS animation-timeline: view() proved unreliable in UAT
+- [v1.2]: Use client boundary wrappers to isolate framer-motion in "use client" files while making page.tsx a server component
+- [v1.2]: Strategy pivot -- achieve SSR benefits through component architecture (client boundaries) rather than animation replacement
 
 ### Pending Todos
 
@@ -86,17 +72,15 @@ None yet.
 
 ### Blockers/Concerns
 
-- Research flagged animation-timeline browser support as low risk -- Intersection Observer polyfill covers it
 - Hydration mismatch risk medium -- twinkling-stars already uses seeded PRNG for deterministic rendering
-- ~~Hero parallax extraction is the critical first step -- blocks all downstream phases~~ ✓ Complete (09-02)
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Phase 10 complete -- all 4 sections migrated to CSS scroll animations
+Stopped at: Phases 9-10 (CSS animations) reverted, roadmap restructured with 4 new phases
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Phase 10 complete (2 plans, 4 sections migrated to CSS animations)_
+_Last updated: 2026-02-07 -- Reverted CSS animation phases, restructured v1.2 around framer-motion + client boundaries_

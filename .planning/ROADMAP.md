@@ -24,59 +24,21 @@ See MILESTONES.md for details.
 
 ### v1.2 SSR Migration (In Progress)
 
-**Milestone Goal:** Restructure the portfolio from a fully client-rendered app to a server-first architecture, leveraging server components, ISR, CSS animations, and Partial Prerendering.
+**Milestone Goal:** Restructure the portfolio from a fully client-rendered app to a server-first architecture, leveraging server components, ISR, client boundary extraction, and Partial Prerendering. Keep framer-motion for animations inside properly isolated client boundaries.
 
-- [x] **Phase 9: Animation Foundation** - CSS keyframe infrastructure and hero parallax extraction
-- [x] **Phase 10: Section Animation Migration** - Replace framer-motion entrance animations with CSS across four sections
-- [ ] **Phase 11: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
-- [ ] **Phase 12: Utility Component Conversion** - Convert marquee, stars, counter, legend, preloader to server/CSS
-- [ ] **Phase 13: Server Component Page** - Remove "use client" from page.tsx with clean client boundaries
-- [ ] **Phase 14: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
+**Strategy pivot:** Phases 9-10 (CSS animation replacement) were reverted after UAT revealed animation-timeline: view() doesn't work reliably. New approach: keep framer-motion, wrap animated sections in client boundary components, and achieve SSR benefits through component architecture rather than animation replacement.
+
+- [ ] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
+- [ ] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
+- [ ] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
+- [ ] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
 
 ## Phase Details
 
-### Phase 9: Animation Foundation
-
-**Goal**: CSS animation infrastructure exists and hero parallax is isolated so subsequent phases can migrate animations without touching page-level concerns
-**Depends on**: Phase 8 (v1.1 complete)
-**Requirements**: ANIM-01, ANIM-06, ANIM-07, RSC-02
-**Plans**: 3 plans
-**Success Criteria** (what must be TRUE):
-
-1. CSS keyframe animations (fade-in-up, fade-in-down, fade-in-left, scale-in) are defined in globals.css and can be applied to any element via class names
-2. Hero section parallax scroll effect works identically to current behavior but the scroll logic lives in its own client wrapper component, not in page.tsx
-3. A test element with animation-timeline: view() animates on scroll in Chrome, and an Intersection Observer polyfill activates the same animation in Safari/Firefox
-4. Hero wrapper accepts server-rendered children (static content passed as props/children, not rendered inside the client component)
-
-Plans:
-
-- [x] 09-01-PLAN.md -- CSS keyframe animations, scroll-driven utility classes, and IO polyfill hook
-- [x] 09-02-PLAN.md -- Hero parallax extraction into client wrapper component
-- [x] 09-03-PLAN.md -- Fix hero parallax fade speed (UAT gap closure)
-
-### Phase 10: Section Animation Migration
-
-**Goal**: All four static content sections (about, metrics, timeline, tech stack) animate on scroll using CSS instead of framer-motion, with no visual regression
-**Depends on**: Phase 9 (keyframes and polyfill available)
-**Requirements**: ANIM-02, ANIM-03, ANIM-04, ANIM-05
-**Plans**: 2 plans
-**Success Criteria** (what must be TRUE):
-
-1. About section fades in with staggered left/right entrance when scrolled into view, matching current framer-motion timing and easing
-2. Metrics section cards scale in with staggered delay when scrolled into view
-3. Experience timeline entries fade in sequentially as user scrolls down the page
-4. Tech stack grid items animate in when the section enters the viewport
-5. None of these four sections import or reference framer-motion
-
-Plans:
-
-- [x] 10-01-PLAN.md -- Migrate about section and metrics section to CSS scroll animations
-- [x] 10-02-PLAN.md -- Migrate experience timeline and tech stack to CSS scroll animations
-
-### Phase 11: Server-side GitHub Fetching
+### Phase 9: Server-side GitHub Fetching
 
 **Goal**: GitHub activity data loads instantly on page render with no client-side fetch or loading flash, refreshed via ISR
-**Depends on**: Phase 9 (foundation complete)
+**Depends on**: v1.1 complete
 **Requirements**: DATA-01, DATA-02, DATA-03, DATA-04
 **Success Criteria** (what must be TRUE):
 
@@ -84,51 +46,49 @@ Plans:
 2. GitHub data refreshes automatically every 5 minutes via ISR (stale page triggers background revalidation)
 3. The github-activity component is purely presentational -- it receives data as props and has no fetch logic or caching logic
 4. No module-level Map cache exists in any GitHub-related component file
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 11-01: TBD
+- [ ] 09-01: TBD
 
-### Phase 12: Utility Component Conversion
+### Phase 10: Client Boundary Extraction
 
-**Goal**: Five utility components (marquee, twinkling-stars, css-preloader, graph-legend, animated-counter) are converted to server components or CSS-only implementations so they no longer require page-level "use client"
-**Depends on**: Phase 9 (CSS keyframes available for graph-legend)
-**Requirements**: ANIM-08, RSC-03, RSC-04, RSC-05, CBH-01
+**Goal**: Animated sections and interactive components live in "use client" wrapper files that receive server-rendered data as props/children, enabling page.tsx to become a server component while preserving all framer-motion animations
+**Depends on**: Phase 9
+**Requirements**: RSC-02, RSC-03, RSC-04, RSC-05, CBH-01, CBH-02
 **Success Criteria** (what must be TRUE):
 
-1. Marquee text banner scrolls continuously using CSS animation with no framer-motion import
-2. Twinkling-stars renders as a server component with no "use client" directive and no useEffect/useState
-3. CSS-preloader renders as a server component with no client APIs
-4. Graph-legend entrance animation uses CSS instead of framer-motion and renders as a server component
-5. AnimatedCounter animates numbers only when scrolled into view (Intersection Observer), not on page mount
-   **Plans**: TBD
+1. Each animated section (hero, about, metrics, timeline, tech stack) has its framer-motion logic in a "use client" wrapper component
+2. Wrapper components accept static content as props/children -- they don't fetch data or define content
+3. Twinkling-stars renders as a server component with no "use client" directive
+4. CSS-preloader renders as a server component with no client APIs
+5. Marquee uses CSS animation only (no framer-motion) and can render as a server component
+6. All animations visually match current behavior (no regression)
 
 Plans:
 
-- [ ] 12-01: TBD
-- [ ] 12-02: TBD
+- [ ] 10-01: TBD
+- [ ] 10-02: TBD
 
-### Phase 13: Server Component Page
+### Phase 11: Server Component Page
 
 **Goal**: page.tsx is a server component with "use client" removed, and all client-side code lives inside properly isolated boundary files
-**Depends on**: Phase 10, Phase 11, Phase 12 (all animation migrations, GitHub ISR, and utility conversions complete)
-**Requirements**: RSC-01, CBH-02, CBH-03
+**Depends on**: Phase 9, Phase 10 (GitHub ISR and client boundary extraction complete)
+**Requirements**: RSC-01, CBH-03
 **Success Criteria** (what must be TRUE):
 
 1. page.tsx has no "use client" directive and renders on the server
 2. GraphSection loads via dynamic import with ssr:false inside a client boundary wrapper -- graph interactions work identically to before
 3. Zustand store imports (graph-store) appear only inside files that have "use client" at the top
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 13-01: TBD
+- [ ] 11-01: TBD
 
-### Phase 14: PPR & Image Optimization
+### Phase 12: PPR & Image Optimization
 
 **Goal**: The portfolio uses Partial Prerendering to serve a static shell instantly while streaming dynamic content, and all images use next/image optimization
-**Depends on**: Phase 13 (server component page is prerequisite for PPR)
+**Depends on**: Phase 11 (server component page is prerequisite for PPR)
 **Requirements**: PPR-01, PPR-02, PPR-03, PPR-04, IMG-01, IMG-02
 **Success Criteria** (what must be TRUE):
 
@@ -136,29 +96,26 @@ Plans:
 2. GitHub activity section streams in via Suspense with a skeleton fallback visible during loading
 3. Every Suspense boundary has a paired ErrorBoundary that shows a meaningful fallback on failure
 4. Tech stack icons use next/image with explicit width/height and produce no layout shift on load
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 12-01: TBD
+- [ ] 12-02: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 9, 10, 11, 12, 13, 14.
-Note: Phases 10, 11, and 12 can run in parallel after Phase 9 completes. Phase 13 requires 10+11+12 done. Phase 14 requires 13 done.
-Critical path: 9 -> 10 -> 12 -> 13 -> 14 (Phase 11 merges at 13)
+Phases execute in numeric order: 9, 10, 11, 12.
+Phase 9 and 10 can potentially run in parallel. Phase 11 requires 9+10 done. Phase 12 requires 11 done.
+Critical path: 9 -> 10 -> 11 -> 12
 
-| Phase                            | Milestone | Plans Complete | Status      | Completed  |
-| -------------------------------- | --------- | -------------- | ----------- | ---------- |
-| 9. Animation Foundation          | v1.2      | 3/3            | Complete    | 2026-02-07 |
-| 10. Section Animation Migration  | v1.2      | 2/2            | Complete    | 2026-02-07 |
-| 11. Server-side GitHub Fetching  | v1.2      | 0/1            | Not started | -          |
-| 12. Utility Component Conversion | v1.2      | 0/2            | Not started | -          |
-| 13. Server Component Page        | v1.2      | 0/1            | Not started | -          |
-| 14. PPR & Image Optimization     | v1.2      | 0/2            | Not started | -          |
+| Phase                          | Milestone | Plans Complete | Status      | Completed |
+| ------------------------------ | --------- | -------------- | ----------- | --------- |
+| 9. Server-side GitHub Fetching | v1.2      | 0/1            | Not started | -         |
+| 10. Client Boundary Extraction | v1.2      | 0/2            | Not started | -         |
+| 11. Server Component Page      | v1.2      | 0/1            | Not started | -         |
+| 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -         |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 10 complete (2 plans executed, goal verified)_
+_Last updated: 2026-02-07 -- Phases 9-10 reverted (CSS animations approach abandoned), roadmap restructured around framer-motion + client boundaries_
