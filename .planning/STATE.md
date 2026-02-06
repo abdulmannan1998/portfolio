@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed 08-03-PLAN.md (Documentation update)
+Last activity: 2026-02-06 — Completed quick task 002: Centralize social links to constants file
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -66,6 +66,12 @@ None.
 ### Blockers/Concerns
 
 None.
+
+### Quick Tasks Completed
+
+| #   | Description                               | Date       | Commit  | Directory                                                                            |
+| --- | ----------------------------------------- | ---------- | ------- | ------------------------------------------------------------------------------------ |
+| 002 | Centralize social links to constants file | 2026-02-06 | 934f469 | [002-centralize-social-links](./quick/002-centralize-social-links-to-constants-fil/) |
 
 ## Session Continuity
 
