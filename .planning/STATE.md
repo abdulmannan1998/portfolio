@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 002: Centralize social links to constants file
+Last activity: 2026-02-06 — Completed quick task 003: Flesh out about section with personalized tone
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -69,17 +69,18 @@ None.
 
 ### Quick Tasks Completed
 
-| #   | Description                               | Date       | Commit  | Directory                                                                            |
-| --- | ----------------------------------------- | ---------- | ------- | ------------------------------------------------------------------------------------ |
-| 002 | Centralize social links to constants file | 2026-02-06 | 934f469 | [002-centralize-social-links](./quick/002-centralize-social-links-to-constants-fil/) |
+| #   | Description                               | Date       | Commit  | Directory                                                                                          |
+| --- | ----------------------------------------- | ---------- | ------- | -------------------------------------------------------------------------------------------------- |
+| 002 | Centralize social links to constants file | 2026-02-06 | 934f469 | [002-centralize-social-links](./quick/002-centralize-social-links-to-constants-fil/)               |
+| 003 | Flesh out about section personalized      | 2026-02-06 | 2573fae | [003-flesh-out-about-section](./quick/003-flesh-out-the-about-section-personalized/003-SUMMARY.md) |
 
 ## Session Continuity
 
-Last session: 2026-02-06T18:02:11Z
-Stopped at: Completed quick task 002 (Centralize social links to constants)
+Last session: 2026-02-06T18:12:00Z
+Stopped at: Completed quick task 003 (Flesh out about section personalized)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 — v1.1 COMPLETE + Quick task 002 (social links centralization)_
+_Last updated: 2026-02-06 — Quick task 003 (about section personalization)_
