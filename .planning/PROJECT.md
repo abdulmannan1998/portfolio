@@ -2,11 +2,22 @@
 
 ## What This Is
 
-A personal portfolio site showcasing career timeline, achievements, and skills through an interactive graph visualization. Built with Next.js 16, React 19, and React Flow. Now with clean, maintainable code after v1.0 cleanup milestone.
+A brutalist personal portfolio site showcasing career timeline, achievements, and skills through multiple sections including an interactive graph visualization. Built with Next.js 16, React 19, React Flow, and Framer Motion. Features hero, marquee, about, tech stack, experience timeline, metrics, career graph, and GitHub activity sections.
 
 ## Core Value
 
-The interactive graph visualization must remain functional and visually appealing — changes should improve it, not break it.
+The portfolio must remain visually polished and performant — changes should improve code quality without degrading the user experience.
+
+## Current Milestone: v1.1 Codebase Polish
+
+**Goal:** Remove dead code, clean up file structure, implement proper code splitting, and address technical debt from CONCERNS.md audit.
+
+**Target areas:**
+
+- Dead code removal (~517 lines in unused components)
+- Empty directory cleanup (31 scaffolded but empty theme dirs)
+- Code splitting (page.tsx is 826 lines with inline components)
+- Technical debt fixes (setTimeout cleanup, API caching, etc.)
 
 ## Current State
 
@@ -34,10 +45,24 @@ The interactive graph visualization must remain functional and visually appealin
 - ✓ Centralized layout constants — v1.0
 - ✓ Type-safe node structures — v1.0
 - ✓ Optimized animation performance — v1.0
+- ✓ Brutalist hero section with scroll animation — pre-GSD
+- ✓ Marquee text banner — pre-GSD
+- ✓ About section (split screen layout) — pre-GSD
+- ✓ Tech stack grid (18 technologies) — pre-GSD
+- ✓ Experience timeline (vertical) — pre-GSD
+- ✓ Metrics section with animated counters — pre-GSD
+- ✓ GitHub activity live feed — pre-GSD
+- ✓ Labs page (coming soon placeholder) — pre-GSD
 
 ### Active
 
-(None — ready for next milestone planning)
+- [ ] Remove dead code (unused components)
+- [ ] Remove empty scaffolded directories
+- [ ] Extract inline components from page.tsx
+- [ ] Extract techStack data to data file
+- [ ] Fix setTimeout cleanup patterns
+- [ ] Add GitHub API caching
+- [ ] Fix debounce cleanup signal
 
 ### Out of Scope
 
