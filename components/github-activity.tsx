@@ -4,11 +4,17 @@ import type { RedactedCommit } from "@/lib/github";
 export type GitHubActivityProps = {
   commits: RedactedCommit[];
   username: string;
+  nowTimestamp?: number;
 };
 
-function formatTimeAgo(dateString: string): string {
+function formatTimeAgo(dateString: string, now: Date | null): string {
   const date = new Date(dateString);
-  const now = new Date();
+
+  // If no current time provided (SSR/prerendering), just show the date
+  if (!now) {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+
   const diffInMs = now.getTime() - date.getTime();
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
@@ -30,7 +36,14 @@ function Redacted({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function GitHubActivity({ commits, username }: GitHubActivityProps) {
+export function GitHubActivity({
+  commits,
+  username,
+  nowTimestamp,
+}: GitHubActivityProps) {
+  // For SSR/prerendering compatibility: if timestamp provided, use it; otherwise null (shows date only)
+  // On client side, this will be null during initial render, then hydrated with actual time
+  const now = nowTimestamp ? new Date(nowTimestamp) : null;
   return (
     <div className="relative bg-stone-900 p-6">
       {/* Corner accent */}
@@ -94,7 +107,7 @@ export function GitHubActivity({ commits, username }: GitHubActivityProps) {
 
                   {/* Timestamp */}
                   <span className="text-white/30 font-mono text-xs shrink-0">
-                    {formatTimeAgo(commit.timestamp)}
+                    {formatTimeAgo(commit.timestamp, now)}
                   </span>
                 </div>
 
