@@ -1,26 +1,21 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import {
-  Github,
-  Linkedin,
-  Mail,
-  Beaker,
-  ExternalLink,
-  GitCommit,
-  Lock,
-  Globe,
-} from "lucide-react";
+import { Github, Linkedin, Mail, Beaker, ExternalLink } from "lucide-react";
 import { RESUME_DATA } from "@/data/resume-data";
+import { techStack } from "@/data/tech-stack";
+import { MarqueeText } from "@/components/marquee-text";
+import { AnimatedCounter } from "@/components/animated-counter";
+import { GitHubActivity } from "@/components/github-activity";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
   () =>
     import("@/components/sections/graph-section").then(
-      (mod) => mod.GraphSection
+      (mod) => mod.GraphSection,
     ),
   {
     ssr: false,
@@ -35,316 +30,15 @@ const GraphSection = dynamic(
         </div>
       </section>
     ),
-  }
+  },
 );
 
-// Tech stack with icons
-const techStack = [
-  {
-    name: "React",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-  },
-  {
-    name: "TypeScript",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
-  },
-  {
-    name: "Next.js",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg",
-  },
-  {
-    name: "Vue.js",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg",
-  },
-  {
-    name: "Node.js",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
-  },
-  {
-    name: "GraphQL",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg",
-  },
-  {
-    name: "Tailwind",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg",
-  },
-  {
-    name: "Framer",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/framermotion/framermotion-original.svg",
-  },
-  {
-    name: "PostgreSQL",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
-  },
-  {
-    name: "MongoDB",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
-  },
-  {
-    name: "Git",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-  },
-  {
-    name: "Docker",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
-  },
-  {
-    name: "AWS",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
-  },
-  {
-    name: "Figma",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-  },
-  {
-    name: "ECharts",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apacheecharts/apacheecharts-original.svg",
-  },
-  {
-    name: "Prisma",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/prisma/prisma-original.svg",
-  },
-  {
-    name: "Zustand",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-  },
-  {
-    name: "React Flow",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-  },
-];
-
-// GitHub types
-type GitHubEvent = {
-  id: string;
-  type: string;
-  repo: { name: string; url: string };
-  payload: {
-    commits?: { message: string; sha: string }[];
-    ref?: string;
-    action?: string;
-  };
-  created_at: string;
-  public: boolean;
-};
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInMs = now.getTime() - date.getTime();
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-  if (diffInHours < 1) return "Just now";
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  if (diffInDays < 7) return `${diffInDays}d ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function getCommitMessage(event: GitHubEvent): string {
-  if (event.type === "PushEvent" && event.payload.commits?.length) {
-    const message = event.payload.commits[0].message;
-    return message.length > 50 ? message.substring(0, 50) + "..." : message;
-  }
-  if (event.type === "CreateEvent")
-    return `Created ${event.payload.ref || "repository"}`;
-  if (event.type === "PullRequestEvent")
-    return `${event.payload.action} pull request`;
-  return event.type.replace("Event", "");
-}
-
-// Marquee text component
-function MarqueeText({
-  text,
-  direction = 1,
-}: {
-  text: string;
-  direction?: number;
-}) {
-  return (
-    <div className="overflow-hidden whitespace-nowrap">
-      <motion.div
-        animate={{ x: direction > 0 ? ["0%", "-50%"] : ["-50%", "0%"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="inline-flex"
-      >
-        {[...Array(4)].map((_, i) => (
-          <span key={i} className="mx-4">
-            {text}
-          </span>
-        ))}
-      </motion.div>
-    </div>
-  );
-}
-
-// Animated counter
-function AnimatedCounter({
-  value,
-  suffix = "",
-}: {
-  value: string;
-  suffix?: string;
-}) {
-  const [count, setCount] = useState(0);
-  const numericValue = parseInt(value.replace(/\D/g, "")) || 0;
-
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const increment = numericValue / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= numericValue) {
-        setCount(numericValue);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [numericValue]);
-
-  return (
-    <span>
-      {value.startsWith("+") ? "+" : value.startsWith("-") ? "-" : ""}
-      {count}
-      {suffix}
-    </span>
-  );
-}
-
-// GitHub Activity Component (Brutalist Style)
-function GitHubActivity({ username = "sunnyimmortal" }: { username?: string }) {
-  const [events, setEvents] = useState<GitHubEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchGitHubActivity() {
-      try {
-        const response = await fetch(
-          `https://api.github.com/users/${username}/events/public?per_page=5`
-        );
-        if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
-        setEvents(data);
-      } catch {
-        setError("Unable to load activity");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchGitHubActivity();
-  }, [username]);
-
-  const latestEvent = events[0];
-
-  return (
-    <div className="relative bg-stone-900 p-8 md:p-12">
-      {/* Corner accent */}
-      <div className="absolute top-0 left-0 w-16 h-16 bg-orange-500" />
-
-      <div className="relative">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Github className="h-8 w-8 text-white" />
-            <div>
-              <span className="text-white/40 font-mono text-xs uppercase tracking-wider">
-                Live Feed
-              </span>
-              <h3 className="text-2xl font-black text-white">GITHUB</h3>
-            </div>
-          </div>
-          <a
-            href={`https://github.com/${username}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-white text-black font-bold text-sm hover:bg-orange-500 transition-colors"
-          >
-            VIEW PROFILE
-            <ExternalLink className="h-4 w-4" />
-          </a>
-        </div>
-
-        {/* Latest Push */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs font-mono text-white/40 uppercase tracking-wider">
-              Latest Push
-            </span>
-            {!loading && latestEvent && (
-              <span className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-500 text-black text-xs font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-                {formatTimeAgo(latestEvent.created_at)}
-              </span>
-            )}
-          </div>
-
-          {loading ? (
-            <div className="h-8 w-3/4 bg-white/10 animate-pulse" />
-          ) : error ? (
-            <p className="text-white/40 font-mono">{error}</p>
-          ) : latestEvent ? (
-            <>
-              <p className="text-2xl md:text-3xl text-white font-black leading-tight mb-4">
-                &quot;{getCommitMessage(latestEvent)}&quot;
-              </p>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-white/40 font-mono">REPO:</span>
-                {latestEvent.public ? (
-                  <a
-                    href={`https://github.com/${latestEvent.repo.name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-orange-500 hover:text-orange-400 transition-colors flex items-center gap-1 font-bold"
-                  >
-                    <Globe className="h-3 w-3" />
-                    {latestEvent.repo.name.split("/")[1]}
-                  </a>
-                ) : (
-                  <span className="text-orange-500 flex items-center gap-1 font-bold">
-                    <Lock className="h-3 w-3" />
-                    PRIVATE
-                  </span>
-                )}
-              </div>
-            </>
-          ) : (
-            <p className="text-white/40 font-mono">No recent activity</p>
-          )}
-        </div>
-
-        {/* Recent Activity */}
-        {!loading && events.length > 1 && (
-          <div className="pt-8 border-t border-white/10">
-            <p className="text-xs font-mono text-white/40 uppercase tracking-wider mb-4">
-              Recent Activity
-            </p>
-            <div className="space-y-3">
-              {events.slice(1, 4).map((event) => (
-                <div
-                  key={event.id}
-                  className="flex items-center gap-3 text-sm"
-                >
-                  <GitCommit className="h-4 w-4 text-white/40" />
-                  <span className="text-white/60 truncate flex-1 font-mono">
-                    {getCommitMessage(event)}
-                  </span>
-                  <span className="text-white/40 text-xs font-mono">
-                    {formatTimeAgo(event.created_at)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+// Generate random positions once for background pattern
+const backgroundPattern = [...Array(20)].map(() => ({
+  top: Math.random() * 100,
+  left: Math.random() * 100,
+  rotate: Math.random() * 360,
+}));
 
 export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -482,14 +176,14 @@ export default function Page() {
         {/* Left - Image/Pattern */}
         <div className="relative bg-stone-900 flex items-center justify-center p-12">
           <div className="absolute inset-0 opacity-20">
-            {[...Array(20)].map((_, i) => (
+            {backgroundPattern.map((pos, i) => (
               <div
                 key={i}
                 className="absolute text-8xl font-black text-white/5"
                 style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  transform: `rotate(${Math.random() * 360}deg)`,
+                  top: `${pos.top}%`,
+                  left: `${pos.left}%`,
+                  transform: `rotate(${pos.rotate}deg)`,
                 }}
               >
                 M
