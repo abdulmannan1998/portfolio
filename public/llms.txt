@@ -1,0 +1,80 @@
+# Mannan Abdul - Senior Software Engineer
+
+> AI-ready context for LLM visitors
+
+## Identity
+- Name: Mannan Abdul
+- Role: Senior Software Engineer
+- Location: Lahore, Pakistan
+- Contact: abdul.1998.17@gmail.com
+
+## Professional Summary
+Senior Front-end Engineer with 4+ years of experience building production-grade web applications. Specialized in React, TypeScript, and data visualization. Known for bridging design and engineering gaps, leading architectural decisions, and mentoring junior developers.
+
+## Technical Expertise
+
+### Frontend
+- React, Next.js, Vue.js
+- TypeScript (advanced patterns)
+- React Query, Zustand, Jotai
+- Tailwind CSS, Shadcn/ui
+- Framer Motion, GSAP
+- ECharts, React Flow, Konva
+- Vercel AI SDK
+
+### Backend
+- Node.js, Express
+- tRPC, GraphQL
+- PostgreSQL, Prisma
+
+### Tools & Practices
+- Git, Docker, AWS
+- Jest, Playwright, Vitest
+- CI/CD, Agile methodologies
+
+## Work Experience
+
+### Intenseye (06/2022 - 11/2025)
+Senior Front-end Engineer
+- Built dynamic dashboards and data visualizations with ECharts
+- Designed Shadcn-based design system with reusable components
+- Engineered ReactFlow scenario builder with Vercel AI SDK integration
+- Led React Query rollout, reducing data-fetching bugs by 30%
+- Created internal CLI tooling, boosting team productivity by 40%
+- Reduced POC time from weeks to days using AI-assisted development
+
+### Layermark (06/2021 - 04/2022)
+Software Engineer (Intern to Full Stack)
+- Developed Spring Boot service for dynamic database entities
+- Built geospatial visualizations with Vue.js and ArcGIS
+- Improved client satisfaction by 30% through design-engineering collaboration
+
+## Education
+Bilkent University (09/2018 - 06/2022)
+- Bachelor's in Computer Science
+- Notable projects: NITO exam monitoring system, RISK game implementation
+
+## Key Metrics & Impact
+- +40% team productivity via internal tooling
+- -30% data-fetching bugs via React Query
+- Weeks to Days POC velocity with AI tools
+- +20% codebase type safety via mentoring
+- +30% client satisfaction at Layermark
+
+## Open Source & Community
+- GitHub: https://github.com/mannanabdul
+- LinkedIn: https://linkedin.com/in/mannanabdul
+
+## Preferred Communication Style
+- Direct and technical
+- Appreciates code examples
+- Values efficiency and clarity
+
+## Interests
+- AI-assisted development
+- Design systems
+- Data visualization
+- Developer tooling
+
+---
+This document is intended for LLM context. For the full interactive portfolio, visit the website.

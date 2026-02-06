@@ -1,105 +1,79 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
-import { CSSPreloader } from "@/components/css-preloader";
-import { RESUME_DATA } from "@/data/resume-data";
-import { useResponsiveLayout } from "@/hooks/use-responsive-layout";
-import { GraphLegend } from "@/components/graph-legend";
+import { Navigation } from "@/components/navigation";
+import { HeroSection } from "@/components/sections/hero-section";
+import { AboutSection } from "@/components/sections/about-section";
+import { TechStackSection } from "@/components/sections/tech-stack-section";
+import { ExperienceSection } from "@/components/sections/experience-section";
+import { MetricsSection } from "@/components/sections/metrics-section";
+import { FooterSection } from "@/components/sections/footer-section";
 
-// Lazy load heavy components to improve initial load
-const DashboardBackground = dynamic(
+// Lazy load heavy components
+const GraphSection = dynamic(
   () =>
-    import("@/components/dashboard-background").then(
-      (mod) => mod.DashboardBackground,
-    ),
-  {
-    ssr: false, // Disable SSR for React Flow (uses browser APIs)
-  },
-);
-
-const LiveMetricWidget = dynamic(
-  () =>
-    import("@/components/live-metric-widget").then(
-      (mod) => mod.LiveMetricWidget,
+    import("@/components/sections/graph-section").then(
+      (mod) => mod.GraphSection
     ),
   {
     ssr: false,
-  },
+    loading: () => (
+      <section className="py-24 px-6 md:px-12 lg:px-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-[600px] rounded-xl border border-stone-800 bg-stone-900/50 animate-pulse flex items-center justify-center">
+            <span className="text-stone-500 font-mono text-sm">
+              Loading interactive graph...
+            </span>
+          </div>
+        </div>
+      </section>
+    ),
+  }
 );
 
-const MobileHero = dynamic(
-  () => import("@/components/mobile-hero").then((mod) => mod.MobileHero),
+const GitHubActivitySection = dynamic(
+  () =>
+    import("@/components/sections/github-activity-section").then(
+      (mod) => mod.GitHubActivitySection
+    ),
   {
     ssr: false,
-  },
+    loading: () => (
+      <section className="py-24 px-6 md:px-12 lg:px-24">
+        <div className="max-w-6xl mx-auto">
+          <div className="h-64 rounded-xl border border-stone-800 bg-stone-900/50 animate-pulse" />
+        </div>
+      </section>
+    ),
+  }
 );
 
 export default function Page() {
-  const [loading, setLoading] = useState(true);
-  const [contentReady, setContentReady] = useState(false);
-  const { isMobile } = useResponsiveLayout();
-
-  // Hide preloader once content is mounted and ready
-  useEffect(() => {
-    if (contentReady) {
-      // Small delay to ensure smooth transition
-      const timer = setTimeout(() => {
-        setLoading(false);
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-  }, [contentReady]);
-
   return (
     <main className="relative min-h-screen bg-stone-950 font-sans text-stone-200 selection:bg-orange-500/30">
-      {loading && <CSSPreloader />}
+      <Navigation />
 
-      <div style={{ opacity: loading ? 0 : 1, transition: "opacity 0.5s" }}>
-        {isMobile ? (
-          <MobileHero onContentReady={() => setContentReady(true)} />
-        ) : (
-          <DashboardBackground
-            header={
-              <motion.header
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                onAnimationComplete={() => setContentReady(true)}
-                className="flex items-start justify-between"
-              >
-                <div>
-                  <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl">
-                    {RESUME_DATA.personal.name}
-                  </h1>
-                  <p className="mt-2 text-xl text-orange-500 font-mono">
-                    {RESUME_DATA.personal.title}
-                  </p>
-                </div>
+      <HeroSection />
 
-                <div className="text-right text-sm text-stone-500 font-mono">
-                  <p>STATUS: ONLINE</p>
-                  <p>LOC: {RESUME_DATA.personal.location}</p>
-                </div>
-              </motion.header>
-            }
-            legend={<GraphLegend />}
-            bottomContent={
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                {RESUME_DATA.metrics.map((metric, i) => (
-                  <LiveMetricWidget
-                    key={metric.id}
-                    data={metric}
-                    delay={1 + i * 0.1}
-                  />
-                ))}
-              </div>
-            }
-          />
-        )}
+      <div id="about">
+        <AboutSection />
       </div>
+
+      <div id="stack">
+        <TechStackSection />
+      </div>
+
+      <div id="experience">
+        <ExperienceSection />
+      </div>
+
+      <GraphSection />
+
+      <GitHubActivitySection username="sunnyimmortal" />
+
+      <MetricsSection />
+
+      <FooterSection />
     </main>
   );
 }
