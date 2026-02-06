@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import {
   Building2,
   GraduationCap,
@@ -11,12 +8,9 @@ import {
 
 export function GraphLegend() {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+    <div
       className="rounded-lg border border-stone-800/50 bg-stone-950/80 p-4 shadow-xl backdrop-blur-sm max-w-[200px] opacity-80 hover:opacity-100 transition-opacity"
+      style={{ animation: "legend-slide-in 0.5s ease-out forwards" }}
     >
       <h3 className="mb-3 text-xs font-semibold text-stone-400">Legend</h3>
 
@@ -87,6 +81,6 @@ export function GraphLegend() {
       <div className="mt-2.5 border-t border-stone-800/50 pt-2.5 text-[10px] text-stone-600">
         💡 Click achievements to expand
       </div>
-    </motion.div>
+    </div>
   );
 }
