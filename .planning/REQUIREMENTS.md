@@ -18,10 +18,10 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 ### CSS Animations
 
 - [x] **ANIM-01**: CSS keyframe animations defined in globals.css (fade-in-up, fade-in-down, fade-in-left, scale-in)
-- [ ] **ANIM-02**: About section entrance animations use CSS instead of framer-motion
-- [ ] **ANIM-03**: Metrics section entrance animations use CSS instead of framer-motion
-- [ ] **ANIM-04**: Experience timeline entrance animations use CSS instead of framer-motion
-- [ ] **ANIM-05**: Tech stack section entrance animations use CSS instead of framer-motion
+- [x] **ANIM-02**: About section entrance animations use CSS instead of framer-motion
+- [x] **ANIM-03**: Metrics section entrance animations use CSS instead of framer-motion
+- [x] **ANIM-04**: Experience timeline entrance animations use CSS instead of framer-motion
+- [x] **ANIM-05**: Tech stack section entrance animations use CSS instead of framer-motion
 - [x] **ANIM-06**: Intersection Observer polyfill activates animations in browsers without animation-timeline support
 - [x] **ANIM-07**: CSS scroll-driven animations (animation-timeline: view()) trigger entrance effects in modern browsers
 - [ ] **ANIM-08**: Marquee text uses CSS animation instead of framer-motion
@@ -83,10 +83,10 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | RSC-04      | 12    | Pending  |
 | RSC-05      | 12    | Pending  |
 | ANIM-01     | 9     | Complete |
-| ANIM-02     | 10    | Pending  |
-| ANIM-03     | 10    | Pending  |
-| ANIM-04     | 10    | Pending  |
-| ANIM-05     | 10    | Pending  |
+| ANIM-02     | 10    | Complete |
+| ANIM-03     | 10    | Complete |
+| ANIM-04     | 10    | Complete |
+| ANIM-05     | 10    | Complete |
 | ANIM-06     | 9     | Complete |
 | ANIM-07     | 9     | Complete |
 | ANIM-08     | 12    | Pending  |
@@ -113,4 +113,4 @@ Deferred to future milestone. Tracked but not in current roadmap.
 ---
 
 _Requirements defined: 2026-02-07_
-_Last updated: 2026-02-07 -- Phase 9 complete (ANIM-01, ANIM-06, ANIM-07, RSC-02)_
+_Last updated: 2026-02-07 -- Phase 10 complete (ANIM-02, ANIM-03, ANIM-04, ANIM-05)_

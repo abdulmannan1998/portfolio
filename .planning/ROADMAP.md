@@ -27,7 +27,7 @@ See MILESTONES.md for details.
 **Milestone Goal:** Restructure the portfolio from a fully client-rendered app to a server-first architecture, leveraging server components, ISR, CSS animations, and Partial Prerendering.
 
 - [x] **Phase 9: Animation Foundation** - CSS keyframe infrastructure and hero parallax extraction
-- [ ] **Phase 10: Section Animation Migration** - Replace framer-motion entrance animations with CSS across four sections
+- [x] **Phase 10: Section Animation Migration** - Replace framer-motion entrance animations with CSS across four sections
 - [ ] **Phase 11: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
 - [ ] **Phase 12: Utility Component Conversion** - Convert marquee, stars, counter, legend, preloader to server/CSS
 - [ ] **Phase 13: Server Component Page** - Remove "use client" from page.tsx with clean client boundaries
@@ -70,8 +70,8 @@ Plans:
 
 Plans:
 
-- [ ] 10-01-PLAN.md -- Migrate about section and metrics section to CSS scroll animations
-- [ ] 10-02-PLAN.md -- Migrate experience timeline and tech stack to CSS scroll animations
+- [x] 10-01-PLAN.md -- Migrate about section and metrics section to CSS scroll animations
+- [x] 10-02-PLAN.md -- Migrate experience timeline and tech stack to CSS scroll animations
 
 ### Phase 11: Server-side GitHub Fetching
 
@@ -153,7 +153,7 @@ Critical path: 9 -> 10 -> 12 -> 13 -> 14 (Phase 11 merges at 13)
 | Phase                            | Milestone | Plans Complete | Status      | Completed  |
 | -------------------------------- | --------- | -------------- | ----------- | ---------- |
 | 9. Animation Foundation          | v1.2      | 3/3            | Complete    | 2026-02-07 |
-| 10. Section Animation Migration  | v1.2      | 0/2            | Not started | -          |
+| 10. Section Animation Migration  | v1.2      | 2/2            | Complete    | 2026-02-07 |
 | 11. Server-side GitHub Fetching  | v1.2      | 0/1            | Not started | -          |
 | 12. Utility Component Conversion | v1.2      | 0/2            | Not started | -          |
 | 13. Server Component Page        | v1.2      | 0/1            | Not started | -          |
@@ -161,4 +161,4 @@ Critical path: 9 -> 10 -> 12 -> 13 -> 14 (Phase 11 merges at 13)
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 10 planned (2 plans in 1 wave)_
+_Last updated: 2026-02-07 -- Phase 10 complete (2 plans executed, goal verified)_
