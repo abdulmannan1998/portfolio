@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 9 of 14 (Animation Foundation) -- v1.2 SSR Migration in progress
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 09-03-PLAN.md (Hero parallax fade speed fix)
+Phase: 10 of 14 (Section Animation Migration) -- v1.2 SSR Migration in progress
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 10-01-PLAN.md (About & Metrics migration)
 
-Progress: [██████████░░░░░░░░░░] 50% (3/11 v1.2 plans complete, 9/14 phases complete across all milestones)
+Progress: [██████████░░░░░░░░░░] 52% (4/11 v1.2 plans complete, 10/14 phases in progress across all milestones)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [██████████░░░░░░░░░░] 50% (3/
 **v1.2 Milestone (in progress):**
 
 - Total plans: 10 (target)
-- Plans complete: 3
-- Average duration: 1.7 min/plan
-- Total execution time: 5 min
+- Plans complete: 4
+- Average duration: 1.75 min/plan
+- Total execution time: 7 min
 - Phases: 6 (target)
 
 **By Phase (cumulative):**
@@ -53,6 +53,7 @@ Progress: [██████████░░░░░░░░░░] 50% (3/
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
 | 09-animation-foundation        | v1.2      | 3     | 5min  | 1.7min   |
+| 10-section-animation-migration | v1.2      | 1     | 2min  | 2min     |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [09-02]: Extract parallax logic to client wrapper, keep hero content in page.tsx
 - [09-02]: Use window.scrollY with 0.15vh threshold to match framer-motion behavior
 - [09-03]: Use (scrollHeight - innerHeight) \* 0.15 for total scroll distance (matches framer-motion scrollYProgress)
+- [10-01]: Use stagger-index custom property with index values for clean sequential delays
+- [10-01]: Keep hero section framer-motion untouched (page-load animations, not scroll-driven)
+- [10-01]: Initialize IO polyfill once per section component via useEffect
 
 ### Pending Todos
 
@@ -85,11 +89,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Stopped at: Completed 09-03-PLAN.md (Hero parallax fade speed fix) -- Phase 09 complete
+Last session: 2026-02-06
+Stopped at: Completed 10-01-PLAN.md (About & Metrics migration)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Completed 09-03-PLAN.md, Phase 09 complete_
+_Last updated: 2026-02-06 -- Completed 10-01-PLAN.md_
