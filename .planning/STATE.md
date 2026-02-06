@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 10 of 14 (Section Animation Migration) -- v1.2 SSR Migration in progress
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 10-01-PLAN.md (About & Metrics migration)
+Last activity: 2026-02-06 -- Completed 10-02-PLAN.md (Experience Timeline & Tech Stack migration)
 
-Progress: [██████████░░░░░░░░░░] 52% (4/11 v1.2 plans complete, 10/14 phases in progress across all milestones)
+Progress: [███████████░░░░░░░░░] 55% (5/11 v1.2 plans complete, 10/14 phases in progress across all milestones)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [██████████░░░░░░░░░░] 52% (4/
 **v1.2 Milestone (in progress):**
 
 - Total plans: 10 (target)
-- Plans complete: 4
-- Average duration: 1.75 min/plan
-- Total execution time: 7 min
+- Plans complete: 5
+- Average duration: 1.6 min/plan
+- Total execution time: 9 min
 - Phases: 6 (target)
 
 **By Phase (cumulative):**
@@ -53,7 +53,7 @@ Progress: [██████████░░░░░░░░░░] 52% (4/
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
 | 09-animation-foundation        | v1.2      | 3     | 5min  | 1.7min   |
-| 10-section-animation-migration | v1.2      | 1     | 2min  | 2min     |
+| 10-section-animation-migration | v1.2      | 2     | 4min  | 2min     |
 
 ## Accumulated Context
 
@@ -76,6 +76,9 @@ Recent decisions affecting current work:
 - [10-01]: Use stagger-index custom property with index values for clean sequential delays
 - [10-01]: Keep hero section framer-motion untouched (page-load animations, not scroll-driven)
 - [10-01]: Initialize IO polyfill once per section component via useEffect
+- [10-02]: Use 0.1s stagger-index for experience timeline entries (0s, 0.1s, 0.2s)
+- [10-02]: Use 0.03s per-item animation-delay for tech stack items matching original framer-motion timing
+- [10-02]: Inline animationDelay style for precise per-element stagger vs CSS variable for calc-based patterns
 
 ### Pending Todos
 
@@ -90,10 +93,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 10-01-PLAN.md (About & Metrics migration)
+Stopped at: Completed 10-02-PLAN.md (Experience Timeline & Tech Stack migration)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 -- Completed 10-01-PLAN.md_
+_Last updated: 2026-02-06 -- Completed 10-02-PLAN.md_
