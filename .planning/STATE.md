@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 009: Merge tech stack and live code sections
+Last activity: 2026-02-06 — Completed quick task 010: Fix hydration mismatches in TwinklingStars and background pattern
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -65,6 +65,8 @@ Key decisions from v1.0 milestone logged in PROJECT.md.
 | css-animations-performance | Q007  | CSS @keyframes instead of Framer Motion per-star      | GPU-composited, far more performant for 40 elements      |
 | precomputed-offsets        | Q009  | Precompute animation delay offsets at module level    | React hooks linter rejects mutable variable in render    |
 | sidebar-layout             | Q009  | Fixed 380px sidebar for activity panel                | Prevents activity panel from competing with tech icons   |
+| shared-prng-utility        | Q010  | Extract mulberry32 to lib/seeded-random.ts            | DRY - reused by both twinkling-stars and page background |
+| plain-style-over-jsx       | Q010  | Use plain `<style>` instead of `<style jsx>`          | styled-jsx scoped classes cause hydration mismatch       |
 
 ### Pending Todos
 
@@ -85,14 +87,15 @@ None.
 | 007 | Add twinkling stars to hero section                   | 2026-02-06 | 66e6751 | [007-twinkling-stars](./quick/007-add-twinkling-stars-to-hero-section/007-SUMMARY.md)              |
 | 008 | Move impact section after about section               | 2026-02-06 | ad75c51 | [008-impact-after-about](./quick/008-move-the-impact-section-to-after-the-abo/008-SUMMARY.md)      |
 | 009 | Merge tech stack and live code sections               | 2026-02-06 | f6c8149 | [009-merge-tech-code](./quick/009-merge-tech-stack-and-live-code-sections/009-SUMMARY.md)          |
+| 010 | Fix hydration mismatches in stars and background      | 2026-02-06 | 9e09abc | [010-fix-hydration](./quick/010-fix-hydration-mismatches-twinkling-stars-and-bg/010-SUMMARY.md)    |
 
 ## Session Continuity
 
 Last session: 2026-02-06T17:10:00Z
-Stopped at: Completed quick task 009 (Merge tech stack and live code sections)
+Stopped at: Completed quick task 010 (Fix hydration mismatches in TwinklingStars and background pattern)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 — Quick task 009 (merge tech stack and live code sections)_
+_Last updated: 2026-02-06 — Quick task 010 (fix hydration mismatches in stars and background)_
