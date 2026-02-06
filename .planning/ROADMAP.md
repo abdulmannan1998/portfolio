@@ -68,11 +68,14 @@ Plans:
 2. Debounce utility returns cleanup function and is used correctly
 3. GitHub API calls have caching or deduplication to prevent redundant fetches
 4. PROJECT.md accurately describes current codebase structure
-   **Plans**: TBD
+
+**Plans:** 3 plans
 
 Plans:
 
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md — Fix debounce cleanup and graph timer tracking
+- [ ] 08-02-PLAN.md — Add GitHub API caching with 5-minute TTL
+- [ ] 08-03-PLAN.md — Update documentation to reflect current structure
 
 ## Progress
 
@@ -83,9 +86,9 @@ Plans:
 | 1-5                              | v1.0      | 6/6            | Complete    | 2026-02-05 |
 | 6. Dead Code & Directory Cleanup | v1.1      | 1/1            | Complete    | 2026-02-06 |
 | 7. Code Splitting                | v1.1      | 2/2            | Complete    | 2026-02-06 |
-| 8. Technical Debt                | v1.1      | 0/TBD          | Not started | -          |
+| 8. Technical Debt                | v1.1      | 0/3            | Not started | -          |
 
 ---
 
 _Roadmap created: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 7 complete_
+_Last updated: 2026-02-06 — Phase 8 planned_
