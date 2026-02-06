@@ -5,11 +5,11 @@ import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Beaker, ExternalLink } from "lucide-react";
-import { RESUME_DATA } from "@/data/resume-data";
 import { techStack } from "@/data/tech-stack";
 import { MarqueeText } from "@/components/marquee-text";
-import { AnimatedCounter } from "@/components/animated-counter";
 import { GitHubActivity } from "@/components/github-activity";
+import { ExperienceTimeline } from "@/components/sections/experience-timeline";
+import { MetricsSection } from "@/components/sections/metrics-section";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
@@ -268,141 +268,11 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Experience timeline - Vertical */}
-      <section className="relative py-24 bg-stone-950">
-        <div className="max-w-4xl mx-auto px-6 md:px-12">
-          <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
-            Journey
-          </span>
-          <h2 className="text-5xl md:text-6xl font-black mt-2 mb-16">
-            EXPERIENCE
-          </h2>
+      {/* Experience timeline */}
+      <ExperienceTimeline />
 
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-0 top-0 bottom-0 w-px bg-white/20" />
-
-            {/* Intenseye */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="relative pl-12 pb-16"
-            >
-              <div className="absolute left-0 top-2 w-3 h-3 bg-orange-500 -translate-x-1/2" />
-              <span className="text-white/40 font-mono text-sm">
-                06/2022 — 11/2025
-              </span>
-              <h3 className="text-3xl font-black mt-2">INTENSEYE</h3>
-              <p className="text-orange-500 font-mono text-sm mt-1">
-                Senior Front-end Engineer
-              </p>
-              <ul className="mt-4 space-y-2 text-white/60">
-                <li>* Enterprise safety dashboards with React & ECharts</li>
-                <li>* Shadcn-based design system for the organization</li>
-                <li>* ReactFlow scenario builder with AI integration</li>
-                <li>* React Query rollout - 30% fewer bugs</li>
-              </ul>
-            </motion.div>
-
-            {/* Layermark */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="relative pl-12 pb-16"
-            >
-              <div className="absolute left-0 top-2 w-3 h-3 bg-blue-500 -translate-x-1/2" />
-              <span className="text-white/40 font-mono text-sm">
-                06/2021 — 04/2022
-              </span>
-              <h3 className="text-3xl font-black mt-2">LAYERMARK</h3>
-              <p className="text-blue-500 font-mono text-sm mt-1">
-                Software Engineer
-              </p>
-              <ul className="mt-4 space-y-2 text-white/60">
-                <li>* Geospatial visualizations with Vue.js & ArcGIS</li>
-                <li>* Spring Boot service for no-code platform</li>
-                <li>* Client satisfaction improved by 30%</li>
-              </ul>
-            </motion.div>
-
-            {/* Bilkent */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="relative pl-12"
-            >
-              <div className="absolute left-0 top-2 w-3 h-3 bg-purple-500 -translate-x-1/2" />
-              <span className="text-white/40 font-mono text-sm">
-                09/2018 — 06/2022
-              </span>
-              <h3 className="text-3xl font-black mt-2">BILKENT UNIVERSITY</h3>
-              <p className="text-purple-500 font-mono text-sm mt-1">
-                B.Sc. Computer Science
-              </p>
-              <ul className="mt-4 space-y-2 text-white/60">
-                <li>* NITO exam monitoring system</li>
-                <li>* RISK game with design patterns</li>
-                <li>* Hospital database management lead</li>
-              </ul>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Metrics section - Horizontal scroll cards */}
-      <section className="relative py-24 bg-black">
-        <div className="px-6 md:px-12 mb-12">
-          <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
-            Impact
-          </span>
-          <h2 className="text-5xl md:text-6xl font-black mt-2">
-            MEASURABLE RESULTS
-          </h2>
-        </div>
-
-        <div className="overflow-x-auto scrollbar-hide">
-          <div
-            className="flex gap-6 px-6 md:px-12 pb-6"
-            style={{ width: "max-content" }}
-          >
-            {RESUME_DATA.metrics.map((metric, index) => (
-              <motion.div
-                key={metric.id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="relative w-80 h-96 bg-stone-900 rounded-none p-8 flex flex-col justify-between group hover:bg-stone-800 transition-colors"
-              >
-                {/* Corner accent */}
-                <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500" />
-
-                <div>
-                  <span className="text-xs font-mono text-white/40 uppercase tracking-wider">
-                    {metric.company}
-                  </span>
-                  <h3 className="text-xl font-bold text-white/80 mt-2">
-                    {metric.label}
-                  </h3>
-                </div>
-
-                <div>
-                  <div className="text-6xl font-black text-orange-500 mb-4">
-                    {metric.value.includes("→") ? (
-                      metric.value
-                    ) : (
-                      <AnimatedCounter
-                        value={metric.value}
-                        suffix={metric.value.includes("%") ? "%" : ""}
-                      />
-                    )}
-                  </div>
-                  <p className="text-white/50 text-sm">{metric.context}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Metrics section */}
+      <MetricsSection />
 
       {/* React Flow Graph Section */}
       <section className="relative py-24 bg-stone-950">
