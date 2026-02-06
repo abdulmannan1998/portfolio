@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 003: Flesh out about section with personalized tone
+Last activity: 2026-02-06 — Completed quick task 004: Update tech stack with accurate skills and local icons
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -58,6 +58,9 @@ Key decisions from v1.0 milestone logged in PROJECT.md.
 | github-cache-ttl           | 08    | 5-minute TTL for GitHub API cache                     | Balances freshness with rate limit prevention            |
 | v11-milestone-complete     | 08    | Mark v1.1 as COMPLETE in PROJECT.md                   | All target areas validated across phases 7-8             |
 | doc-file-structure         | 08    | Add File Structure section to PROJECT.md              | Documents modular architecture for future developers     |
+| local-icons                | Q004  | Download icons locally vs CDN                         | Local assets more reliable, no external dependencies     |
+| icon-fallbacks             | Q004  | Use react/typescript icons for unavailable libraries  | Better to show related icon than generic placeholder     |
+| full-opacity               | Q004  | Remove opacity-60 from icons and text                 | Tech stack should be prominent, not dimmed               |
 
 ### Pending Todos
 
@@ -73,14 +76,15 @@ None.
 | --- | ----------------------------------------- | ---------- | ------- | -------------------------------------------------------------------------------------------------- |
 | 002 | Centralize social links to constants file | 2026-02-06 | 934f469 | [002-centralize-social-links](./quick/002-centralize-social-links-to-constants-fil/)               |
 | 003 | Flesh out about section personalized      | 2026-02-06 | 2573fae | [003-flesh-out-about-section](./quick/003-flesh-out-the-about-section-personalized/003-SUMMARY.md) |
+| 004 | Update tech stack with local icons        | 2026-02-06 | 16f1af4 | [004-update-tech-stack](./quick/004-update-tech-stack-section-with-accurate-/004-SUMMARY.md)       |
 
 ## Session Continuity
 
-Last session: 2026-02-06T18:12:00Z
-Stopped at: Completed quick task 003 (Flesh out about section personalized)
+Last session: 2026-02-06T16:15:29Z
+Stopped at: Completed quick task 004 (Update tech stack with local icons)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 — Quick task 003 (about section personalization)_
+_Last updated: 2026-02-06 — Quick task 004 (tech stack update with local icons)_
