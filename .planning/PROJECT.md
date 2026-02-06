@@ -8,20 +8,9 @@ A brutalist personal portfolio site showcasing career timeline, achievements, an
 
 The portfolio must remain visually polished and performant — changes should improve code quality without degrading the user experience.
 
-## Current Milestone: v1.1 Codebase Polish - COMPLETE
-
-**Goal:** Remove dead code, clean up file structure, implement proper code splitting, and address technical debt from CONCERNS.md audit.
-
-**Target areas (all complete):**
-
-- ✓ Dead code removal (~517 lines in unused components) - Phase 1
-- ✓ Empty directory cleanup (31 scaffolded but empty theme dirs) - Phase 1
-- ✓ Code splitting (page.tsx reduced from 826 to 390 lines) - Phase 7
-- ✓ Technical debt fixes (setTimeout cleanup, API caching, debounce cancel) - Phase 8
-
 ## Current State
 
-**Shipped:** v1.1 Codebase Polish (2026-02-06)
+**Latest shipped:** v1.1 Codebase Polish (2026-02-07)
 
 - 390-line main page.tsx (reduced from 826 lines via modular components)
 - Extracted components: graph-section, metrics-section, experience-timeline
@@ -65,7 +54,7 @@ The portfolio must remain visually polished and performant — changes should im
 
 ### Active
 
-None - v1.1 milestone complete.
+None — planning next milestone.
 
 ### Out of Scope
 
@@ -130,4 +119,4 @@ None - v1.1 milestone complete.
 
 ---
 
-_Last updated: 2026-02-06 after v1.1 milestone (Phases 7-8 complete)_
+_Last updated: 2026-02-07 after v1.1 milestone_
