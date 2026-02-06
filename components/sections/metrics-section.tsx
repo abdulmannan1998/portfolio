@@ -1,10 +1,16 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { RESUME_DATA } from "@/data/resume-data";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { initScrollAnimations } from "@/hooks/use-scroll-animation";
 
 export function MetricsSection() {
+  useEffect(() => {
+    const cleanup = initScrollAnimations();
+    return cleanup;
+  }, []);
+
   return (
     <section className="relative py-24 bg-black">
       <div className="px-6 md:px-12 mb-12">
@@ -22,12 +28,10 @@ export function MetricsSection() {
           style={{ width: "max-content" }}
         >
           {RESUME_DATA.metrics.map((metric, index) => (
-            <motion.div
+            <div
               key={metric.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="relative w-80 h-96 bg-stone-900 rounded-none p-8 flex flex-col justify-between group hover:bg-stone-800 transition-colors"
+              className="relative w-80 h-96 bg-stone-900 rounded-none p-8 flex flex-col justify-between group hover:bg-stone-800 transition-colors fade-in-up"
+              style={{ "--stagger-index": index } as React.CSSProperties}
             >
               {/* Corner accent */}
               <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500" />
@@ -54,7 +58,7 @@ export function MetricsSection() {
                 </div>
                 <p className="text-white/50 text-sm">{metric.context}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
