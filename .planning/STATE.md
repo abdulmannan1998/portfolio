@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 9 of 14 (Animation Foundation) -- v1.2 SSR Migration in progress
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-07 -- Completed 09-01-PLAN.md (CSS animation foundation)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 09-02-PLAN.md (Hero parallax extraction)
 
-Progress: [████████░░░░░░░░░░░░] 41% (1/10 v1.2 plans complete, 8/14 phases complete across all milestones)
+Progress: [████████░░░░░░░░░░░░] 42% (2/10 v1.2 plans complete, 8/14 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [████████░░░░░░░░░░░░] 41% (1/
 **v1.2 Milestone (in progress):**
 
 - Total plans: 10 (target)
-- Plans complete: 1
-- Average duration: 2.1 min/plan
-- Total execution time: 2 min
+- Plans complete: 2
+- Average duration: 2.0 min/plan
+- Total execution time: 4 min
 - Phases: 6 (target)
 
 **By Phase (cumulative):**
@@ -52,7 +52,7 @@ Progress: [████████░░░░░░░░░░░░] 41% (1/
 | 06-dead-code-directory-cleanup | v1.1      | 1     | 1min  | 1min     |
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
-| 09-animation-foundation        | v1.2      | 1     | 2min  | 2.1min   |
+| 09-animation-foundation        | v1.2      | 2     | 4min  | 2.0min   |
 
 ## Accumulated Context
 
@@ -68,6 +68,9 @@ Recent decisions affecting current work:
 - [09-01]: Longhand animation properties instead of shorthand to prevent animation-timeline reset
 - [09-01]: Opacity-only fades for reduced-motion users (0.4s) vs full transform animations (0.6s)
 - [09-01]: Negative rootMargin (-10% bottom) for early animation trigger
+- [09-02]: Replace framer-motion useScroll/useTransform with requestAnimationFrame for hero parallax
+- [09-02]: Extract parallax logic to client wrapper, keep hero content in page.tsx
+- [09-02]: Use window.scrollY with 0.15vh threshold to match framer-motion behavior
 
 ### Pending Todos
 
@@ -77,15 +80,15 @@ None yet.
 
 - Research flagged animation-timeline browser support as low risk -- Intersection Observer polyfill covers it
 - Hydration mismatch risk medium -- twinkling-stars already uses seeded PRNG for deterministic rendering
-- Hero parallax extraction is the critical first step -- blocks all downstream phases
+- ~~Hero parallax extraction is the critical first step -- blocks all downstream phases~~ ✓ Complete (09-02)
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 09-01-PLAN.md (CSS animation foundation)
+Stopped at: Completed 09-02-PLAN.md (Hero parallax extraction) -- Phase 09 complete
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Completed 09-01-PLAN.md_
+_Last updated: 2026-02-07 -- Completed 09-02-PLAN.md, Phase 09 complete_
