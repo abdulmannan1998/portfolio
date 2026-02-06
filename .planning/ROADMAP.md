@@ -21,7 +21,7 @@ See `.planning/MILESTONES.md` for details.
 **Milestone Goal:** Remove dead code, clean up file structure, implement proper code splitting, and address technical debt from CONCERNS.md audit.
 
 - [x] **Phase 6: Dead Code & Directory Cleanup** - Remove unused files and empty scaffolded directories
-- [ ] **Phase 7: Code Splitting** - Extract inline components to separate files
+- [x] **Phase 7: Code Splitting** - Extract inline components to separate files
 - [ ] **Phase 8: Technical Debt** - Fix async patterns and update documentation
 
 ## Phase Details
@@ -55,7 +55,7 @@ Plans:
 Plans:
 
 - [x] 07-01-PLAN.md — Extract techStack data and inline components (MarqueeText, AnimatedCounter, GitHubActivity) to dedicated files
-- [ ] 07-02-PLAN.md — Gap closure: Extract Experience timeline and Metrics sections to reach 400-line target
+- [x] 07-02-PLAN.md — Gap closure: Extract Experience timeline and Metrics sections to reach 400-line target
 
 ### Phase 8: Technical Debt
 
@@ -82,10 +82,10 @@ Plans:
 | -------------------------------- | --------- | -------------- | ----------- | ---------- |
 | 1-5                              | v1.0      | 6/6            | Complete    | 2026-02-05 |
 | 6. Dead Code & Directory Cleanup | v1.1      | 1/1            | Complete    | 2026-02-06 |
-| 7. Code Splitting                | v1.1      | 1/2            | In progress | -          |
+| 7. Code Splitting                | v1.1      | 2/2            | Complete    | 2026-02-06 |
 | 8. Technical Debt                | v1.1      | 0/TBD          | Not started | -          |
 
 ---
 
 _Roadmap created: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 7 gap closure plan added_
+_Last updated: 2026-02-06 — Phase 7 complete_

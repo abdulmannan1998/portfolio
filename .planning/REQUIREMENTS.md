@@ -20,10 +20,10 @@ Cleanup and polish requirements based on codebase audit.
 
 ### Code Splitting
 
-- [ ] **SPLIT-01**: Extract `MarqueeText` component to own file
-- [ ] **SPLIT-02**: Extract `AnimatedCounter` component to own file
-- [ ] **SPLIT-03**: Extract `GitHubActivity` component to own file (~130 lines)
-- [ ] **SPLIT-04**: Extract `techStack` data to `data/tech-stack.ts`
+- [x] **SPLIT-01**: Extract `MarqueeText` component to own file
+- [x] **SPLIT-02**: Extract `AnimatedCounter` component to own file
+- [x] **SPLIT-03**: Extract `GitHubActivity` component to own file (~130 lines)
+- [x] **SPLIT-04**: Extract `techStack` data to `data/tech-stack.ts`
 
 ### Technical Debt
 
@@ -53,10 +53,10 @@ None — v1.1 is focused cleanup.
 | DEAD-03     | 6     | Complete |
 | DIR-01      | 6     | Complete |
 | DIR-02      | 6     | Complete |
-| SPLIT-01    | 7     | Pending  |
-| SPLIT-02    | 7     | Pending  |
-| SPLIT-03    | 7     | Pending  |
-| SPLIT-04    | 7     | Pending  |
+| SPLIT-01    | 7     | Complete |
+| SPLIT-02    | 7     | Complete |
+| SPLIT-03    | 7     | Complete |
+| SPLIT-04    | 7     | Complete |
 | DEBT-01     | 8     | Pending  |
 | DEBT-02     | 8     | Pending  |
 | DEBT-03     | 8     | Pending  |
@@ -71,4 +71,4 @@ None — v1.1 is focused cleanup.
 ---
 
 _Requirements defined: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 6 requirements complete_
+_Last updated: 2026-02-06 — Phase 7 requirements complete_
