@@ -4,12 +4,11 @@ import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import { Github, Linkedin, Mail, Beaker, ExternalLink } from "lucide-react";
-import { techCategories } from "@/data/tech-stack";
+import { Github, Linkedin, Mail, Beaker } from "lucide-react";
 import { MarqueeText } from "@/components/marquee-text";
-import { GitHubActivity } from "@/components/github-activity";
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { MetricsSection } from "@/components/sections/metrics-section";
+import { TechAndCodeSection } from "@/components/sections/tech-and-code-section";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { TwinklingStars } from "@/components/twinkling-stars";
 
@@ -244,54 +243,8 @@ export default function Page() {
       {/* Impact metrics */}
       <MetricsSection />
 
-      {/* Tech stack - Grid layout with icons */}
-      <section className="relative py-24 bg-black">
-        <div className="px-6 md:px-12 mb-16">
-          <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
-            Technologies
-          </span>
-          <h2 className="text-5xl md:text-6xl font-black mt-2">MY STACK</h2>
-        </div>
-
-        <div className="px-6 md:px-12 space-y-8">
-          {techCategories.map((category) => (
-            <div
-              key={category.name}
-              className="flex flex-col md:flex-row gap-4 md:gap-8"
-            >
-              {/* Category label */}
-              <div className="md:w-40 shrink-0">
-                <span className="text-white/40 font-mono text-xs uppercase tracking-widest">
-                  {category.name}
-                </span>
-              </div>
-              {/* Tech icons row */}
-              <div className="flex flex-wrap gap-4">
-                {category.items.map((tech, index) => (
-                  <motion.div
-                    key={tech.name}
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ scale: 1.1 }}
-                    className="flex flex-col items-center gap-2 p-3 group cursor-default"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={tech.icon}
-                      alt={tech.name}
-                      className="w-8 h-8 object-contain"
-                    />
-                    <span className="text-white/60 group-hover:text-orange-500 transition-colors font-mono text-[10px] text-center uppercase">
-                      {tech.name}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Tech stack + GitHub activity combined */}
+      <TechAndCodeSection />
 
       {/* Experience timeline */}
       <ExperienceTimeline />
@@ -309,66 +262,6 @@ export default function Page() {
           </p>
         </div>
         <GraphSection />
-      </section>
-
-      {/* GitHub Activity Section */}
-      <section className="relative py-24 bg-black">
-        <div className="px-6 md:px-12 mb-12">
-          <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
-            Activity
-          </span>
-          <h2 className="text-5xl md:text-6xl font-black mt-2">LIVE CODE</h2>
-        </div>
-
-        <div className="px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* GitHub Activity */}
-            <GitHubActivity username={SOCIAL_LINKS.github.username} />
-
-            {/* Social CTAs */}
-            <div className="grid grid-rows-2 gap-6">
-              {/* GitHub CTA */}
-              <a
-                href={SOCIAL_LINKS.github.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative flex items-center justify-between bg-stone-900 p-8 hover:bg-stone-800 transition-colors"
-              >
-                <div className="absolute bottom-0 right-0 w-16 h-16 bg-white/10 group-hover:bg-orange-500 transition-colors" />
-                <div className="relative flex items-center gap-4">
-                  <Github className="h-10 w-10 text-white" />
-                  <div>
-                    <h4 className="text-xl font-black text-white">GITHUB</h4>
-                    <p className="text-sm text-white/40 font-mono">
-                      VIEW OPEN SOURCE WORK
-                    </p>
-                  </div>
-                </div>
-                <ExternalLink className="h-6 w-6 text-white/40 group-hover:text-white transition-colors" />
-              </a>
-
-              {/* LinkedIn CTA */}
-              <a
-                href={SOCIAL_LINKS.linkedin.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative flex items-center justify-between bg-stone-900 p-8 hover:bg-stone-800 transition-colors"
-              >
-                <div className="absolute bottom-0 right-0 w-16 h-16 bg-blue-500/20 group-hover:bg-blue-500 transition-colors" />
-                <div className="relative flex items-center gap-4">
-                  <Linkedin className="h-10 w-10 text-blue-400" />
-                  <div>
-                    <h4 className="text-xl font-black text-white">LINKEDIN</h4>
-                    <p className="text-sm text-white/40 font-mono">
-                      CONNECT PROFESSIONALLY
-                    </p>
-                  </div>
-                </div>
-                <ExternalLink className="h-6 w-6 text-white/40 group-hover:text-blue-400 transition-colors" />
-              </a>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* CTA / Footer */}
