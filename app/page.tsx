@@ -11,6 +11,7 @@ import { GitHubActivity } from "@/components/github-activity";
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { MetricsSection } from "@/components/sections/metrics-section";
 import { SOCIAL_LINKS } from "@/lib/social-links";
+import { TwinklingStars } from "@/components/twinkling-stars";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
@@ -109,6 +110,7 @@ export default function Page() {
         style={{ scale: heroScale, opacity: heroOpacity }}
         className="sticky top-0 min-h-screen flex flex-col justify-center items-center px-6 bg-black"
       >
+        <TwinklingStars />
         {/* Giant name */}
         <div className="relative">
           <motion.h1
