@@ -6,18 +6,13 @@ This document outlines the design philosophy, visual identity, and development g
 
 ## Overview
 
-The portfolio consists of two distinct views serving the same content:
-
-1. **Standard View** (`/`) - Clean, professional, modern design
-2. **Creative View** (`/creative`) - Experimental, brutalist, bold design
-
-Both views share the same underlying data from `/data/resume-data.ts` and follow the same content flow.
+The portfolio embraces a **brutalist** design aesthetic with bold typography, high contrast, and sharp edges. All content is sourced from `/data/resume-data.ts`.
 
 ---
 
-## Content Flow (Both Views)
+## Content Flow
 
-All views must follow this section ordering:
+The page follows this section ordering:
 
 1. **Hero** - Name, title, social links, CTA
 2. **About Me** - Professional summary, years of experience
@@ -30,93 +25,11 @@ All views must follow this section ordering:
 
 ---
 
-## Standard View Design System
-
-### Color Palette
-
-```css
-/* Primary Background */
---bg-primary: stone-950 (#0c0a09)
---bg-secondary: stone-900 (#1c1917)
-
-/* Text Colors */
---text-primary: stone-200 (#e7e5e3)
---text-secondary: stone-400 (#a8a29e)
---text-muted: stone-500 (#78716c)
---text-label: stone-600 (#57534e)
-
-/* Accent Colors */
---accent-primary: orange-500 (#f97316)
---accent-hover: orange-600 (#ea580c)
---accent-muted: orange-500/30
-
-/* Semantic Colors */
---color-success: emerald-400 (#34d399)
---color-info: blue-400 (#60a5fa)
---color-purple: purple-400 (#c084fc)
-
-/* Borders */
---border-default: stone-800 (#292524)
---border-subtle: stone-800/50
-```
-
-### Typography
-
-- **Font Family**: System sans-serif (inherited from Tailwind)
-- **Font Mono**: Used for labels, technical terms, code
-- **Headings**: Bold/Black weight, tight tracking
-- **Body**: Regular weight, relaxed line height
-
-### Component Patterns
-
-#### Cards
-```css
-/* Standard card */
-rounded-xl border border-stone-800 bg-stone-900/50
-
-/* Hover state */
-hover:border-stone-700 hover:bg-stone-900
-
-/* With gradient overlay */
-bg-gradient-to-br from-stone-900/80 to-stone-950
-```
-
-#### Buttons
-```css
-/* Primary CTA */
-px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium
-
-/* Secondary/Ghost */
-rounded-lg border border-stone-800 text-stone-400 hover:text-white hover:border-stone-700
-
-/* Labs Button (Special) */
-border border-dashed border-stone-700 text-stone-400 hover:border-purple-500/50 hover:text-purple-400
-/* With badge */
-<span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">SOON</span>
-```
-
-#### Section Headers
-```css
-/* Label */
-<span className="text-orange-500 text-xl">*</span>
-<span className="text-sm font-mono text-stone-400 uppercase tracking-[0.2em]">Section Name</span>
-```
-
-### Animation Guidelines
-
-- Use Framer Motion for all animations
-- Prefer `whileInView` over `animate` for scroll-triggered content
-- Standard animation duration: 0.5s
-- Standard stagger delay: 0.1s
-- Easing: default or [0.22, 1, 0.36, 1] for smooth entrances
-
----
-
-## Creative View Design System
+## Design System
 
 ### Visual Identity
 
-The creative view embraces a **brutalist** design aesthetic:
+The portfolio embraces a **brutalist** design aesthetic:
 
 - **High contrast**: Black backgrounds with white/orange accents
 - **Bold typography**: Giant outlined text, heavy weights
@@ -156,7 +69,7 @@ The creative view embraces a **brutalist** design aesthetic:
 
 ### Component Patterns
 
-#### Cards (Brutalist)
+#### Cards
 ```css
 /* Metric card */
 bg-stone-900 rounded-none p-8
@@ -171,9 +84,9 @@ bg-stone-900 rounded-none p-8
 <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
 ```
 
-#### Labs Button (Creative Style)
+#### Labs Button
 ```css
-/* Brutalist labs button with SOON badge */
+/* Labs button with SOON badge */
 <Link href="/labs" className="group relative flex items-center gap-2 px-4 py-2 border-2 border-dashed border-white/30 text-white hover:border-orange-500 hover:text-orange-500 transition-all">
   <Beaker className="h-4 w-4" />
   <span className="font-mono text-sm uppercase">Labs</span>
@@ -300,22 +213,13 @@ The interactive career graph uses React Flow with:
 
 ```
 /app
-  /page.tsx           # Standard view entry
-  /creative/page.tsx  # Creative view entry
+  /page.tsx           # Main portfolio page (brutalist design)
   /labs/page.tsx      # Labs coming soon page
 
 /components
-  /navigation.tsx     # Shared navigation
   /graph-legend.tsx   # React Flow legend
   /sections/
-    /hero-section.tsx
-    /about-section.tsx
-    /tech-stack-section.tsx
-    /experience-section.tsx
-    /metrics-section.tsx
-    /graph-section.tsx
-    /github-activity-section.tsx
-    /footer-section.tsx
+    /graph-section.tsx  # Interactive career graph
 
 /data
   /resume-data.ts     # All portfolio content
@@ -331,29 +235,23 @@ The interactive career graph uses React Flow with:
 1. **Data Source**: All content comes from `/data/resume-data.ts` - never hardcode resume content in components
 2. **Animations**: Always use Framer Motion, prefer `whileInView` for scroll-triggered
 3. **Responsive**: Mobile-first, test at 375px, 768px, and 1280px breakpoints
-4. **Performance**: Lazy load heavy components (React Flow, GitHub widget) with `next/dynamic`
+4. **Performance**: Lazy load heavy components (React Flow) with `next/dynamic`
 5. **Accessibility**: Include alt text, semantic HTML, focus states
-6. **Consistency**: Match the Labs button style across both views (dashed border + SOON badge)
+6. **Style**: Maintain brutalist aesthetic with sharp edges, high contrast, and bold typography
 
 ---
 
 ## Quick Reference
 
-### Standard View Classes
-```css
-/* Background */ bg-stone-950
-/* Card */ rounded-xl border border-stone-800 bg-stone-900/50
-/* Primary button */ bg-orange-500 hover:bg-orange-600 text-white rounded-lg
-/* Text primary */ text-stone-200
-/* Text muted */ text-stone-500
-```
-
-### Creative View Classes
+### Common Classes
 ```css
 /* Background */ bg-black
+/* Secondary bg */ bg-stone-900, bg-stone-950
 /* Card */ bg-stone-900 rounded-none
 /* Primary button */ bg-black text-white border-2 border-black hover:bg-stone-900
+/* CTA button */ bg-orange-500 text-black hover:bg-orange-600
 /* Text primary */ text-white
 /* Text muted */ text-white/60
 /* Accent */ bg-orange-500 text-black
+/* Labels */ font-mono text-sm uppercase tracking-widest text-orange-500
 ```
