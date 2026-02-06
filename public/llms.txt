@@ -62,8 +62,9 @@ Bilkent University (09/2018 - 06/2022)
 - +30% client satisfaction at Layermark
 
 ## Open Source & Community
-- GitHub: https://github.com/mannanabdul
-- LinkedIn: https://linkedin.com/in/mannanabdul
+<!-- NOTE: Keep these URLs in sync with lib/social-links.ts -->
+- GitHub: https://github.com/USERNAME
+- LinkedIn: https://linkedin.com/in/USERNAME
 
 ## Preferred Communication Style
 - Direct and technical
