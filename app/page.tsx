@@ -60,10 +60,35 @@ export default function Page() {
             href="/"
             className="flex items-center gap-2 text-white hover:opacity-70 transition-opacity"
           >
-            <span className="text-lg font-black">MANNAN</span>
+            <span className="text-lg font-black">PORTFOLIO</span>
           </Link>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <a
+              href={SOCIAL_LINKS.github.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:text-orange-500 transition-colors"
+              aria-label="GitHub"
+            >
+              <Github className="h-4 w-4" />
+            </a>
+            <a
+              href={SOCIAL_LINKS.linkedin.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:text-orange-500 transition-colors"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-4 w-4" />
+            </a>
+            <a
+              href={SOCIAL_LINKS.email.mailto}
+              className="text-white hover:text-orange-500 transition-colors"
+              aria-label="Email"
+            >
+              <Mail className="h-4 w-4" />
+            </a>
             {/* Labs Button with SOON badge */}
             <Link
               href="/labs"
@@ -115,40 +140,6 @@ export default function Page() {
         >
           SENIOR SOFTWARE ENGINEER
         </motion.p>
-
-        {/* Social links */}
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-12 flex items-center gap-8"
-        >
-          <a
-            href={SOCIAL_LINKS.github.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-          >
-            <Github className="h-6 w-6" />
-            <span className="font-mono text-sm uppercase">Github</span>
-          </a>
-          <a
-            href={SOCIAL_LINKS.linkedin.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-          >
-            <Linkedin className="h-6 w-6" />
-            <span className="font-mono text-sm uppercase">LinkedIn</span>
-          </a>
-          <a
-            href={SOCIAL_LINKS.email.mailto}
-            className="group flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-          >
-            <Mail className="h-6 w-6" />
-            <span className="font-mono text-sm uppercase">Email</span>
-          </a>
-        </motion.div>
 
         {/* Scroll indicator */}
         <motion.div
