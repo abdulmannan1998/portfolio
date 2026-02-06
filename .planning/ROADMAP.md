@@ -49,11 +49,12 @@ Plans:
 3. GitHubActivity component lives in its own file under components/
 4. techStack data lives in data/tech-stack.ts, imported by page.tsx
 5. page.tsx is significantly smaller (target: under 400 lines)
-   **Plans**: TBD
+
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md — Extract techStack data and inline components (MarqueeText, AnimatedCounter, GitHubActivity) to dedicated files
 
 ### Phase 8: Technical Debt
 
@@ -80,10 +81,10 @@ Plans:
 | -------------------------------- | --------- | -------------- | ----------- | ---------- |
 | 1-5                              | v1.0      | 6/6            | Complete    | 2026-02-05 |
 | 6. Dead Code & Directory Cleanup | v1.1      | 1/1            | Complete    | 2026-02-06 |
-| 7. Code Splitting                | v1.1      | 0/TBD          | Not started | -          |
+| 7. Code Splitting                | v1.1      | 0/1            | Not started | -          |
 | 8. Technical Debt                | v1.1      | 0/TBD          | Not started | -          |
 
 ---
 
 _Roadmap created: 2026-02-06_
-_Last updated: 2026-02-06 — Phase 6 complete_
+_Last updated: 2026-02-06 — Phase 7 planned_
