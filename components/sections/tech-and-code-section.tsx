@@ -4,13 +4,18 @@ import { motion } from "framer-motion";
 import { techCategories } from "@/data/tech-stack";
 import { GitHubActivity } from "@/components/github-activity";
 import { SOCIAL_LINKS } from "@/lib/social-links";
+import type { RedactedCommit } from "@/lib/github";
 
 const categoryOffsets = techCategories.reduce<number[]>((acc, cat, i) => {
   acc.push(i === 0 ? 0 : acc[i - 1] + techCategories[i - 1].items.length);
   return acc;
 }, []);
 
-export function TechAndCodeSection() {
+type TechAndCodeSectionProps = {
+  commits: RedactedCommit[];
+};
+
+export function TechAndCodeSection({ commits }: TechAndCodeSectionProps) {
   return (
     <section className="relative py-24 bg-black overflow-hidden">
       {/* Section header */}
@@ -102,7 +107,10 @@ export function TechAndCodeSection() {
             </div>
 
             {/* GitHub activity */}
-            <GitHubActivity username={SOCIAL_LINKS.github.username} />
+            <GitHubActivity
+              commits={commits}
+              username={SOCIAL_LINKS.github.username}
+            />
 
             {/* Index footer */}
             <div className="mt-10 pt-6 border-t border-white/10">
