@@ -49,7 +49,7 @@ See MILESTONES.md for details.
 
 Plans:
 
-- [ ] 09-01: TBD
+- [ ] 09-01-PLAN.md -- Extract server-side GitHub fetch with ISR, refactor GitHubActivity to presentational
 
 ### Phase 10: Client Boundary Extraction
 
