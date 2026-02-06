@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 09-animation-foundation
 source: [09-01-SUMMARY.md, 09-02-SUMMARY.md]
 started: 2026-02-07T00:00:00Z
@@ -44,7 +44,10 @@ skipped: 0
   reason: "User reported: The hero disappears way too soon. By the time I scroll down enough to see the entirety of the marquee-text, everything is black. That is way sooner than before"
   severity: major
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "maxScroll uses window.innerHeight \* 0.15 (135px on 900px viewport) but framer-motion scrollYProgress [0, 0.15] means 15% of total scrollable distance (~615px on a 5000px page). Hero fades 4.5x faster than intended."
+  artifacts:
+  - path: "components/hero-parallax.tsx"
+    issue: "Line 20: maxScroll = window.innerHeight \* 0.15 should use document scroll height"
+    missing:
+  - "Change maxScroll to (document.documentElement.scrollHeight - window.innerHeight) \* 0.15"
+    debug_session: ".planning/debug/hero-parallax-fade.md"
