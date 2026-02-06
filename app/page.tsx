@@ -11,6 +11,7 @@ import { MetricsSection } from "@/components/sections/metrics-section";
 import { TechAndCodeSection } from "@/components/sections/tech-and-code-section";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { TwinklingStars } from "@/components/twinkling-stars";
+import { mulberry32 } from "@/lib/seeded-random";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
@@ -34,11 +35,12 @@ const GraphSection = dynamic(
   },
 );
 
-// Generate random positions once for background pattern
+// Generate deterministic positions for background pattern (seeded PRNG prevents hydration mismatches)
+const bgRandom = mulberry32(137);
 const backgroundPattern = [...Array(20)].map(() => ({
-  top: Math.random() * 100,
-  left: Math.random() * 100,
-  rotate: Math.random() * 360,
+  top: bgRandom() * 100,
+  left: bgRandom() * 100,
+  rotate: bgRandom() * 360,
 }));
 
 export default function Page() {
