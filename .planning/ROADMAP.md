@@ -31,17 +31,11 @@ See `.planning/MILESTONES.md` for details.
 **Goal**: Eliminate unused code and empty directory scaffolds to reduce codebase noise
 **Depends on**: Nothing (first phase of v1.1)
 **Requirements**: DEAD-01, DEAD-02, DEAD-03, DIR-01, DIR-02
-**Success Criteria** (what must be TRUE):
-
-1. No unused component files exist in components/ directory
-2. No empty scaffolded directories remain in app/designs/ or components/designs/
-3. Project compiles and runs without errors after removal
-4. Git history shows atomic commits for each removal category
-   **Plans**: TBD
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Remove unused components and empty scaffolded directories
 
 ### Phase 7: Code Splitting
 
@@ -85,7 +79,7 @@ Plans:
 | Phase                            | Milestone | Plans Complete | Status      | Completed  |
 | -------------------------------- | --------- | -------------- | ----------- | ---------- |
 | 1-5                              | v1.0      | 6/6            | Complete    | 2026-02-05 |
-| 6. Dead Code & Directory Cleanup | v1.1      | 0/TBD          | Not started | -          |
+| 6. Dead Code & Directory Cleanup | v1.1      | 0/1            | Planned     | -          |
 | 7. Code Splitting                | v1.1      | 0/TBD          | Not started | -          |
 | 8. Technical Debt                | v1.1      | 0/TBD          | Not started | -          |
 
