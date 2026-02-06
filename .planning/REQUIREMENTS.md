@@ -1,7 +1,7 @@
 # Requirements: Portfolio v1.2 SSR Migration
 
 **Defined:** 2026-02-07
-**Core Value:** The portfolio must remain visually polished and performant — changes should improve code quality without degrading the user experience.
+**Core Value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
 
 ## v1 Requirements
 
@@ -77,40 +77,40 @@ Deferred to future milestone. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status  |
 | ----------- | ----- | ------- |
-| RSC-01      | —     | Pending |
-| RSC-02      | —     | Pending |
-| RSC-03      | —     | Pending |
-| RSC-04      | —     | Pending |
-| RSC-05      | —     | Pending |
-| ANIM-01     | —     | Pending |
-| ANIM-02     | —     | Pending |
-| ANIM-03     | —     | Pending |
-| ANIM-04     | —     | Pending |
-| ANIM-05     | —     | Pending |
-| ANIM-06     | —     | Pending |
-| ANIM-07     | —     | Pending |
-| ANIM-08     | —     | Pending |
-| DATA-01     | —     | Pending |
-| DATA-02     | —     | Pending |
-| DATA-03     | —     | Pending |
-| DATA-04     | —     | Pending |
-| IMG-01      | —     | Pending |
-| IMG-02      | —     | Pending |
-| PPR-01      | —     | Pending |
-| PPR-02      | —     | Pending |
-| PPR-03      | —     | Pending |
-| PPR-04      | —     | Pending |
-| CBH-01      | —     | Pending |
-| CBH-02      | —     | Pending |
-| CBH-03      | —     | Pending |
+| RSC-01      | 13    | Pending |
+| RSC-02      | 9     | Pending |
+| RSC-03      | 12    | Pending |
+| RSC-04      | 12    | Pending |
+| RSC-05      | 12    | Pending |
+| ANIM-01     | 9     | Pending |
+| ANIM-02     | 10    | Pending |
+| ANIM-03     | 10    | Pending |
+| ANIM-04     | 10    | Pending |
+| ANIM-05     | 10    | Pending |
+| ANIM-06     | 9     | Pending |
+| ANIM-07     | 9     | Pending |
+| ANIM-08     | 12    | Pending |
+| DATA-01     | 11    | Pending |
+| DATA-02     | 11    | Pending |
+| DATA-03     | 11    | Pending |
+| DATA-04     | 11    | Pending |
+| IMG-01      | 14    | Pending |
+| IMG-02      | 14    | Pending |
+| PPR-01      | 14    | Pending |
+| PPR-02      | 14    | Pending |
+| PPR-03      | 14    | Pending |
+| PPR-04      | 14    | Pending |
+| CBH-01      | 12    | Pending |
+| CBH-02      | 13    | Pending |
+| CBH-03      | 13    | Pending |
 
 **Coverage:**
 
 - v1 requirements: 26 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 26
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-02-07_
-_Last updated: 2026-02-07 after initial definition_
+_Last updated: 2026-02-07 after roadmap creation_
