@@ -271,10 +271,8 @@ function GraphSectionInner() {
   }, [debouncedFitView]);
 
   return (
-    <section id="graph" className="relative py-16 px-6 md:px-12 lg:px-24">
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950 via-stone-900/20 to-stone-950" />
-
-      <div className="relative max-w-7xl mx-auto">
+    <div id="graph" className="relative">
+      <div className="relative">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -338,7 +336,7 @@ function GraphSectionInner() {
           </motion.div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
