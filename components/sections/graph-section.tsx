@@ -271,10 +271,7 @@ function GraphSectionInner() {
 
   return (
     <div id="graph" className="relative lg:pt-[9.5rem]">
-      <p className="text-stone-400 mb-4">
-        Hover over companies and education to explore my achievements and
-        projects
-      </p>
+      <p className="text-stone-400 mb-4">Interact with nodes to explore</p>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
