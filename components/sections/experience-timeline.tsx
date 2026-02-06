@@ -13,50 +13,46 @@ const colorMap: Record<ExperienceItem["color"], { bg: string; text: string }> =
 
 export function ExperienceTimeline() {
   return (
-    <section className="relative py-24 bg-stone-950">
-      <div className="max-w-4xl mx-auto px-6 md:px-12">
-        <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
-          Journey
-        </span>
-        <h2 className="text-5xl md:text-6xl font-black mt-2 mb-16">
-          EXPERIENCE
-        </h2>
+    <div>
+      <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
+        Journey
+      </span>
+      <h2 className="text-5xl md:text-6xl font-black mt-2 mb-16">EXPERIENCE</h2>
 
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-0 top-0 bottom-0 w-px bg-white/20" />
+      <div className="relative">
+        {/* Timeline line */}
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-white/20" />
 
-          {experienceData.map((item, index) => {
-            const isLast = index === experienceData.length - 1;
-            const colors = colorMap[item.color];
+        {experienceData.map((item, index) => {
+          const isLast = index === experienceData.length - 1;
+          const colors = colorMap[item.color];
 
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                className={`relative pl-12 ${isLast ? "" : "pb-16"}`}
-              >
-                <div
-                  className={`absolute left-0 top-2 w-3 h-3 ${colors.bg} -translate-x-1/2`}
-                />
-                <span className="text-white/40 font-mono text-sm">
-                  {item.period}
-                </span>
-                <h3 className="text-3xl font-black mt-2">{item.company}</h3>
-                <p className={`${colors.text} font-mono text-sm mt-1`}>
-                  {item.role}
-                </p>
-                <ul className="mt-4 space-y-2 text-white/60">
-                  {item.highlights.map((highlight) => (
-                    <li key={highlight}>* {highlight}</li>
-                  ))}
-                </ul>
-              </motion.div>
-            );
-          })}
-        </div>
+          return (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className={`relative pl-12 ${isLast ? "" : "pb-16"}`}
+            >
+              <div
+                className={`absolute left-0 top-2 w-3 h-3 ${colors.bg} -translate-x-1/2`}
+              />
+              <span className="text-white/40 font-mono text-sm">
+                {item.period}
+              </span>
+              <h3 className="text-3xl font-black mt-2">{item.company}</h3>
+              <p className={`${colors.text} font-mono text-sm mt-1`}>
+                {item.role}
+              </p>
+              <ul className="mt-4 space-y-2 text-white/60">
+                {item.highlights.map((highlight) => (
+                  <li key={highlight}>* {highlight}</li>
+                ))}
+              </ul>
+            </motion.div>
+          );
+        })}
       </div>
-    </section>
+    </div>
   );
 }
