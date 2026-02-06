@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 10 of 12 (Client Boundary Extraction) -- v1.2 SSR Migration in progress
-Plan: 2 of 2 in current phase
+Plan: 3 of 3 in current phase (gap closure plan 10-03 complete)
 Status: Phase complete
-Last activity: 2026-02-07 -- Completed 10-02-PLAN.md (dynamic component animation enhancement)
+Last activity: 2026-02-06 -- Completed 10-03-PLAN.md (UAT gap closure: dead code removal, framer-motion revert, Next.js 16 compatibility)
 
-Progress: [█████████▓░░░░░░░░░░] 50% (2/6 v1.2 plans complete, 10/12 phases complete across all milestones)
+Progress: [█████████▓░░░░░░░░░░] 50% (3/6 v1.2 plans complete, 10/12 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -35,9 +35,9 @@ Progress: [█████████▓░░░░░░░░░░] 50% (2/
 **v1.2 Milestone (in progress):**
 
 - Total plans: 6 (target)
-- Plans complete: 3
-- Average duration: 3 min
-- Total execution time: 9 min
+- Plans complete: 4
+- Average duration: 5.3 min
+- Total execution time: 21 min
 - Phases: 4 (target), 2 complete
 
 **By Phase (cumulative):**
@@ -53,7 +53,7 @@ Progress: [█████████▓░░░░░░░░░░] 50% (2/
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
 | 09-server-side-github-fetching | v1.2      | 1     | 4min  | 4min     |
-| 10-client-boundary-extraction  | v1.2      | 2     | 5min  | 2.5min   |
+| 10-client-boundary-extraction  | v1.2      | 3     | 17min | 5.7min   |
 
 ## Accumulated Context
 
@@ -76,6 +76,9 @@ Recent decisions affecting current work:
 - [10-02]: Convert simple infinite translate animations (marquee) from framer-motion to CSS @keyframes
 - [10-02]: Use IntersectionObserver threshold 0.1 for viewport-triggered animations (one-shot pattern)
 - [10-02]: Avoid synchronous setState in useEffect (React best practice, ESLint compliance)
+- [10-03]: Revert marquee to framer-motion (honors v1.2 strategy pivot after UAT)
+- [10-03]: Use nullable timestamp parameter to avoid Date.now() during Next.js 16 SSR prerendering
+- [10-03]: Show static date format during SSR (better caching), "ago" text appears after hydration
 
 ### Pending Todos
 
@@ -87,11 +90,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Stopped at: Phase 10 complete (client boundary extraction verified)
+Last session: 2026-02-06
+Stopped at: Phase 10 complete (gap closure 10-03 complete)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Completed Phase 10: Client Boundary Extraction (4 server components, CSS animations, Intersection Observer)_
+_Last updated: 2026-02-06 -- Completed Phase 10-03: UAT gap closure (dead code removed, framer-motion restored, Next.js 16 compatibility)_
