@@ -9,14 +9,14 @@ Cleanup and polish requirements based on codebase audit.
 
 ### Dead Code Removal
 
-- [ ] **DEAD-01**: Remove unused `dashboard-background.tsx` (355 lines)
-- [ ] **DEAD-02**: Remove unused `mobile-hero.tsx` (~125 lines)
-- [ ] **DEAD-03**: Remove unused `live-metric-widget.tsx` (37 lines)
+- [x] **DEAD-01**: Remove unused `dashboard-background.tsx` (355 lines)
+- [x] **DEAD-02**: Remove unused `mobile-hero.tsx` (~125 lines)
+- [x] **DEAD-03**: Remove unused `live-metric-widget.tsx` (37 lines)
 
 ### Directory Cleanup
 
-- [ ] **DIR-01**: Remove empty `app/designs/` scaffolded directories (15 dirs)
-- [ ] **DIR-02**: Remove empty `components/designs/` scaffolded directories (16 dirs)
+- [x] **DIR-01**: Remove empty `app/designs/` scaffolded directories (15 dirs)
+- [x] **DIR-02**: Remove empty `components/designs/` scaffolded directories (16 dirs)
 
 ### Code Splitting
 
@@ -46,21 +46,21 @@ None — v1.1 is focused cleanup.
 
 ## Traceability
 
-| Requirement | Phase | Status  |
-| ----------- | ----- | ------- |
-| DEAD-01     | 6     | Pending |
-| DEAD-02     | 6     | Pending |
-| DEAD-03     | 6     | Pending |
-| DIR-01      | 6     | Pending |
-| DIR-02      | 6     | Pending |
-| SPLIT-01    | 7     | Pending |
-| SPLIT-02    | 7     | Pending |
-| SPLIT-03    | 7     | Pending |
-| SPLIT-04    | 7     | Pending |
-| DEBT-01     | 8     | Pending |
-| DEBT-02     | 8     | Pending |
-| DEBT-03     | 8     | Pending |
-| DEBT-04     | 8     | Pending |
+| Requirement | Phase | Status   |
+| ----------- | ----- | -------- |
+| DEAD-01     | 6     | Complete |
+| DEAD-02     | 6     | Complete |
+| DEAD-03     | 6     | Complete |
+| DIR-01      | 6     | Complete |
+| DIR-02      | 6     | Complete |
+| SPLIT-01    | 7     | Pending  |
+| SPLIT-02    | 7     | Pending  |
+| SPLIT-03    | 7     | Pending  |
+| SPLIT-04    | 7     | Pending  |
+| DEBT-01     | 8     | Pending  |
+| DEBT-02     | 8     | Pending  |
+| DEBT-03     | 8     | Pending  |
+| DEBT-04     | 8     | Pending  |
 
 **Coverage:**
 
@@ -71,4 +71,4 @@ None — v1.1 is focused cleanup.
 ---
 
 _Requirements defined: 2026-02-06_
-_Last updated: 2026-02-06 — Traceability table updated with phase mappings_
+_Last updated: 2026-02-06 — Phase 6 requirements complete_

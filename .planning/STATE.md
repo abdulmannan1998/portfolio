@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** The portfolio must remain visually polished and performant — changes should improve code quality without degrading the user experience.
-**Current focus:** v1.1 Codebase Polish - Phase 6
+**Current focus:** v1.1 Codebase Polish - Phase 7
 
 ## Current Position
 
-Phase: 6 of 8 (Dead Code & Directory Cleanup)
-Plan: 1 of 1 (Complete)
-Status: Phase complete
-Last activity: 2026-02-06 — Completed 06-01-PLAN.md
+Phase: 7 of 8 (Code Splitting)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-02-06 — Phase 6 complete
 
-Progress: [###########.........] 54% (7/13 plans complete across all phases)
+Progress: [############........] 62% (Phase 6/8 complete)
 
 ## Performance Metrics
 
