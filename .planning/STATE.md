@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 011: Redesign Stack & Code section with full-width brutalist grid
+Last activity: 2026-02-06 — Completed quick task 012: Side-by-side Stack & GitHub with 5 design variants
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -92,6 +92,7 @@ None.
 | 009 | Merge tech stack and live code sections               | 2026-02-06 | f6c8149 | [009-merge-tech-code](./quick/009-merge-tech-stack-and-live-code-sections/009-SUMMARY.md)          |
 | 010 | Fix hydration mismatches in stars and background      | 2026-02-06 | 9e09abc | [010-fix-hydration](./quick/010-fix-hydration-mismatches-twinkling-stars-and-bg/010-SUMMARY.md)    |
 | 011 | Redesign Stack & Code section with brutalist grid     | 2026-02-06 | 08273c4 | [011-redesign-stack-code](./quick/011-redesign-stack-code-section-reduce-whitespa/011-SUMMARY.md)  |
+| 012 | Side-by-side Stack & GitHub — 5 design variants       | 2026-02-06 | ef403fb | [012-side-by-side](./quick/012-side-by-side-stack-github-5-design-variants/012-SUMMARY.md)         |
 
 ## Session Continuity
 
