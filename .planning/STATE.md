@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 9 of 14 (Animation Foundation) -- first phase of v1.2 SSR Migration
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-02-07 -- Roadmap created for v1.2 SSR Migration (6 phases, 10 plans, 26 requirements)
+Phase: 9 of 14 (Animation Foundation) -- v1.2 SSR Migration in progress
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-07 -- Completed 09-01-PLAN.md (CSS animation foundation)
 
-Progress: [████████░░░░░░░░░░░░] 40% (8/14 phases complete across all milestones)
+Progress: [████████░░░░░░░░░░░░] 41% (1/10 v1.2 plans complete, 8/14 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -32,6 +32,14 @@ Progress: [████████░░░░░░░░░░░░] 40% (8/
 - Total execution time: 15 min
 - Phases: 3
 
+**v1.2 Milestone (in progress):**
+
+- Total plans: 10 (target)
+- Plans complete: 1
+- Average duration: 2.1 min/plan
+- Total execution time: 2 min
+- Phases: 6 (target)
+
 **By Phase (cumulative):**
 
 | Phase                          | Milestone | Plans | Total | Avg/Plan |
@@ -44,6 +52,7 @@ Progress: [████████░░░░░░░░░░░░] 40% (8/
 | 06-dead-code-directory-cleanup | v1.1      | 1     | 1min  | 1min     |
 | 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
 | 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
+| 09-animation-foundation        | v1.2      | 1     | 2min  | 2.1min   |
 
 ## Accumulated Context
 
@@ -54,6 +63,11 @@ Recent decisions affecting current work:
 
 - [v1.1]: Extract sections to components (enables per-section SSR migration)
 - [v1.1]: Memory cache over localStorage (will be replaced by ISR in v1.2)
+- [09-01]: Use animation-timeline: view() for native scroll-driven behavior in Chrome/Safari
+- [09-01]: Custom Intersection Observer polyfill over npm package for minimal bundle size
+- [09-01]: Longhand animation properties instead of shorthand to prevent animation-timeline reset
+- [09-01]: Opacity-only fades for reduced-motion users (0.4s) vs full transform animations (0.6s)
+- [09-01]: Negative rootMargin (-10% bottom) for early animation trigger
 
 ### Pending Todos
 
@@ -68,10 +82,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Roadmap created for v1.2 SSR Migration
+Stopped at: Completed 09-01-PLAN.md (CSS animation foundation)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- v1.2 roadmap created_
+_Last updated: 2026-02-07 -- Completed 09-01-PLAN.md_
