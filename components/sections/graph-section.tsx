@@ -37,6 +37,7 @@ function GraphSectionInner() {
   const reactFlowInstance = useReactFlow();
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
+  const timersRef = useRef<NodeJS.Timeout[]>([]);
 
   const debouncedFitView = useMemo(
     () =>
@@ -48,8 +49,14 @@ function GraphSectionInner() {
           minZoom: 0.65,
         });
       }, 150),
-    [reactFlowInstance]
+    [reactFlowInstance],
   );
+
+  const addTimer = useCallback((callback: () => void, delay: number) => {
+    const id = setTimeout(callback, delay);
+    timersRef.current.push(id);
+    return id;
+  }, []);
 
   const { width: graphWidth, height: graphHeight } = graphDimensions;
 
@@ -62,7 +69,7 @@ function GraphSectionInner() {
   }, []);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    allNodes.filter((n) => n.data?.type === "root")
+    allNodes.filter((n) => n.data?.type === "root"),
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -81,7 +88,7 @@ function GraphSectionInner() {
         return;
       }
     },
-    []
+    [],
   );
 
   const handleNodeHover = useCallback(
@@ -89,15 +96,15 @@ function GraphSectionInner() {
       if (!isEntering) return;
 
       const achievementEdges = allEdgesRef.current.filter(
-        (e) => e.source === nodeId && e.data?.edgeType === "project"
+        (e) => e.source === nodeId && e.data?.edgeType === "project",
       );
       const achievementIds = achievementEdges.map((e) => e.target);
 
       const achievementNodes = allNodesRef.current.filter((n) =>
-        achievementIds.includes(n.id)
+        achievementIds.includes(n.id),
       );
       const achievementEdgesFiltered = allEdgesRef.current.filter((e) =>
-        achievementIds.includes(e.target)
+        achievementIds.includes(e.target),
       );
 
       if (achievementNodes.length > 0) {
@@ -118,10 +125,10 @@ function GraphSectionInner() {
 
         const totalAnimationTime = achievementNodes.length * 100 + 600;
 
-        setTimeout(() => {
+        addTimer(() => {
           setEdges((prev) => {
             const existingEdge = prev.find((e) =>
-              achievementIds.includes(e.target)
+              achievementIds.includes(e.target),
             );
             if (existingEdge) return prev;
             return [...prev, ...achievementEdgesFiltered];
@@ -130,14 +137,20 @@ function GraphSectionInner() {
         }, totalAnimationTime);
       }
     },
-    [setNodes, setEdges, debouncedFitView, achievementNodeHoverHandler]
+    [
+      setNodes,
+      setEdges,
+      debouncedFitView,
+      achievementNodeHoverHandler,
+      addTimer,
+    ],
   );
 
   const addNodeAndEdges = useCallback(
     (nodeId: string) => {
       const node = allNodesRef.current.find((n) => n.id === nodeId);
       const relatedEdges = allEdgesRef.current.filter(
-        (e) => e.source === nodeId || e.target === nodeId
+        (e) => e.source === nodeId || e.target === nodeId,
       );
 
       if (node) {
@@ -148,10 +161,10 @@ function GraphSectionInner() {
         setNodes((prev) => [...prev, nodeWithHandler]);
 
         if (relatedEdges.length > 0) {
-          setTimeout(() => {
+          addTimer(() => {
             setEdges((prev) => {
               const newEdges = relatedEdges.filter(
-                (edge) => !prev.some((e) => e.id === edge.id)
+                (edge) => !prev.some((e) => e.id === edge.id),
               );
               return [...prev, ...newEdges];
             });
@@ -159,7 +172,7 @@ function GraphSectionInner() {
         }
       }
     },
-    [setNodes, setEdges, handleNodeHover]
+    [setNodes, setEdges, handleNodeHover, addTimer],
   );
 
   const startRevealSequence = useCallback(() => {
@@ -167,29 +180,33 @@ function GraphSectionInner() {
     if (hasStartedReveal) return;
     startReveal();
 
-    const softSkillNodes = ["Problem-Solving", "Collaboration", "Quick-Learner"];
+    const softSkillNodes = [
+      "Problem-Solving",
+      "Collaboration",
+      "Quick-Learner",
+    ];
     softSkillNodes.forEach((id, index) => {
-      setTimeout(() => {
+      addTimer(() => {
         addNodeAndEdges(id);
       }, index * 200);
     });
 
-    setTimeout(() => {
+    addTimer(() => {
       addNodeAndEdges("Bilkent");
     }, REVEAL_TIMING.EDUCATION_DELAY_MS);
 
-    setTimeout(() => {
+    addTimer(() => {
       addNodeAndEdges("Layermark");
     }, REVEAL_TIMING.LAYERMARK_DELAY_MS);
 
-    setTimeout(() => {
+    addTimer(() => {
       addNodeAndEdges("Intenseye");
     }, REVEAL_TIMING.INTENSEYE_DELAY_MS);
 
-    setTimeout(() => {
+    addTimer(() => {
       debouncedFitView();
     }, REVEAL_TIMING.INTENSEYE_DELAY_MS + 500);
-  }, [addNodeAndEdges, debouncedFitView]);
+  }, [addNodeAndEdges, debouncedFitView, addTimer]);
 
   const handleGraphEnter = useCallback(() => {
     const { hasStartedReveal } = useGraphStore.getState();
@@ -241,9 +258,17 @@ function GraphSectionInner() {
       nds.map((node) => ({
         ...node,
         zIndex: expandedNodes.includes(node.id) ? 1000 : undefined,
-      }))
+      })),
     );
   }, [expandedNodes, setNodes]);
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+      debouncedFitView.cancel();
+    };
+  }, [debouncedFitView]);
 
   return (
     <section id="graph" className="relative py-16 px-6 md:px-12 lg:px-24">
