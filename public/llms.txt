@@ -63,8 +63,8 @@ Bilkent University (09/2018 - 06/2022)
 
 ## Open Source & Community
 <!-- NOTE: Keep these URLs in sync with lib/social-links.ts -->
-- GitHub: https://github.com/USERNAME
-- LinkedIn: https://linkedin.com/in/USERNAME
+- GitHub: https://github.com/abdulmannan1998
+- LinkedIn: https://www.linkedin.com/in/mannan-abdul-0601a2192/
 
 ## Preferred Communication Style
 - Direct and technical

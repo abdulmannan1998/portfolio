@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Mannan.io - Portfolio",
   description: "A showcase of my work and projects",
-  icons: {
-    icon: "/icon.svg",
-  },
 };
 
 export default function RootLayout({
