@@ -29,7 +29,7 @@ See MILESTONES.md for details.
 **Strategy pivot:** Phases 9-10 (CSS animation replacement) were reverted after UAT revealed animation-timeline: view() doesn't work reliably. New approach: keep framer-motion, wrap animated sections in client boundary components, and achieve SSR benefits through component architecture rather than animation replacement.
 
 - [x] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
-- [x] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
+- [ ] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
 - [ ] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
 - [ ] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
 
@@ -61,14 +61,17 @@ Plans:
 1. Each animated section (hero, about, metrics, timeline, tech stack) has its framer-motion logic in a "use client" wrapper component
 2. Wrapper components accept static content as props/children -- they don't fetch data or define content
 3. Twinkling-stars renders as a server component with no "use client" directive
-4. CSS-preloader renders as a server component with no client APIs
-5. Marquee uses CSS animation only (no framer-motion) and can render as a server component
+4. CSSPreloader and loading.tsx are removed (obsolete with ISR)
+5. Marquee uses framer-motion animation inside a "use client" boundary
 6. All animations visually match current behavior (no regression)
+
+**Plans:** 3 plans
 
 Plans:
 
 - [x] 10-01-PLAN.md -- Convert twinkling-stars, css-preloader, and graph-legend to server components
 - [x] 10-02-PLAN.md -- Convert marquee-text to CSS animation and add Intersection Observer to animated-counter
+- [ ] 10-03-PLAN.md -- UAT gap closure: remove dead code, revert marquee to framer-motion
 
 ### Phase 11: Server Component Page
 
@@ -112,10 +115,10 @@ Critical path: 9 -> 10 -> 11 -> 12
 | Phase                          | Milestone | Plans Complete | Status      | Completed  |
 | ------------------------------ | --------- | -------------- | ----------- | ---------- |
 | 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 10. Client Boundary Extraction | v1.2      | 2/2            | Complete    | 2026-02-07 |
+| 10. Client Boundary Extraction | v1.2      | 2/3            | UAT gaps    | -          |
 | 11. Server Component Page      | v1.2      | 0/1            | Not started | -          |
 | 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 10 complete (client boundary extraction: 4 server components, CSS animations, Intersection Observer)_
+_Last updated: 2026-02-07 -- Phase 10 UAT gap closure planned (10-03: remove dead code, revert marquee to framer-motion)_
