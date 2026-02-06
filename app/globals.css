@@ -174,3 +174,14 @@
     opacity: 1;
   }
 }
+
+/* Twinkling stars animation */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--star-base-opacity);
+  }
+  50% {
+    opacity: var(--star-peak-opacity);
+  }
+}
