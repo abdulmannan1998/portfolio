@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { experienceData, type ExperienceItem } from "@/data/experience";
-import { initScrollAnimations } from "@/hooks/use-scroll-animation";
 
 // Tailwind purges unused classes - use explicit mappings
 const colorMap: Record<ExperienceItem["color"], { bg: string; text: string }> =
@@ -13,11 +12,6 @@ const colorMap: Record<ExperienceItem["color"], { bg: string; text: string }> =
   };
 
 export function ExperienceTimeline() {
-  useEffect(() => {
-    const cleanup = initScrollAnimations();
-    return cleanup;
-  }, []);
-
   return (
     <div>
       <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
@@ -34,10 +28,11 @@ export function ExperienceTimeline() {
           const colors = colorMap[item.color];
 
           return (
-            <div
+            <motion.div
               key={item.id}
-              className={`relative pl-12 ${isLast ? "" : "pb-16"} fade-in-left`}
-              style={{ "--stagger-index": index } as React.CSSProperties}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className={`relative pl-12 ${isLast ? "" : "pb-16"}`}
             >
               <div
                 className={`absolute left-0 top-2 w-3 h-3 ${colors.bg} -translate-x-1/2`}
@@ -54,7 +49,7 @@ export function ExperienceTimeline() {
                   <li key={highlight}>* {highlight}</li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           );
         })}
       </div>

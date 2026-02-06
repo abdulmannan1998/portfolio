@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Beaker } from "lucide-react";
 import { MarqueeText } from "@/components/marquee-text";
@@ -11,7 +12,6 @@ import { TechAndCodeSection } from "@/components/sections/tech-and-code-section"
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { TwinklingStars } from "@/components/twinkling-stars";
 import { mulberry32 } from "@/lib/seeded-random";
-import { HeroParallax } from "@/components/hero-parallax";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
@@ -44,8 +44,17 @@ const backgroundPattern = [...Array(20)].map(() => ({
 }));
 
 export default function Page() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+
+  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.8]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+
   return (
-    <main className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden">
+    <main
+      ref={containerRef}
+      className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden"
+    >
       {/* Fixed navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
         <div className="flex items-center justify-between p-6 md:p-8">
@@ -98,7 +107,10 @@ export default function Page() {
       </nav>
 
       {/* Hero section - Brutalist typography */}
-      <HeroParallax>
+      <motion.section
+        style={{ scale: heroScale, opacity: heroOpacity }}
+        className="sticky top-0 min-h-screen flex flex-col justify-center items-center px-6 bg-black"
+      >
         <TwinklingStars />
         {/* Giant name */}
         <div className="relative">
@@ -145,7 +157,7 @@ export default function Page() {
             className="w-px h-16 bg-gradient-to-b from-white/50 to-transparent"
           />
         </motion.div>
-      </HeroParallax>
+      </motion.section>
 
       {/* Scrolling marquee section */}
       <section className="relative bg-orange-500 py-8 -rotate-1">
@@ -186,37 +198,46 @@ export default function Page() {
         {/* Right - Text */}
         <div className="relative bg-black flex items-center p-12 md:p-16">
           <div>
-            <span className="text-orange-500 font-mono text-sm uppercase tracking-widest fade-in-up">
+            <motion.span
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              className="text-orange-500 font-mono text-sm uppercase tracking-widest"
+            >
               About
-            </span>
-            <h2
-              className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight fade-in-up"
-              style={{ "--stagger-index": 1 } as React.CSSProperties}
+            </motion.span>
+            <motion.h2
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight"
             >
               BUILDING
               <br />
               <span className="text-orange-500">INTERFACES</span>
               <br />
               THAT FEEL ALIVE
-            </h2>
-            <p
-              className="text-white/60 text-lg leading-relaxed max-w-md mb-4 fade-in-up"
-              style={{ "--stagger-index": 2 } as React.CSSProperties}
+            </motion.h2>
+            <motion.p
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-white/60 text-lg leading-relaxed max-w-md mb-4"
             >
               I build data-dense dashboards, complex state systems, and the
               architectural scaffolding that makes frontend codebases scale. My
               work tends toward the internal tooling and pattern-setting that
               raises the ceiling for entire engineering teams.
-            </p>
-            <p
-              className="text-white/60 text-lg leading-relaxed max-w-md fade-in-up"
-              style={{ "--stagger-index": 3 } as React.CSSProperties}
+            </motion.p>
+            <motion.p
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="text-white/60 text-lg leading-relaxed max-w-md"
             >
               I tend to be the engineer who gets routed the unclear or difficult
               problems — the ones other developers would rather avoid.
               That&apos;s where I do my best work: absorbing complexity and
               turning it into something maintainable.
-            </p>
+            </motion.p>
           </div>
         </div>
       </section>
