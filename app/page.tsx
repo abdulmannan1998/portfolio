@@ -241,6 +241,9 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Impact metrics */}
+      <MetricsSection />
+
       {/* Tech stack - Grid layout with icons */}
       <section className="relative py-24 bg-black">
         <div className="px-6 md:px-12 mb-16">
@@ -292,9 +295,6 @@ export default function Page() {
 
       {/* Experience timeline */}
       <ExperienceTimeline />
-
-      {/* Metrics section */}
-      <MetricsSection />
 
       {/* React Flow Graph Section */}
       <section className="relative py-24 bg-stone-950">
