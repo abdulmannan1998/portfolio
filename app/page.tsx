@@ -226,11 +226,23 @@ export default function Page() {
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
+              className="text-white/60 text-lg leading-relaxed max-w-md mb-4"
+            >
+              I build data-dense dashboards, complex state systems, and the
+              architectural scaffolding that makes frontend codebases scale. My
+              work tends toward the internal tooling and pattern-setting that
+              raises the ceiling for entire engineering teams.
+            </motion.p>
+            <motion.p
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
               className="text-white/60 text-lg leading-relaxed max-w-md"
             >
-              Senior Software Engineer specializing in React, TypeScript, and
-              data visualization. I turn complex data into intuitive experiences
-              and build design systems that scale.
+              I tend to be the engineer who gets routed the unclear or difficult
+              problems — the ones other developers would rather avoid.
+              That&apos;s where I do my best work: absorbing complexity and
+              turning it into something maintainable.
             </motion.p>
           </div>
         </div>
