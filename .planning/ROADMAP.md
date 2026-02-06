@@ -26,7 +26,7 @@ See MILESTONES.md for details.
 
 **Milestone Goal:** Restructure the portfolio from a fully client-rendered app to a server-first architecture, leveraging server components, ISR, CSS animations, and Partial Prerendering.
 
-- [ ] **Phase 9: Animation Foundation** - CSS keyframe infrastructure and hero parallax extraction
+- [x] **Phase 9: Animation Foundation** - CSS keyframe infrastructure and hero parallax extraction
 - [ ] **Phase 10: Section Animation Migration** - Replace framer-motion entrance animations with CSS across four sections
 - [ ] **Phase 11: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
 - [ ] **Phase 12: Utility Component Conversion** - Convert marquee, stars, counter, legend, preloader to server/CSS
@@ -52,7 +52,7 @@ Plans:
 
 - [x] 09-01-PLAN.md -- CSS keyframe animations, scroll-driven utility classes, and IO polyfill hook
 - [x] 09-02-PLAN.md -- Hero parallax extraction into client wrapper component
-- [ ] 09-03-PLAN.md -- Fix hero parallax fade speed (UAT gap closure)
+- [x] 09-03-PLAN.md -- Fix hero parallax fade speed (UAT gap closure)
 
 ### Phase 10: Section Animation Migration
 
@@ -150,15 +150,15 @@ Phases execute in numeric order: 9, 10, 11, 12, 13, 14.
 Note: Phases 10, 11, and 12 can run in parallel after Phase 9 completes. Phase 13 requires 10+11+12 done. Phase 14 requires 13 done.
 Critical path: 9 -> 10 -> 12 -> 13 -> 14 (Phase 11 merges at 13)
 
-| Phase                            | Milestone | Plans Complete | Status      | Completed |
-| -------------------------------- | --------- | -------------- | ----------- | --------- |
-| 9. Animation Foundation          | v1.2      | 2/3            | In progress | -         |
-| 10. Section Animation Migration  | v1.2      | 0/2            | Not started | -         |
-| 11. Server-side GitHub Fetching  | v1.2      | 0/1            | Not started | -         |
-| 12. Utility Component Conversion | v1.2      | 0/2            | Not started | -         |
-| 13. Server Component Page        | v1.2      | 0/1            | Not started | -         |
-| 14. PPR & Image Optimization     | v1.2      | 0/2            | Not started | -         |
+| Phase                            | Milestone | Plans Complete | Status      | Completed  |
+| -------------------------------- | --------- | -------------- | ----------- | ---------- |
+| 9. Animation Foundation          | v1.2      | 3/3            | Complete    | 2026-02-07 |
+| 10. Section Animation Migration  | v1.2      | 0/2            | Not started | -          |
+| 11. Server-side GitHub Fetching  | v1.2      | 0/1            | Not started | -          |
+| 12. Utility Component Conversion | v1.2      | 0/2            | Not started | -          |
+| 13. Server Component Page        | v1.2      | 0/1            | Not started | -          |
+| 14. PPR & Image Optimization     | v1.2      | 0/2            | Not started | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 9 gap closure plan added (09-03)_
+_Last updated: 2026-02-07 -- Phase 9 complete (3/3 plans)_
