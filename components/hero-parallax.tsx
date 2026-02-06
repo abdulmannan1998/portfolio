@@ -17,7 +17,8 @@ export function HeroParallax({ children }: HeroParallaxProps) {
 
     const updateParallax = () => {
       const scrolled = window.scrollY;
-      const maxScroll = window.innerHeight * 0.15;
+      const maxScroll =
+        (document.documentElement.scrollHeight - window.innerHeight) * 0.15;
       const progress = Math.min(scrolled / maxScroll, 1);
 
       // Scale from 1.0 to 0.8
