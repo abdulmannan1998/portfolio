@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Beaker, ExternalLink } from "lucide-react";
-import { techStack } from "@/data/tech-stack";
+import { techCategories } from "@/data/tech-stack";
 import { MarqueeText } from "@/components/marquee-text";
 import { GitHubActivity } from "@/components/github-activity";
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
@@ -257,26 +257,42 @@ export default function Page() {
           <h2 className="text-5xl md:text-6xl font-black mt-2">MY STACK</h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-white/10">
-          {techStack.map((tech, index) => (
-            <motion.div
-              key={tech.name}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: index * 0.03 }}
-              whileHover={{ backgroundColor: "rgba(249, 115, 22, 0.1)" }}
-              className="bg-black p-6 md:p-8 flex flex-col items-center justify-center gap-3 group cursor-default"
+        <div className="px-6 md:px-12 space-y-8">
+          {techCategories.map((category) => (
+            <div
+              key={category.name}
+              className="flex flex-col md:flex-row gap-4 md:gap-8"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={tech.icon}
-                alt={tech.name}
-                className="w-10 h-10 object-contain transition-opacity"
-              />
-              <span className="text-white group-hover:text-orange-500 transition-colors font-mono text-xs md:text-sm text-center uppercase">
-                {tech.name}
-              </span>
-            </motion.div>
+              {/* Category label */}
+              <div className="md:w-40 shrink-0">
+                <span className="text-white/40 font-mono text-xs uppercase tracking-widest">
+                  {category.name}
+                </span>
+              </div>
+              {/* Tech icons row */}
+              <div className="flex flex-wrap gap-4">
+                {category.items.map((tech, index) => (
+                  <motion.div
+                    key={tech.name}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.1 }}
+                    className="flex flex-col items-center gap-2 p-3 group cursor-default"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={tech.icon}
+                      alt={tech.name}
+                      className="w-8 h-8 object-contain"
+                    />
+                    <span className="text-white/60 group-hover:text-orange-500 transition-colors font-mono text-[10px] text-center uppercase">
+                      {tech.name}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
