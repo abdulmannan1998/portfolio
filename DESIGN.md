@@ -41,19 +41,11 @@ The portfolio embraces a **brutalist** design aesthetic:
 
 ```css
 /* Primary */
---bg-primary: black (#000000)
---bg-secondary: stone-900 (#1c1917)
---bg-tertiary: stone-950 (#0c0a09)
-
-/* Text */
---text-primary: white (#ffffff)
---text-secondary: white/60
---text-muted: white/40
-
-/* Accents */
---accent-primary: orange-500 (#f97316)
---accent-secondary: blue-500 (#3b82f6)
---accent-tertiary: purple-500 (#a855f7)
+--bg-primary: black (#000000) --bg-secondary: stone-900 (#1c1917)
+  --bg-tertiary: stone-950 (#0c0a09) /* Text */ --text-primary: white (#ffffff)
+  --text-secondary: white/60 --text-muted: white/40 /* Accents */
+  --accent-primary: orange-500 (#f97316) --accent-secondary: blue-500 (#3b82f6)
+  --accent-tertiary: purple-500 (#a855f7);
 ```
 
 ### Typography
@@ -70,6 +62,7 @@ The portfolio embraces a **brutalist** design aesthetic:
 ### Component Patterns
 
 #### Cards
+
 ```css
 /* Metric card */
 bg-stone-900 rounded-none p-8
@@ -79,12 +72,14 @@ bg-stone-900 rounded-none p-8
 ```
 
 #### Navigation
+
 ```css
 /* Mix-blend for overlay effect */
 <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
 ```
 
 #### Labs Button
+
 ```css
 /* Labs button with SOON badge */
 <Link href="/labs" className="group relative flex items-center gap-2 px-4 py-2 border-2 border-dashed border-white/30 text-white hover:border-orange-500 hover:text-orange-500 transition-all">
@@ -95,6 +90,7 @@ bg-stone-900 rounded-none p-8
 ```
 
 #### Timeline
+
 ```css
 /* Vertical timeline with colored markers */
 <div className="absolute left-0 top-0 bottom-0 w-px bg-white/20" />
@@ -102,6 +98,7 @@ bg-stone-900 rounded-none p-8
 ```
 
 #### Tech Grid
+
 ```css
 /* Grid with visible gaps */
 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-white/10
@@ -113,7 +110,13 @@ bg-black p-6 md:p-8 hover:bg-orange-500/10
 ### Scrolling Marquee Component
 
 ```tsx
-function MarqueeText({ text, direction = 1 }: { text: string; direction?: number }) {
+function MarqueeText({
+  text,
+  direction = 1,
+}: {
+  text: string;
+  direction?: number;
+}) {
   return (
     <div className="overflow-hidden whitespace-nowrap">
       <motion.div
@@ -122,7 +125,9 @@ function MarqueeText({ text, direction = 1 }: { text: string; direction?: number
         className="inline-flex"
       >
         {[...Array(4)].map((_, i) => (
-          <span key={i} className="mx-4">{text}</span>
+          <span key={i} className="mx-4">
+            {text}
+          </span>
         ))}
       </motion.div>
     </div>
@@ -142,42 +147,45 @@ function MarqueeText({ text, direction = 1 }: { text: string; direction?: number
 ## Tech Stack Icons
 
 All tech icons are sourced from devicons CDN:
+
 ```
 https://cdn.jsdelivr.net/gh/devicons/devicon/icons/{name}/{name}-original.svg
 ```
 
 ### Available Icons
 
-| Technology | Icon URL |
-|------------|----------|
-| JavaScript | `javascript/javascript-original.svg` |
-| TypeScript | `typescript/typescript-original.svg` |
-| React | `react/react-original.svg` |
-| Next.js | `nextjs/nextjs-original.svg` |
-| Vue.js | `vuejs/vuejs-original.svg` |
-| Tailwind | `tailwindcss/tailwindcss-original.svg` |
-| Framer Motion | `framermotion/framermotion-original.svg` |
-| Node.js | `nodejs/nodejs-original.svg` |
-| Express | `express/express-original.svg` |
-| GraphQL | `graphql/graphql-plain.svg` |
-| PostgreSQL | `postgresql/postgresql-original.svg` |
-| MongoDB | `mongodb/mongodb-original.svg` |
-| Prisma | `prisma/prisma-original.svg` |
-| Git | `git/git-original.svg` |
-| Docker | `docker/docker-original.svg` |
-| AWS | `amazonwebservices/amazonwebservices-original-wordmark.svg` |
-| Figma | `figma/figma-original.svg` |
+| Technology    | Icon URL                                                    |
+| ------------- | ----------------------------------------------------------- |
+| JavaScript    | `javascript/javascript-original.svg`                        |
+| TypeScript    | `typescript/typescript-original.svg`                        |
+| React         | `react/react-original.svg`                                  |
+| Next.js       | `nextjs/nextjs-original.svg`                                |
+| Vue.js        | `vuejs/vuejs-original.svg`                                  |
+| Tailwind      | `tailwindcss/tailwindcss-original.svg`                      |
+| Framer Motion | `framermotion/framermotion-original.svg`                    |
+| Node.js       | `nodejs/nodejs-original.svg`                                |
+| Express       | `express/express-original.svg`                              |
+| GraphQL       | `graphql/graphql-plain.svg`                                 |
+| PostgreSQL    | `postgresql/postgresql-original.svg`                        |
+| MongoDB       | `mongodb/mongodb-original.svg`                              |
+| Prisma        | `prisma/prisma-original.svg`                                |
+| Git           | `git/git-original.svg`                                      |
+| Docker        | `docker/docker-original.svg`                                |
+| AWS           | `amazonwebservices/amazonwebservices-original-wordmark.svg` |
+| Figma         | `figma/figma-original.svg`                                  |
 
 ---
 
 ## GitHub Activity Widget
 
 The GitHub activity section fetches live data from the GitHub API:
+
 ```
 https://api.github.com/users/{username}/events/public?per_page=5
 ```
 
 ### Required Features
+
 - Show latest push with "time ago" formatting
 - Display commit message (truncated at 60 chars)
 - Show repo name (with public/private indicator)
@@ -191,6 +199,7 @@ https://api.github.com/users/{username}/events/public?per_page=5
 The interactive career graph uses React Flow with:
 
 ### Node Types
+
 - **Profile** (orange, circular) - Central user node
 - **Company** (blue, rounded) - Work experience
 - **Education** (purple, rounded) - Academic background
@@ -198,11 +207,13 @@ The interactive career graph uses React Flow with:
 - **Soft Skill** (emerald, circular) - Personal qualities
 
 ### Edge Types
+
 - **Career** (blue) - Employment connections
 - **Education** (violet) - Academic connections
 - **Project** (orange) - Project/achievement connections
 
 ### Interactions
+
 - Click achievements to expand/collapse child nodes
 - Hover over nodes for details
 - Drag to pan, scroll to zoom
@@ -213,19 +224,34 @@ The interactive career graph uses React Flow with:
 
 ```
 /app
-  /page.tsx           # Main portfolio page (brutalist design)
+  /page.tsx           # Main portfolio page (~390 lines, imports sections)
   /labs/page.tsx      # Labs coming soon page
 
 /components
-  /graph-legend.tsx   # React Flow legend
   /sections/
-    /graph-section.tsx  # Interactive career graph
+    /graph-section.tsx      # Interactive career graph
+    /metrics-section.tsx    # Impact metrics with animated counters
+    /experience-timeline.tsx # Vertical career timeline
+  /github-activity.tsx      # Live GitHub feed widget
+  /graph-legend.tsx         # React Flow legend
+  /custom-node.tsx          # React Flow custom node
+  /nodes/
+    /achievement-node.tsx   # Achievement expansion node
 
 /data
-  /resume-data.ts     # All portfolio content
+  /resume-data.ts       # Portfolio content (bio, skills, companies)
+  /tech-stack.ts        # Tech stack grid data (18 technologies)
+  /experience.ts        # Experience timeline data
+
+/lib
+  /debounce.ts          # Debounce utility with cancel method
+  /graph-utils.ts       # Graph node/edge generation
+  /layout-constants.ts  # Layout and timing constants
+  /stores/
+    /graph-store.tsx    # Zustand graph state
 
 /public
-  /llms.txt           # Machine-readable site info
+  /llms.txt             # Machine-readable site info
 ```
 
 ---
@@ -244,6 +270,7 @@ The interactive career graph uses React Flow with:
 ## Quick Reference
 
 ### Common Classes
+
 ```css
 /* Background */ bg-black
 /* Secondary bg */ bg-stone-900, bg-stone-950
@@ -255,3 +282,7 @@ The interactive career graph uses React Flow with:
 /* Accent */ bg-orange-500 text-black
 /* Labels */ font-mono text-sm uppercase tracking-widest text-orange-500
 ```
+
+---
+
+_Last updated: 2026-02-06 - Updated for Phase 7 component splitting_
