@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
-**Current focus:** Phase 9 - Animation Foundation
+**Current focus:** Phase 10 - Section Animation Migration
 
 ## Current Position
 
