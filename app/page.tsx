@@ -10,6 +10,7 @@ import { MarqueeText } from "@/components/marquee-text";
 import { GitHubActivity } from "@/components/github-activity";
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { MetricsSection } from "@/components/sections/metrics-section";
+import { SOCIAL_LINKS } from "@/lib/social-links";
 
 // Lazy load React Flow graph
 const GraphSection = dynamic(
@@ -123,7 +124,7 @@ export default function Page() {
           className="mt-12 flex items-center gap-8"
         >
           <a
-            href="https://github.com/sunnyimmortal"
+            href={SOCIAL_LINKS.github.url}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-white/60 hover:text-white transition-colors"
@@ -132,7 +133,7 @@ export default function Page() {
             <span className="font-mono text-sm uppercase">Github</span>
           </a>
           <a
-            href="https://linkedin.com/in/mannanabdul"
+            href={SOCIAL_LINKS.linkedin.url}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-white/60 hover:text-white transition-colors"
@@ -141,7 +142,7 @@ export default function Page() {
             <span className="font-mono text-sm uppercase">LinkedIn</span>
           </a>
           <a
-            href="mailto:abdul.1998.17@gmail.com"
+            href={SOCIAL_LINKS.email.mailto}
             className="group flex items-center gap-2 text-white/60 hover:text-white transition-colors"
           >
             <Mail className="h-6 w-6" />
@@ -301,13 +302,13 @@ export default function Page() {
         <div className="px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* GitHub Activity */}
-            <GitHubActivity username="sunnyimmortal" />
+            <GitHubActivity username={SOCIAL_LINKS.github.username} />
 
             {/* Social CTAs */}
             <div className="grid grid-rows-2 gap-6">
               {/* GitHub CTA */}
               <a
-                href="https://github.com/sunnyimmortal"
+                href={SOCIAL_LINKS.github.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative flex items-center justify-between bg-stone-900 p-8 hover:bg-stone-800 transition-colors"
@@ -327,7 +328,7 @@ export default function Page() {
 
               {/* LinkedIn CTA */}
               <a
-                href="https://linkedin.com/in/mannanabdul"
+                href={SOCIAL_LINKS.linkedin.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative flex items-center justify-between bg-stone-900 p-8 hover:bg-stone-800 transition-colors"
@@ -359,13 +360,13 @@ export default function Page() {
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-6">
             <a
-              href="mailto:abdul.1998.17@gmail.com"
+              href={SOCIAL_LINKS.email.mailto}
               className="px-8 py-4 bg-black text-white font-bold text-lg hover:bg-stone-900 transition-colors"
             >
               GET IN TOUCH
             </a>
             <a
-              href="https://github.com/sunnyimmortal"
+              href={SOCIAL_LINKS.github.url}
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-4 bg-transparent border-2 border-black text-black font-bold text-lg hover:bg-black hover:text-white transition-colors"
