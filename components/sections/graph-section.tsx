@@ -270,7 +270,7 @@ function GraphSectionInner() {
   }, [debouncedFitView]);
 
   return (
-    <div id="graph" className="relative">
+    <div id="graph" className="relative lg:pt-[9.5rem]">
       <p className="text-stone-400 mb-4">
         Hover over companies and education to explore my achievements and
         projects
