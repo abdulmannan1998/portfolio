@@ -14,6 +14,7 @@ const categoryOffsets = techCategories.reduce<number[]>((acc, cat, i) => {
 export function TechAndCodeSection() {
   return (
     <section className="relative py-24 bg-black">
+      {/* Section header — unchanged */}
       <div className="px-6 md:px-12 mb-16">
         <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
           Technologies
@@ -22,58 +23,55 @@ export function TechAndCodeSection() {
       </div>
 
       <div className="px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-          {/* Left Column - Tech Stack */}
-          <div className="space-y-8">
-            {techCategories.map((category, catIndex) => {
-              const categoryStartIndex = categoryOffsets[catIndex];
+        {/* Tech grid — full width */}
+        <div className="space-y-6">
+          {techCategories.map((category, catIndex) => {
+            const categoryStartIndex = categoryOffsets[catIndex];
 
-              return (
-                <div key={category.name}>
-                  {/* Category label with orange left border accent */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-0.5 h-4 bg-orange-500" />
-                    <span className="text-white/40 font-mono text-xs uppercase tracking-widest">
-                      {category.name}
-                    </span>
-                  </div>
-
-                  {/* Icon grid */}
-                  <div className="flex flex-wrap gap-3">
-                    {category.items.map((tech, index) => (
-                      <motion.div
-                        key={tech.name}
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{
-                          delay: (categoryStartIndex + index) * 0.03,
-                          duration: 0.3,
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                        className="group flex flex-col items-center gap-2 w-20 cursor-default"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={tech.icon}
-                          alt={tech.name}
-                          className="w-10 h-10 object-contain"
-                        />
-                        <span className="text-[10px] font-mono uppercase text-white/50 group-hover:text-orange-500 transition-colors text-center leading-tight">
-                          {tech.name}
-                        </span>
-                      </motion.div>
-                    ))}
-                  </div>
+            return (
+              <div key={category.name}>
+                {/* Category header with orange left border accent */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-0.5 h-4 bg-orange-500" />
+                  <span className="text-white/40 font-mono text-xs uppercase tracking-widest">
+                    {category.name}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
 
-          {/* Right Column - Activity Panel */}
-          <div>
-            <GitHubActivity username={SOCIAL_LINKS.github.username} />
-          </div>
+                {/* Brutalist grid */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-px bg-white/10">
+                  {category.items.map((tech, index) => (
+                    <motion.div
+                      key={tech.name}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{
+                        delay: (categoryStartIndex + index) * 0.03,
+                        duration: 0.3,
+                      }}
+                      className="bg-black p-4 md:p-6 flex flex-col items-center gap-2 hover:bg-orange-500/10 transition-colors cursor-default group"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={tech.icon}
+                        alt={tech.name}
+                        className="w-8 h-8 md:w-10 md:h-10 object-contain"
+                      />
+                      <span className="text-[10px] font-mono uppercase text-white/50 group-hover:text-orange-500 transition-colors text-center leading-tight">
+                        {tech.name}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* GitHub Activity — full width below */}
+        <div className="mt-8 border-t border-white/10 pt-8">
+          <GitHubActivity username={SOCIAL_LINKS.github.username} />
         </div>
       </div>
     </section>
