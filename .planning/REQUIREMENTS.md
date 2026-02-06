@@ -48,27 +48,27 @@ None — v1.1 is focused cleanup.
 
 | Requirement | Phase | Status  |
 | ----------- | ----- | ------- |
-| DEAD-01     | TBD   | Pending |
-| DEAD-02     | TBD   | Pending |
-| DEAD-03     | TBD   | Pending |
-| DIR-01      | TBD   | Pending |
-| DIR-02      | TBD   | Pending |
-| SPLIT-01    | TBD   | Pending |
-| SPLIT-02    | TBD   | Pending |
-| SPLIT-03    | TBD   | Pending |
-| SPLIT-04    | TBD   | Pending |
-| DEBT-01     | TBD   | Pending |
-| DEBT-02     | TBD   | Pending |
-| DEBT-03     | TBD   | Pending |
-| DEBT-04     | TBD   | Pending |
+| DEAD-01     | 6     | Pending |
+| DEAD-02     | 6     | Pending |
+| DEAD-03     | 6     | Pending |
+| DIR-01      | 6     | Pending |
+| DIR-02      | 6     | Pending |
+| SPLIT-01    | 7     | Pending |
+| SPLIT-02    | 7     | Pending |
+| SPLIT-03    | 7     | Pending |
+| SPLIT-04    | 7     | Pending |
+| DEBT-01     | 8     | Pending |
+| DEBT-02     | 8     | Pending |
+| DEBT-03     | 8     | Pending |
+| DEBT-04     | 8     | Pending |
 
 **Coverage:**
 
 - v1.1 requirements: 13 total
-- Mapped to phases: 0
-- Unmapped: 13
+- Mapped to phases: 13
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-02-06_
-_Last updated: 2026-02-06 after initial definition_
+_Last updated: 2026-02-06 — Traceability table updated with phase mappings_
