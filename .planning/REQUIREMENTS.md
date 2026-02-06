@@ -11,9 +11,9 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 - [ ] **RSC-01**: Page.tsx is a server component (no "use client" directive)
 - [x] **RSC-02**: Hero parallax scroll logic is isolated in a client wrapper component that accepts server-rendered children
-- [ ] **RSC-03**: Twinkling-stars renders as server component (pure CSS, no client hooks)
-- [ ] **RSC-04**: CSS-preloader renders as server component (no client APIs used)
-- [ ] **RSC-05**: Graph-legend renders as server component with CSS entrance animation replacing framer-motion
+- [x] **RSC-03**: Twinkling-stars renders as server component (pure CSS, no client hooks)
+- [x] **RSC-04**: CSS-preloader renders as server component (no client APIs used)
+- [x] **RSC-05**: Graph-legend renders as server component with CSS entrance animation replacing framer-motion
 
 ### CSS Animations
 
@@ -24,7 +24,7 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 - [x] **ANIM-05**: Tech stack section entrance animations use CSS instead of framer-motion
 - [x] **ANIM-06**: Intersection Observer polyfill activates animations in browsers without animation-timeline support
 - [x] **ANIM-07**: CSS scroll-driven animations (animation-timeline: view()) trigger entrance effects in modern browsers
-- [ ] **ANIM-08**: Marquee text uses CSS animation instead of framer-motion
+- [x] **ANIM-08**: Marquee text uses CSS animation instead of framer-motion
 
 ### Data Fetching
 
@@ -47,8 +47,8 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Client Boundary Hygiene
 
-- [ ] **CBH-01**: AnimatedCounter uses Intersection Observer to animate only when visible (not on mount)
-- [ ] **CBH-02**: GraphSection remains client with dynamic import and ssr:false (no regression)
+- [x] **CBH-01**: AnimatedCounter uses Intersection Observer to animate only when visible (not on mount)
+- [x] **CBH-02**: GraphSection remains client with dynamic import and ssr:false (no regression)
 - [ ] **CBH-03**: Zustand store imports exist only inside "use client" boundary files
 
 ## v2 Requirements
@@ -79,9 +79,9 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | ----------- | ----- | -------- |
 | RSC-01      | 13    | Pending  |
 | RSC-02      | 9     | Complete |
-| RSC-03      | 12    | Pending  |
-| RSC-04      | 12    | Pending  |
-| RSC-05      | 12    | Pending  |
+| RSC-03      | 10    | Complete |
+| RSC-04      | 10    | Complete |
+| RSC-05      | 10    | Complete |
 | ANIM-01     | 9     | Complete |
 | ANIM-02     | 10    | Complete |
 | ANIM-03     | 10    | Complete |
@@ -89,7 +89,7 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | ANIM-05     | 10    | Complete |
 | ANIM-06     | 9     | Complete |
 | ANIM-07     | 9     | Complete |
-| ANIM-08     | 12    | Pending  |
+| ANIM-08     | 10    | Complete |
 | DATA-01     | 9     | Complete |
 | DATA-02     | 9     | Complete |
 | DATA-03     | 9     | Complete |
@@ -100,8 +100,8 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | PPR-02      | 14    | Pending  |
 | PPR-03      | 14    | Pending  |
 | PPR-04      | 14    | Pending  |
-| CBH-01      | 12    | Pending  |
-| CBH-02      | 13    | Pending  |
+| CBH-01      | 10    | Complete |
+| CBH-02      | 10    | Complete |
 | CBH-03      | 13    | Pending  |
 
 **Coverage:**
@@ -113,4 +113,4 @@ Deferred to future milestone. Tracked but not in current roadmap.
 ---
 
 _Requirements defined: 2026-02-07_
-_Last updated: 2026-02-07 -- Phase 9 complete (DATA-01, DATA-02, DATA-03, DATA-04)_
+_Last updated: 2026-02-07 -- Phase 10 complete (RSC-03, RSC-04, RSC-05, ANIM-08, CBH-01, CBH-02)_
