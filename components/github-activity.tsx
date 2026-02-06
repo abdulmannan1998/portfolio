@@ -115,54 +115,48 @@ export function GitHubActivity({
   const latestEvent = events[0];
 
   return (
-    <div className="relative bg-stone-900 p-8 md:p-12">
+    <div className="relative bg-stone-900 p-6">
       {/* Corner accent */}
-      <div className="absolute top-0 left-0 w-16 h-16 bg-orange-500" />
+      <div className="absolute top-0 left-0 w-8 h-8 bg-orange-500" />
 
       <div className="relative">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Github className="h-8 w-8 text-white" />
-            <div>
-              <span className="text-white/40 font-mono text-xs uppercase tracking-wider">
-                Live Feed
-              </span>
-              <h3 className="text-2xl font-black text-white">GITHUB</h3>
-            </div>
+        <div className="flex items-center gap-3 mb-6">
+          <Github className="h-6 w-6 text-white" />
+          <div>
+            <span className="text-white/40 font-mono text-xs uppercase tracking-wider">
+              Live Feed
+            </span>
+            <h3 className="text-lg font-black text-white">GITHUB</h3>
           </div>
-          <a
-            href={`https://github.com/${username}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-white text-black font-bold text-sm hover:bg-orange-500 transition-colors"
-          >
-            VIEW PROFILE
-            <ExternalLink className="h-4 w-4" />
-          </a>
+          {!loading && latestEvent && (
+            <span className="ml-auto flex items-center gap-1.5 px-2 py-0.5 bg-orange-500/20 text-orange-500 text-xs font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+              LIVE
+            </span>
+          )}
         </div>
 
         {/* Latest Push */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
             <span className="text-xs font-mono text-white/40 uppercase tracking-wider">
               Latest Push
             </span>
             {!loading && latestEvent && (
-              <span className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-500 text-black text-xs font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+              <span className="text-xs font-mono text-white/30">
                 {formatTimeAgo(latestEvent.created_at)}
               </span>
             )}
           </div>
 
           {loading ? (
-            <div className="h-8 w-3/4 bg-white/10 animate-pulse" />
+            <div className="h-6 w-3/4 bg-white/10 animate-pulse" />
           ) : error ? (
-            <p className="text-white/40 font-mono">{error}</p>
+            <p className="text-white/40 font-mono text-sm">{error}</p>
           ) : latestEvent ? (
             <>
-              <p className="text-2xl md:text-3xl text-white font-black leading-tight mb-4">
+              <p className="text-lg md:text-xl text-white font-black leading-tight mb-3">
                 &quot;{getCommitMessage(latestEvent)}&quot;
               </p>
               <div className="flex items-center gap-2 text-sm">
@@ -192,18 +186,18 @@ export function GitHubActivity({
 
         {/* Recent Activity */}
         {!loading && events.length > 1 && (
-          <div className="pt-8 border-t border-white/10">
-            <p className="text-xs font-mono text-white/40 uppercase tracking-wider mb-4">
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-xs font-mono text-white/40 uppercase tracking-wider mb-3">
               Recent Activity
             </p>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {events.slice(1, 4).map((event) => (
-                <div key={event.id} className="flex items-center gap-3 text-sm">
-                  <GitCommit className="h-4 w-4 text-white/40" />
-                  <span className="text-white/60 truncate flex-1 font-mono">
+                <div key={event.id} className="flex items-center gap-2 text-sm">
+                  <GitCommit className="h-3 w-3 text-white/40 shrink-0" />
+                  <span className="text-white/60 truncate flex-1 font-mono text-xs">
                     {getCommitMessage(event)}
                   </span>
-                  <span className="text-white/40 text-xs font-mono">
+                  <span className="text-white/30 text-xs font-mono shrink-0">
                     {formatTimeAgo(event.created_at)}
                   </span>
                 </div>
@@ -211,6 +205,17 @@ export function GitHubActivity({
             </div>
           </div>
         )}
+
+        {/* View Profile link */}
+        <a
+          href={`https://github.com/${username}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 flex items-center gap-2 text-sm font-mono text-white/40 hover:text-orange-500 transition-colors"
+        >
+          VIEW PROFILE
+          <ExternalLink className="h-3 w-3" />
+        </a>
       </div>
     </div>
   );
