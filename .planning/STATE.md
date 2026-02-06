@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 Phase: 8 of 8 (Technical Debt) — COMPLETE
 Plan: 3 of 3 complete (08-01, 08-02, 08-03 all complete)
 Status: Phase 8 complete — Documentation updated to reflect v1.1 milestone
-Last activity: 2026-02-06 — Completed quick task 013: Experience & Career Graph side-by-side layout
+Last activity: 2026-02-06 — Completed quick task 014: GitHub Activity with private repo support and redaction
 
 Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
@@ -44,34 +44,37 @@ Progress: [####################] 100% (All phases complete - v1.1 shipped)
 
 Key decisions from v1.0 milestone logged in PROJECT.md.
 
-| ID                          | Phase | Decision                                              | Rationale                                                |
-| --------------------------- | ----- | ----------------------------------------------------- | -------------------------------------------------------- |
-| tech-data-extraction        | 07    | Separate tech stack data into data/ directory         | Data and presentation logic separation enables reuse     |
-| component-self-contained    | 07    | Extracted components include all dependencies         | Components should be self-contained and portable         |
-| client-directives           | 07    | Add "use client" to extracted components              | All components use client-side features (motion, hooks)  |
-| experience-data-extraction  | 07    | Separate experience data into typed data file         | Follows established pattern, enables data reuse          |
-| color-map-preservation      | 07    | Use explicit colorMap for Tailwind classes            | Tailwind purges dynamic classes; explicit mapping needed |
-| timer-tracking-useref       | 08    | Use useRef to track all setTimeout IDs                | Centralized cleanup prevents orphan timers               |
-| debounce-cancel-method      | 08    | Add .cancel() method to debounce utility              | Enables cleanup capability for pending timeouts          |
-| addtimer-helper             | 08    | Create addTimer helper for centralized timer tracking | DRY principle - single place to track all timers         |
-| memory-cache-github         | 08    | Memory cache over localStorage                        | Simpler implementation, auto-cleanup on refresh          |
-| github-cache-ttl            | 08    | 5-minute TTL for GitHub API cache                     | Balances freshness with rate limit prevention            |
-| v11-milestone-complete      | 08    | Mark v1.1 as COMPLETE in PROJECT.md                   | All target areas validated across phases 7-8             |
-| doc-file-structure          | 08    | Add File Structure section to PROJECT.md              | Documents modular architecture for future developers     |
-| local-icons                 | Q004  | Download icons locally vs CDN                         | Local assets more reliable, no external dependencies     |
-| icon-fallbacks              | Q004  | Use react/typescript icons for unavailable libraries  | Better to show related icon than generic placeholder     |
-| full-opacity                | Q004  | Remove opacity-60 from icons and text                 | Tech stack should be prominent, not dimmed               |
-| seeded-prng-hydration       | Q007  | Use seeded PRNG (mulberry32) instead of Math.random   | Prevents SSR/client hydration mismatches                 |
-| css-animations-performance  | Q007  | CSS @keyframes instead of Framer Motion per-star      | GPU-composited, far more performant for 40 elements      |
-| precomputed-offsets         | Q009  | Precompute animation delay offsets at module level    | React hooks linter rejects mutable variable in render    |
-| sidebar-layout              | Q009  | Fixed 380px sidebar for activity panel                | Prevents activity panel from competing with tech icons   |
-| full-width-over-sidebar     | Q011  | Remove sidebar, full-width layout for grid + GitHub   | Sidebar created dead space; full-width is denser         |
-| nine-col-grid               | Q011  | 9 columns at lg breakpoint for tech grid              | Categories have 4-7 items; 9 cols fills rows densely     |
-| no-scale-hover              | Q011  | Remove scale hover from grid cells                    | Scale disrupts gap-px grid alignment; bg color suffices  |
-| shared-prng-utility         | Q010  | Extract mulberry32 to lib/seeded-random.ts            | DRY - reused by both twinkling-stars and page background |
-| plain-style-over-jsx        | Q010  | Use plain `<style>` instead of `<style jsx>`          | styled-jsx scoped classes cause hydration mismatch       |
-| panel-components            | Q013  | Components render as divs for grid embedding          | Enables flexible composition in shared containers        |
-| experience-graph-sidebyside | Q013  | Experience (300-400px) + Graph (1fr) side-by-side     | Optimizes space: narrow text + wide interactive canvas   |
+| ID                          | Phase | Decision                                              | Rationale                                                 |
+| --------------------------- | ----- | ----------------------------------------------------- | --------------------------------------------------------- |
+| tech-data-extraction        | 07    | Separate tech stack data into data/ directory         | Data and presentation logic separation enables reuse      |
+| component-self-contained    | 07    | Extracted components include all dependencies         | Components should be self-contained and portable          |
+| client-directives           | 07    | Add "use client" to extracted components              | All components use client-side features (motion, hooks)   |
+| experience-data-extraction  | 07    | Separate experience data into typed data file         | Follows established pattern, enables data reuse           |
+| color-map-preservation      | 07    | Use explicit colorMap for Tailwind classes            | Tailwind purges dynamic classes; explicit mapping needed  |
+| timer-tracking-useref       | 08    | Use useRef to track all setTimeout IDs                | Centralized cleanup prevents orphan timers                |
+| debounce-cancel-method      | 08    | Add .cancel() method to debounce utility              | Enables cleanup capability for pending timeouts           |
+| addtimer-helper             | 08    | Create addTimer helper for centralized timer tracking | DRY principle - single place to track all timers          |
+| memory-cache-github         | 08    | Memory cache over localStorage                        | Simpler implementation, auto-cleanup on refresh           |
+| github-cache-ttl            | 08    | 5-minute TTL for GitHub API cache                     | Balances freshness with rate limit prevention             |
+| v11-milestone-complete      | 08    | Mark v1.1 as COMPLETE in PROJECT.md                   | All target areas validated across phases 7-8              |
+| doc-file-structure          | 08    | Add File Structure section to PROJECT.md              | Documents modular architecture for future developers      |
+| local-icons                 | Q004  | Download icons locally vs CDN                         | Local assets more reliable, no external dependencies      |
+| icon-fallbacks              | Q004  | Use react/typescript icons for unavailable libraries  | Better to show related icon than generic placeholder      |
+| full-opacity                | Q004  | Remove opacity-60 from icons and text                 | Tech stack should be prominent, not dimmed                |
+| seeded-prng-hydration       | Q007  | Use seeded PRNG (mulberry32) instead of Math.random   | Prevents SSR/client hydration mismatches                  |
+| css-animations-performance  | Q007  | CSS @keyframes instead of Framer Motion per-star      | GPU-composited, far more performant for 40 elements       |
+| precomputed-offsets         | Q009  | Precompute animation delay offsets at module level    | React hooks linter rejects mutable variable in render     |
+| sidebar-layout              | Q009  | Fixed 380px sidebar for activity panel                | Prevents activity panel from competing with tech icons    |
+| full-width-over-sidebar     | Q011  | Remove sidebar, full-width layout for grid + GitHub   | Sidebar created dead space; full-width is denser          |
+| nine-col-grid               | Q011  | 9 columns at lg breakpoint for tech grid              | Categories have 4-7 items; 9 cols fills rows densely      |
+| no-scale-hover              | Q011  | Remove scale hover from grid cells                    | Scale disrupts gap-px grid alignment; bg color suffices   |
+| shared-prng-utility         | Q010  | Extract mulberry32 to lib/seeded-random.ts            | DRY - reused by both twinkling-stars and page background  |
+| plain-style-over-jsx        | Q010  | Use plain `<style>` instead of `<style jsx>`          | styled-jsx scoped classes cause hydration mismatch        |
+| panel-components            | Q013  | Components render as divs for grid embedding          | Enables flexible composition in shared containers         |
+| experience-graph-sidebyside | Q013  | Experience (300-400px) + Graph (1fr) side-by-side     | Optimizes space: narrow text + wide interactive canvas    |
+| server-side-redaction       | Q014  | Apply redaction server-side before response           | Never expose private repo/commit data to browser          |
+| tiered-visibility           | Q014  | Three visibility tiers (public/own-private/org)       | Different privacy needs for own vs org private repos      |
+| classified-document-ui      | Q014  | Orange gradient + pulse for redacted items            | Matches dark/orange theme, makes redaction visually clear |
 
 ### Pending Todos
 
@@ -96,14 +99,15 @@ None.
 | 011 | Redesign Stack & Code section with brutalist grid     | 2026-02-06 | 08273c4 | [011-redesign-stack-code](./quick/011-redesign-stack-code-section-reduce-whitespa/011-SUMMARY.md)  |
 | 012 | Side-by-side Stack & GitHub — 5 design variants       | 2026-02-06 | ef403fb | [012-side-by-side](./quick/012-side-by-side-stack-github-5-design-variants/012-SUMMARY.md)         |
 | 013 | Experience & Career Graph side-by-side layout         | 2026-02-06 | c91fad6 | [013-side-by-side](./quick/013-experience-career-graph-side-by-side/013-SUMMARY.md)                |
+| 014 | GitHub Activity with private repo support & redaction | 2026-02-06 | 45bdec1 | [014-github-activity](./quick/014-github-activity-last-3-commits-with-priv/014-SUMMARY.md)         |
 
 ## Session Continuity
 
-Last session: 2026-02-06T18:04:47Z
-Stopped at: Completed quick task 013 (Experience & Career Graph side-by-side layout)
+Last session: 2026-02-06T18:41:39Z
+Stopped at: Completed quick task 014 (GitHub Activity with private repo support and redaction)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 — Quick task 013 (Experience & Career Graph side-by-side layout)_
+_Last updated: 2026-02-06 — Quick task 014 (GitHub Activity with private repo support and redaction)_
