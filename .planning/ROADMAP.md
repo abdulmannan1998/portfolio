@@ -67,8 +67,8 @@ Plans:
 
 Plans:
 
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
+- [ ] 10-01-PLAN.md -- Convert twinkling-stars, css-preloader, and graph-legend to server components
+- [ ] 10-02-PLAN.md -- Convert marquee-text to CSS animation and add Intersection Observer to animated-counter
 
 ### Phase 11: Server Component Page
 
@@ -112,7 +112,7 @@ Critical path: 9 -> 10 -> 11 -> 12
 | Phase                          | Milestone | Plans Complete | Status      | Completed  |
 | ------------------------------ | --------- | -------------- | ----------- | ---------- |
 | 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 10. Client Boundary Extraction | v1.2      | 0/2            | Not started | -          |
+| 10. Client Boundary Extraction | v1.2      | 0/2            | Planned     | -          |
 | 11. Server Component Page      | v1.2      | 0/1            | Not started | -          |
 | 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
 
