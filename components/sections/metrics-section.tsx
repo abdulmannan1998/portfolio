@@ -1,10 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { RESUME_DATA } from "@/data/resume-data";
 import { AnimatedCounter } from "@/components/animated-counter";
 
-export function MetricsSection() {
+export type Metric = {
+  id: string;
+  label: string;
+  value: string;
+  context: string;
+  company: string;
+};
+
+type MetricsSectionProps = {
+  metrics: Metric[];
+};
+
+export function MetricsSection({ metrics }: MetricsSectionProps) {
   return (
     <section className="relative py-24 bg-black">
       <div className="px-6 md:px-12 mb-12">
@@ -21,7 +32,7 @@ export function MetricsSection() {
           className="flex gap-6 px-6 md:px-12 pb-6"
           style={{ width: "max-content" }}
         >
-          {RESUME_DATA.metrics.map((metric, index) => (
+          {metrics.map((metric, index) => (
             <motion.div
               key={metric.id}
               initial={{ opacity: 0, y: 50 }}
