@@ -128,13 +128,13 @@
 /* Hero settle animations — CSS so they play from first paint, no JS needed */
 @keyframes hero-name-settle {
   0% {
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
   50% {
-    transform: translateY(-6px) scale(1.015);
+    transform: scale(1.03);
   }
   100% {
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 }
 
@@ -142,35 +142,11 @@
   0% {
     transform: scaleX(1);
   }
-  40% {
-    transform: scaleX(0.92);
+  50% {
+    transform: scaleX(1.15);
   }
   100% {
     transform: scaleX(1);
-  }
-}
-
-@keyframes hero-subtitle-settle {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 0.8;
-    transform: translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes hero-scroll-fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 

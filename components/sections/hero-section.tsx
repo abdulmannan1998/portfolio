@@ -41,22 +41,12 @@ export function HeroSection() {
         />
       </div>
 
-      <p
-        className="mt-8 text-2xl md:text-4xl font-mono text-orange-500 text-center"
-        style={{
-          animation: "hero-subtitle-settle 0.6s ease-out 0.7s both",
-        }}
-      >
+      <p className="mt-8 text-2xl md:text-4xl font-mono text-orange-500 text-center">
         SENIOR SOFTWARE ENGINEER
       </p>
 
       {/* Scroll indicator */}
-      <div
-        className="absolute bottom-12 left-1/2 -translate-x-1/2"
-        style={{
-          animation: "hero-scroll-fadein 0.5s ease-out 1.2s both",
-        }}
-      >
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
