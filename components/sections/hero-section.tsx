@@ -1,16 +1,21 @@
 "use client";
 
-import { motion, type MotionValue } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { TwinklingStars } from "@/components/twinkling-stars";
 
-type HeroSectionProps = {
-  heroScale: MotionValue<number>;
-  heroOpacity: MotionValue<number>;
-};
+export function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
-export function HeroSection({ heroScale, heroOpacity }: HeroSectionProps) {
   return (
     <motion.section
+      ref={sectionRef}
       style={{ scale: heroScale, opacity: heroOpacity }}
       className="sticky top-0 min-h-screen flex flex-col justify-center items-center px-6 bg-black"
     >
