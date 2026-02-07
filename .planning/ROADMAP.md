@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 Portfolio Cleanup** - Phases 1-5 (shipped 2026-02-05)
 - ✅ **v1.1 Codebase Polish** - Phases 6-8 (shipped 2026-02-07)
-- 🚧 **v1.2 SSR Migration** - Phases 9-14 (in progress)
+- ✅ **v1.2 SSR Migration** - Phases 9-12 (shipped 2026-02-07)
 
 ## Phases
 
@@ -22,7 +22,7 @@ See MILESTONES.md for details.
 
 </details>
 
-### v1.2 SSR Migration (In Progress)
+### v1.2 SSR Migration (Complete)
 
 **Milestone Goal:** Restructure the portfolio from a fully client-rendered app to a server-first architecture, leveraging server components, ISR, client boundary extraction, and Partial Prerendering. Keep framer-motion for animations inside properly isolated client boundaries.
 
@@ -31,7 +31,7 @@ See MILESTONES.md for details.
 - [x] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
 - [x] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
 - [x] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
-- [ ] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
+- [x] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
 
 ## Phase Details
 
@@ -110,7 +110,7 @@ Plans:
 
 - [x] 12-01-PLAN.md -- Add Suspense streaming and ErrorBoundary for GitHub activity, split TechAndCodeSection for PPR static shell
 - [x] 12-02-PLAN.md -- Replace raw img tags with next/image for tech stack icons
-- [ ] 12-03-PLAN.md -- Fix PPR static shell visibility (framer-motion initial opacity: 0 gap closure)
+- [x] 12-03-PLAN.md -- Fix PPR static shell visibility (framer-motion initial opacity: 0 gap closure)
 
 ## Progress
 
@@ -119,13 +119,13 @@ Phases execute in numeric order: 9, 10, 11, 12.
 Phase 9 and 10 can potentially run in parallel. Phase 11 requires 9+10 done. Phase 12 requires 11 done.
 Critical path: 9 -> 10 -> 11 -> 12
 
-| Phase                          | Milestone | Plans Complete | Status      | Completed  |
-| ------------------------------ | --------- | -------------- | ----------- | ---------- |
-| 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 10. Client Boundary Extraction | v1.2      | 5/5            | Complete    | 2026-02-07 |
-| 11. Server Component Page      | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 12. PPR & Image Optimization   | v1.2      | 2/3            | In progress | -          |
+| Phase                          | Milestone | Plans Complete | Status   | Completed  |
+| ------------------------------ | --------- | -------------- | -------- | ---------- |
+| 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete | 2026-02-07 |
+| 10. Client Boundary Extraction | v1.2      | 5/5            | Complete | 2026-02-07 |
+| 11. Server Component Page      | v1.2      | 1/1            | Complete | 2026-02-07 |
+| 12. PPR & Image Optimization   | v1.2      | 3/3            | Complete | 2026-02-07 |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 12 gap closure plan added (12-03: fix PPR shell visibility)_
+_Last updated: 2026-02-07 -- Phase 12 complete (3/3 plans, PPR shell visibility fixed, v1.2 SSR Migration milestone complete)_

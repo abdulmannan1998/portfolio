@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
-**Current focus:** Phase 11 plan 1 complete, page.tsx is now a true server component
+**Current focus:** v1.2 SSR Migration milestone complete — all 12 phases shipped
 
 ## Current Position
 
-Phase: 12 of 12 (PPR Image Optimization) -- v1.2 SSR Migration in progress
-Plan: 1 of 1 in current phase (completed)
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 12-01-PLAN.md (PPR streaming with Suspense and ErrorBoundary)
+Phase: 12 of 12 (PPR Image Optimization) -- v1.2 SSR Migration complete
+Plan: 3 of 3 in current phase (all completed)
+Status: Milestone complete
+Last activity: 2026-02-07 -- Completed 12-03-PLAN.md (PPR shell visibility gap closure)
 
 Progress: [█████████████████████] 100% (7/7 v1.2 plans complete, 12/12 phases complete across all milestones)
 
@@ -34,10 +34,10 @@ Progress: [█████████████████████] 100%
 
 **v1.2 Milestone (complete):**
 
-- Total plans: 7
-- Plans complete: 7
-- Average duration: 3.9 min
-- Total execution time: 31.5 min
+- Total plans: 9
+- Plans complete: 9
+- Average duration: 4.2 min
+- Total execution time: 38.5 min
 - Phases: 4
 
 **By Phase (cumulative):**
@@ -55,7 +55,7 @@ Progress: [█████████████████████] 100%
 | 09-server-side-github-fetching | v1.2      | 1     | 4min    | 4min     |
 | 10-client-boundary-extraction  | v1.2      | 5     | 21.5min | 4.3min   |
 | 11-server-component-page       | v1.2      | 1     | 3min    | 3min     |
-| 12-ppr-image-optimization      | v1.2      | 1     | 3min    | 3min     |
+| 12-ppr-image-optimization      | v1.2      | 3     | 20min   | 6.7min   |
 
 ## Accumulated Context
 
@@ -92,6 +92,11 @@ Recent decisions affecting current work:
 - [12-01]: Split TechAndCodeSection into TechStackSection (static) and GitHubActivityStream (dynamic) to enable PPR split point
 - [12-01]: Made Page function synchronous - async data fetching moved to stream component
 - [12-01]: PPR enabled via cacheComponents: true (Next.js 16 flag, replaces experimental.ppr)
+- [12-02]: Use unoptimized prop for SVG icons with next/image (vectors don't need optimization pipeline)
+- [12-02]: dangerouslyAllowSVG with strict CSP for SVG security in next.config.ts
+- [12-03]: Hero SSR renders name + title only; orange bar conditionally renders after hydration with slide-in
+- [12-03]: Below-fold sections use initial={isHydrated ? {...} : false} + key remount pattern for PPR visibility
+- [12-03]: Created useHydrated hook as standard hydration detection utility
 
 ### Pending Todos
 
@@ -104,10 +109,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 12-01-PLAN.md (PPR streaming with Suspense)
+Stopped at: v1.2 SSR Migration milestone complete (all 12 phases, 9 v1.2 plans shipped)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Phase 12 complete (PPR streaming enabled, GitHub activity streams via Suspense with static shell, v1.2 milestone complete)_
+_Last updated: 2026-02-07 -- Phase 12 fully complete (3/3 plans: PPR streaming, next/image, shell visibility fix), v1.2 SSR Migration milestone complete_

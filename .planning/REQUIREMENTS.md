@@ -35,15 +35,15 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Image Optimization
 
-- [ ] **IMG-01**: Tech stack icons use next/image instead of raw img tags
-- [ ] **IMG-02**: All next/image instances have explicit width/height to prevent layout shift
+- [x] **IMG-01**: Tech stack icons use next/image instead of raw img tags
+- [x] **IMG-02**: All next/image instances have explicit width/height to prevent layout shift
 
 ### Streaming & PPR
 
-- [ ] **PPR-01**: Suspense boundaries wrap dynamic content (GitHub activity section)
-- [ ] **PPR-02**: Partial Prerendering enabled with static shell for hero, about, metrics, timeline
-- [ ] **PPR-03**: Error boundaries paired with every Suspense boundary
-- [ ] **PPR-04**: Skeleton fallback components render during streaming
+- [x] **PPR-01**: Suspense boundaries wrap dynamic content (GitHub activity section)
+- [x] **PPR-02**: Partial Prerendering enabled with static shell for hero, about, metrics, timeline
+- [x] **PPR-03**: Error boundaries paired with every Suspense boundary
+- [x] **PPR-04**: Skeleton fallback components render during streaming
 
 ### Client Boundary Hygiene
 
@@ -94,12 +94,12 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | DATA-02     | 9     | Complete |
 | DATA-03     | 9     | Complete |
 | DATA-04     | 9     | Complete |
-| IMG-01      | 14    | Pending  |
-| IMG-02      | 14    | Pending  |
-| PPR-01      | 14    | Pending  |
-| PPR-02      | 14    | Pending  |
-| PPR-03      | 14    | Pending  |
-| PPR-04      | 14    | Pending  |
+| IMG-01      | 12    | Complete |
+| IMG-02      | 12    | Complete |
+| PPR-01      | 12    | Complete |
+| PPR-02      | 12    | Complete |
+| PPR-03      | 12    | Complete |
+| PPR-04      | 12    | Complete |
 | CBH-01      | 10    | Complete |
 | CBH-02      | 10    | Complete |
 | CBH-03      | 11    | Complete |
@@ -113,4 +113,4 @@ Deferred to future milestone. Tracked but not in current roadmap.
 ---
 
 _Requirements defined: 2026-02-07_
-_Last updated: 2026-02-07 -- Phase 11 complete (RSC-01, CBH-03)_
+_Last updated: 2026-02-07 -- Phase 12 complete (PPR-01-04, IMG-01-02), all v1.2 requirements fulfilled_
