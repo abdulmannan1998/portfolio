@@ -125,31 +125,6 @@
   }
 }
 
-/* Hero settle animations — CSS so they play from first paint, no JS needed */
-@keyframes hero-name-settle {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.03);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes hero-bar-settle {
-  0% {
-    transform: scaleX(1);
-  }
-  50% {
-    transform: scaleX(1.15);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-
 /* Twinkling stars animation */
 @keyframes twinkle {
   0%,

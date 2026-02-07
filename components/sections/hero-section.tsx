@@ -3,8 +3,10 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { TwinklingStars } from "@/components/twinkling-stars";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export function HeroSection() {
+  const isHydrated = useHydrated();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -27,18 +29,19 @@ export function HeroSection() {
           style={{
             WebkitTextStroke: "2px rgba(255,255,255,0.3)",
             WebkitTextFillColor: "transparent",
-            animation: "hero-name-settle 0.8s ease-out 0.3s both",
           }}
         >
           MANNAN
         </h1>
 
-        <div
-          className="absolute top-1/2 left-0 right-0 h-1 bg-orange-500 origin-center"
-          style={{
-            animation: "hero-bar-settle 0.6s ease-out 0.3s both",
-          }}
-        />
+        {isHydrated && (
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            className="absolute top-1/2 left-0 right-0 h-1 bg-orange-500 origin-left"
+          />
+        )}
       </div>
 
       <p className="mt-8 text-2xl md:text-4xl font-mono text-orange-500 text-center">
