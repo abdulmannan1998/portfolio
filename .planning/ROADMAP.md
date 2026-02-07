@@ -29,7 +29,7 @@ See MILESTONES.md for details.
 **Strategy pivot:** Phases 9-10 (CSS animation replacement) were reverted after UAT revealed animation-timeline: view() doesn't work reliably. New approach: keep framer-motion, wrap animated sections in client boundary components, and achieve SSR benefits through component architecture rather than animation replacement.
 
 - [x] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
-- [ ] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
+- [x] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
 - [ ] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
 - [ ] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
 
@@ -72,8 +72,8 @@ Plans:
 - [x] 10-01-PLAN.md -- Convert twinkling-stars, css-preloader, and graph-legend to server components
 - [x] 10-02-PLAN.md -- Convert marquee-text to CSS animation and add Intersection Observer to animated-counter
 - [x] 10-03-PLAN.md -- UAT gap closure: remove dead code, revert marquee to framer-motion
-- [ ] 10-04-PLAN.md -- Extract Hero and About sections into "use client" wrapper components
-- [ ] 10-05-PLAN.md -- Refactor section components to accept data as props instead of importing internally
+- [x] 10-04-PLAN.md -- Extract Hero and About sections into "use client" wrapper components
+- [x] 10-05-PLAN.md -- Refactor section components to accept data as props instead of importing internally
 
 ### Phase 11: Server Component Page
 
@@ -117,10 +117,10 @@ Critical path: 9 -> 10 -> 11 -> 12
 | Phase                          | Milestone | Plans Complete | Status      | Completed  |
 | ------------------------------ | --------- | -------------- | ----------- | ---------- |
 | 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 10. Client Boundary Extraction | v1.2      | 3/5            | Gap closure | -          |
+| 10. Client Boundary Extraction | v1.2      | 5/5            | Complete    | 2026-02-07 |
 | 11. Server Component Page      | v1.2      | 0/1            | Not started | -          |
 | 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 10 gap closure plans 10-04 and 10-05 created (extract Hero/About wrappers, refactor sections to accept data props)_
+_Last updated: 2026-02-07 -- Phase 10 complete (5/5 plans, all client boundaries extracted, verified 6/6 success criteria)_
