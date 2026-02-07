@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
-**Current focus:** Phase 10 verified complete, ready for Phase 11 - Server Component Page
+**Current focus:** Phase 11 plan 1 complete, page.tsx is now a true server component
 
 ## Current Position
 
-Phase: 10 of 12 (Client Boundary Extraction) -- v1.2 SSR Migration in progress
-Plan: 5 of 5 in current phase (verified 6/6 success criteria)
-Status: Phase verified complete
-Last activity: 2026-02-07 -- Phase 10 verified (6/6 success criteria, all client boundaries extracted)
+Phase: 11 of 12 (Server Component Page) -- v1.2 SSR Migration in progress
+Plan: 1 of 1 in current phase (completed)
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 11-01-PLAN.md (page.tsx as server component, page-content.tsx dissolved)
 
-Progress: [███████████░░░░░░░░░] 63% (5/7 v1.2 plans complete, 10/12 phases complete across all milestones)
+Progress: [████████████░░░░░░░░] 67% (6/7 v1.2 plans complete, 11/12 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -35,10 +35,10 @@ Progress: [███████████░░░░░░░░░] 63% (5/
 **v1.2 Milestone (in progress):**
 
 - Total plans: 7 (target)
-- Plans complete: 5
-- Average duration: 4.3 min
-- Total execution time: 25.5 min
-- Phases: 4 (target), 2 complete
+- Plans complete: 6
+- Average duration: 4.1 min
+- Total execution time: 28.5 min
+- Phases: 4 (target), 3 complete
 
 **By Phase (cumulative):**
 
@@ -54,6 +54,7 @@ Progress: [███████████░░░░░░░░░] 63% (5/
 | 08-technical-debt              | v1.1      | 3     | 7min    | 2.3min   |
 | 09-server-side-github-fetching | v1.2      | 1     | 4min    | 4min     |
 | 10-client-boundary-extraction  | v1.2      | 5     | 21.5min | 4.3min   |
+| 11-server-component-page       | v1.2      | 1     | 3min    | 3min     |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [10-05]: Moved categoryOffsets computation inside TechAndCodeSection component (cheap O(n) operation on 5 categories)
 - [10-05]: Used type-only imports for ExperienceItem and TechCategory (types erased at build time)
 - [10-05]: Section wrapper components accept data via props (not internal imports)
+- [11-01]: Internalized scroll parallax in HeroSection using section-aware tracking (offset: ["start start", "end start"])
+- [11-01]: Created graph-section-loader.tsx client wrapper to satisfy Next.js 16 Turbopack constraint (no dynamic ssr:false in server components)
+- [11-01]: Changed scroll transform range from [0, 0.15] to [0, 1] because tracking is now section-relative instead of page-relative
 
 ### Pending Todos
 
@@ -96,10 +100,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Phase 10 verified complete, ready for Phase 11
+Stopped at: Completed 11-01-PLAN.md (page.tsx as server component)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Phase 10 verified complete (6/6 success criteria, all client boundaries extracted and data props wired)_
+_Last updated: 2026-02-07 -- Phase 11 complete (page.tsx as server component, page-content.tsx dissolved, ready for Phase 12 PPR)_
