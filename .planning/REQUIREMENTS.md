@@ -45,18 +45,18 @@
 
 | REQ-ID      | Phase | Status  |
 | ----------- | ----- | ------- |
-| REVEAL-01   | —     | Pending |
-| REVEAL-02   | —     | Pending |
-| REVEAL-03   | —     | Pending |
-| REVEAL-04   | —     | Pending |
-| REVEAL-05   | —     | Pending |
-| INTERACT-01 | —     | Pending |
-| INTERACT-02 | —     | Pending |
-| VISUAL-01   | —     | Pending |
-| VISUAL-02   | —     | Pending |
-| VISUAL-03   | —     | Pending |
-| VISUAL-04   | —     | Pending |
-| CONTENT-01  | —     | Pending |
+| REVEAL-01   | 13    | Pending |
+| REVEAL-02   | 13    | Pending |
+| REVEAL-03   | 14    | Pending |
+| REVEAL-04   | 14    | Pending |
+| REVEAL-05   | 14    | Pending |
+| INTERACT-01 | 15    | Pending |
+| INTERACT-02 | 15    | Pending |
+| VISUAL-01   | 15    | Pending |
+| VISUAL-02   | 16    | Pending |
+| VISUAL-03   | 16    | Pending |
+| VISUAL-04   | 15    | Pending |
+| CONTENT-01  | 17    | Pending |
 
 ---
 
