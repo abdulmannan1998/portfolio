@@ -3,8 +3,10 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { TwinklingStars } from "@/components/twinkling-stars";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export function HeroSection() {
+  const isHydrated = useHydrated();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -24,7 +26,9 @@ export function HeroSection() {
       <div className="relative">
         <motion.h1
           initial={false}
-          animate={{ y: [0, -4, 0], scale: [1, 1.01, 1] }}
+          animate={
+            isHydrated ? { y: [0, -6, 0], scale: [1, 1.015, 1] } : undefined
+          }
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           className="text-[15vw] md:text-[12vw] font-black tracking-tighter leading-none text-center"
           style={{
@@ -37,7 +41,7 @@ export function HeroSection() {
 
         <motion.div
           initial={false}
-          animate={{ scaleX: [0.9, 1] }}
+          animate={isHydrated ? { scaleX: [0.85, 1] } : undefined}
           transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
           className="absolute top-1/2 left-0 right-0 h-1 bg-orange-500 origin-left"
           style={{ originX: 0 }}
@@ -46,7 +50,7 @@ export function HeroSection() {
 
       <motion.p
         initial={false}
-        animate={{ opacity: [0.8, 1], y: [6, 0] }}
+        animate={isHydrated ? { opacity: [0.7, 1], y: [10, 0] } : undefined}
         transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
         className="mt-8 text-2xl md:text-4xl font-mono text-orange-500 text-center"
       >
@@ -56,7 +60,7 @@ export function HeroSection() {
       {/* Scroll indicator */}
       <motion.div
         initial={false}
-        animate={{ opacity: [0, 1] }}
+        animate={isHydrated ? { opacity: [0, 1] } : undefined}
         transition={{ delay: 1 }}
         className="absolute bottom-12 left-1/2 -translate-x-1/2"
       >
