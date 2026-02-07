@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 11 of 12 (Server Component Page) -- v1.2 SSR Migration in progress
+Phase: 12 of 12 (PPR Image Optimization) -- v1.2 SSR Migration in progress
 Plan: 1 of 1 in current phase (completed)
 Status: Phase complete
-Last activity: 2026-02-07 -- Completed 11-01-PLAN.md (page.tsx as server component, page-content.tsx dissolved)
+Last activity: 2026-02-07 -- Completed 12-01-PLAN.md (PPR streaming with Suspense and ErrorBoundary)
 
-Progress: [████████████░░░░░░░░] 67% (6/7 v1.2 plans complete, 11/12 phases complete across all milestones)
+Progress: [█████████████████████] 100% (7/7 v1.2 plans complete, 12/12 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -32,13 +32,13 @@ Progress: [████████████░░░░░░░░] 67% (6/
 - Total execution time: 15 min
 - Phases: 3
 
-**v1.2 Milestone (in progress):**
+**v1.2 Milestone (complete):**
 
-- Total plans: 7 (target)
-- Plans complete: 6
-- Average duration: 4.1 min
-- Total execution time: 28.5 min
-- Phases: 4 (target), 3 complete
+- Total plans: 7
+- Plans complete: 7
+- Average duration: 3.9 min
+- Total execution time: 31.5 min
+- Phases: 4
 
 **By Phase (cumulative):**
 
@@ -55,6 +55,7 @@ Progress: [████████████░░░░░░░░] 67% (6/
 | 09-server-side-github-fetching | v1.2      | 1     | 4min    | 4min     |
 | 10-client-boundary-extraction  | v1.2      | 5     | 21.5min | 4.3min   |
 | 11-server-component-page       | v1.2      | 1     | 3min    | 3min     |
+| 12-ppr-image-optimization      | v1.2      | 1     | 3min    | 3min     |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Recent decisions affecting current work:
 - [11-01]: Internalized scroll parallax in HeroSection using section-aware tracking (offset: ["start start", "end start"])
 - [11-01]: Created graph-section-loader.tsx client wrapper to satisfy Next.js 16 Turbopack constraint (no dynamic ssr:false in server components)
 - [11-01]: Changed scroll transform range from [0, 0.15] to [0, 1] because tracking is now section-relative instead of page-relative
+- [12-01]: Split TechAndCodeSection into TechStackSection (static) and GitHubActivityStream (dynamic) to enable PPR split point
+- [12-01]: Made Page function synchronous - async data fetching moved to stream component
+- [12-01]: PPR enabled via cacheComponents: true (Next.js 16 flag, replaces experimental.ppr)
 
 ### Pending Todos
 
@@ -100,10 +104,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 11-01-PLAN.md (page.tsx as server component)
+Stopped at: Completed 12-01-PLAN.md (PPR streaming with Suspense)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- Phase 11 complete (page.tsx as server component, page-content.tsx dissolved, ready for Phase 12 PPR)_
+_Last updated: 2026-02-07 -- Phase 12 complete (PPR streaming enabled, GitHub activity streams via Suspense with static shell, v1.2 milestone complete)_
