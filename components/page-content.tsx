@@ -13,6 +13,9 @@ import { HeroSection } from "@/components/sections/hero-section";
 import { AboutSection } from "@/components/sections/about-section";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { mulberry32 } from "@/lib/seeded-random";
+import { RESUME_DATA } from "@/data/resume-data";
+import { experienceData } from "@/data/experience";
+import { techCategories } from "@/data/tech-stack";
 import type { RedactedCommit } from "@/lib/github";
 
 // Lazy load React Flow graph
@@ -124,16 +127,16 @@ export function PageContent({ commits }: PageContentProps) {
       <AboutSection backgroundPattern={backgroundPattern} />
 
       {/* Impact metrics */}
-      <MetricsSection />
+      <MetricsSection metrics={RESUME_DATA.metrics} />
 
       {/* Tech stack + GitHub activity combined */}
-      <TechAndCodeSection commits={commits} />
+      <TechAndCodeSection categories={techCategories} commits={commits} />
 
       {/* Experience + Career Graph side by side */}
       <section className="relative py-24 bg-stone-950">
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,400px)_1fr] gap-12 lg:gap-16">
-            <ExperienceTimeline />
+            <ExperienceTimeline experiences={experienceData} />
             <GraphSection />
           </div>
         </div>

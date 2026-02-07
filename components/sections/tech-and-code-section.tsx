@@ -1,21 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { techCategories } from "@/data/tech-stack";
+import type { TechCategory } from "@/data/tech-stack";
 import { GitHubActivity } from "@/components/github-activity";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import type { RedactedCommit } from "@/lib/github";
 
-const categoryOffsets = techCategories.reduce<number[]>((acc, cat, i) => {
-  acc.push(i === 0 ? 0 : acc[i - 1] + techCategories[i - 1].items.length);
-  return acc;
-}, []);
-
 type TechAndCodeSectionProps = {
+  categories: TechCategory[];
   commits: RedactedCommit[];
 };
 
-export function TechAndCodeSection({ commits }: TechAndCodeSectionProps) {
+export function TechAndCodeSection({
+  categories,
+  commits,
+}: TechAndCodeSectionProps) {
+  const categoryOffsets = categories.reduce<number[]>((acc, cat, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1] + categories[i - 1].items.length);
+    return acc;
+  }, []);
   return (
     <section className="relative py-24 bg-black overflow-hidden">
       {/* Section header */}
@@ -41,7 +44,7 @@ export function TechAndCodeSection({ commits }: TechAndCodeSectionProps) {
 
           {/* LEFT PAGE: Tech Stack — dramatic stacked layout */}
           <div className="lg:pr-14 space-y-8">
-            {techCategories.map((category, catIndex) => {
+            {categories.map((category, catIndex) => {
               const categoryStartIndex = categoryOffsets[catIndex];
               return (
                 <div key={category.name}>
