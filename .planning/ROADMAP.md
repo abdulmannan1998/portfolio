@@ -65,13 +65,15 @@ Plans:
 5. Marquee uses framer-motion animation inside a "use client" boundary
 6. All animations visually match current behavior (no regression)
 
-**Plans:** 3 plans
+**Plans:** 5 plans
 
 Plans:
 
 - [x] 10-01-PLAN.md -- Convert twinkling-stars, css-preloader, and graph-legend to server components
 - [x] 10-02-PLAN.md -- Convert marquee-text to CSS animation and add Intersection Observer to animated-counter
-- [ ] 10-03-PLAN.md -- UAT gap closure: remove dead code, revert marquee to framer-motion
+- [x] 10-03-PLAN.md -- UAT gap closure: remove dead code, revert marquee to framer-motion
+- [ ] 10-04-PLAN.md -- Extract Hero and About sections into "use client" wrapper components
+- [ ] 10-05-PLAN.md -- Refactor section components to accept data as props instead of importing internally
 
 ### Phase 11: Server Component Page
 
@@ -115,10 +117,10 @@ Critical path: 9 -> 10 -> 11 -> 12
 | Phase                          | Milestone | Plans Complete | Status      | Completed  |
 | ------------------------------ | --------- | -------------- | ----------- | ---------- |
 | 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 10. Client Boundary Extraction | v1.2      | 2/3            | UAT gaps    | -          |
+| 10. Client Boundary Extraction | v1.2      | 3/5            | Gap closure | -          |
 | 11. Server Component Page      | v1.2      | 0/1            | Not started | -          |
 | 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 10 UAT gap closure planned (10-03: remove dead code, revert marquee to framer-motion)_
+_Last updated: 2026-02-07 -- Phase 10 gap closure plans 10-04 and 10-05 created (extract Hero/About wrappers, refactor sections to accept data props)_
