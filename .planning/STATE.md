@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 13 of 17 (State Machine Foundation)
-Plan: -- (roadmap created, ready to plan Phase 13)
-Status: Ready to plan
-Last activity: 2026-02-07 -- Completed quick task 015: We should not show or load the reactflow graph on mobile devices
+Plan: 1 of 1 complete
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 13-01-PLAN.md (State Machine Foundation)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░░░░░░░░░░░░] 5.9%
 
 ## Performance Metrics
 
@@ -55,12 +55,18 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░] 0%
 | 10-client-boundary-extraction  | v1.2      | 5     | 21.5min | 4.3min   |
 | 11-server-component-page       | v1.2      | 1     | 3min    | 3min     |
 | 12-ppr-image-optimization      | v1.2      | 3     | 20min   | 6.7min   |
+| 13-state-machine-foundation    | v1.3      | 1     | 4min    | 4min     |
 
 ## Accumulated Context
 
 ### Decisions
 
-Key decisions logged in PROJECT.md.
+| Phase | Plan | Decision                              | Rationale                                                                                     |
+| ----- | ---- | ------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 13    | 01   | State machine over setTimeout cascade | Enables clean interruption handling and clear reveal lifecycle phases                         |
+| 13    | 01   | Click-to-reveal over mouse-enter      | Explicit user intent prevents accidental triggers, better mobile support                      |
+| 13    | 01   | Remove fitView entirely               | Phase 14 will implement manual camera choreography, fitView would conflict                    |
+| 13    | 01   | Centralized timer registration        | All timers registered in store allow single abortReveal() call to clean up all pending timers |
 
 ### Pending Todos
 
@@ -80,10 +86,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Roadmap created for v1.3 Graph Improvements
+Stopped at: Completed 13-01-PLAN.md (State Machine Foundation)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- v1.3 roadmap created_
+_Last updated: 2026-02-07 -- Completed Phase 13 Plan 01 (State Machine Foundation)_
