@@ -10,6 +10,7 @@ import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { MetricsSection } from "@/components/sections/metrics-section";
 import { TechAndCodeSection } from "@/components/sections/tech-and-code-section";
 import { HeroSection } from "@/components/sections/hero-section";
+import { AboutSection } from "@/components/sections/about-section";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { mulberry32 } from "@/lib/seeded-random";
 import type { RedactedCommit } from "@/lib/github";
@@ -120,81 +121,7 @@ export function PageContent({ commits }: PageContentProps) {
         </div>
       </section>
 
-      {/* About section - Split screen */}
-      <section className="relative min-h-screen grid grid-cols-1 md:grid-cols-2">
-        {/* Left - Image/Pattern */}
-        <div className="relative bg-stone-900 flex items-center justify-center p-12">
-          <div className="absolute inset-0 opacity-20">
-            {backgroundPattern.map((pos, i) => (
-              <div
-                key={i}
-                className="absolute text-8xl font-black text-white/5"
-                style={{
-                  top: `${pos.top}%`,
-                  left: `${pos.left}%`,
-                  transform: `rotate(${pos.rotate}deg)`,
-                }}
-              >
-                M
-              </div>
-            ))}
-          </div>
-          <div className="relative text-center">
-            <span className="text-[200px] md:text-[300px] font-black text-white/10">
-              4+
-            </span>
-            <p className="absolute bottom-1/3 left-1/2 -translate-x-1/2 text-2xl font-mono text-white/60">
-              YEARS OF EXPERIENCE
-            </p>
-          </div>
-        </div>
-
-        {/* Right - Text */}
-        <div className="relative bg-black flex items-center p-12 md:p-16">
-          <div>
-            <motion.span
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              className="text-orange-500 font-mono text-sm uppercase tracking-widest"
-            >
-              About
-            </motion.span>
-            <motion.h2
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight"
-            >
-              BUILDING
-              <br />
-              <span className="text-orange-500">INTERFACES</span>
-              <br />
-              THAT FEEL ALIVE
-            </motion.h2>
-            <motion.p
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-white/60 text-lg leading-relaxed max-w-md mb-4"
-            >
-              I build data-dense dashboards, complex state systems, and the
-              architectural scaffolding that makes frontend codebases scale. My
-              work tends toward the internal tooling and pattern-setting that
-              raises the ceiling for entire engineering teams.
-            </motion.p>
-            <motion.p
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-white/60 text-lg leading-relaxed max-w-md"
-            >
-              I tend to be the engineer who gets routed the unclear or difficult
-              problems — the ones other developers would rather avoid.
-              That&apos;s where I do my best work: absorbing complexity and
-              turning it into something maintainable.
-            </motion.p>
-          </div>
-        </div>
-      </section>
+      <AboutSection backgroundPattern={backgroundPattern} />
 
       {/* Impact metrics */}
       <MetricsSection />
