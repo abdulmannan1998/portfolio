@@ -125,6 +125,55 @@
   }
 }
 
+/* Hero settle animations — CSS so they play from first paint, no JS needed */
+@keyframes hero-name-settle {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.015);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes hero-bar-settle {
+  0% {
+    transform: scaleX(1);
+  }
+  40% {
+    transform: scaleX(0.92);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hero-subtitle-settle {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 0.8;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-scroll-fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Twinkling stars animation */
 @keyframes twinkle {
   0%,

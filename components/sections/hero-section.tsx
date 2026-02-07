@@ -3,10 +3,8 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { TwinklingStars } from "@/components/twinkling-stars";
-import { useHydrated } from "@/lib/use-hydrated";
 
 export function HeroSection() {
-  const isHydrated = useHydrated();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -24,52 +22,47 @@ export function HeroSection() {
       <TwinklingStars />
       {/* Giant name */}
       <div className="relative">
-        <motion.h1
-          initial={false}
-          animate={
-            isHydrated ? { y: [0, -6, 0], scale: [1, 1.015, 1] } : undefined
-          }
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        <h1
           className="text-[15vw] md:text-[12vw] font-black tracking-tighter leading-none text-center"
           style={{
             WebkitTextStroke: "2px rgba(255,255,255,0.3)",
             WebkitTextFillColor: "transparent",
+            animation: "hero-name-settle 0.8s ease-out 0.3s both",
           }}
         >
           MANNAN
-        </motion.h1>
+        </h1>
 
-        <motion.div
-          initial={false}
-          animate={isHydrated ? { scaleX: [0.85, 1] } : undefined}
-          transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+        <div
           className="absolute top-1/2 left-0 right-0 h-1 bg-orange-500 origin-left"
-          style={{ originX: 0 }}
+          style={{
+            animation: "hero-bar-settle 0.6s ease-out 0.6s both",
+          }}
         />
       </div>
 
-      <motion.p
-        initial={false}
-        animate={isHydrated ? { opacity: [0.7, 1], y: [10, 0] } : undefined}
-        transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
+      <p
         className="mt-8 text-2xl md:text-4xl font-mono text-orange-500 text-center"
+        style={{
+          animation: "hero-subtitle-settle 0.6s ease-out 0.7s both",
+        }}
       >
         SENIOR SOFTWARE ENGINEER
-      </motion.p>
+      </p>
 
       {/* Scroll indicator */}
-      <motion.div
-        initial={false}
-        animate={isHydrated ? { opacity: [0, 1] } : undefined}
-        transition={{ delay: 1 }}
+      <div
         className="absolute bottom-12 left-1/2 -translate-x-1/2"
+        style={{
+          animation: "hero-scroll-fadein 0.5s ease-out 1.2s both",
+        }}
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
           className="w-px h-16 bg-gradient-to-b from-white/50 to-transparent"
         />
-      </motion.div>
+      </div>
     </motion.section>
   );
 }
