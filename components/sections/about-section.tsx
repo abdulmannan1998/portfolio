@@ -51,7 +51,7 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
           <motion.span
             initial={isHydrated ? { opacity: 0 } : false}
             whileInView={{ opacity: 1 }}
-            key={isHydrated ? "animated" : "static"}
+            key={isHydrated ? "animated-label" : "label"}
             className="text-orange-500 font-mono text-sm uppercase tracking-widest"
           >
             About
@@ -59,7 +59,7 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
           <motion.h2
             initial={isHydrated ? { y: 50, opacity: 0 } : false}
             whileInView={{ y: 0, opacity: 1 }}
-            key={isHydrated ? "animated" : "static"}
+            key={isHydrated ? "animated-heading" : "heading"}
             className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight"
           >
             BUILDING
@@ -72,7 +72,7 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
             initial={isHydrated ? { y: 30, opacity: 0 } : false}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            key={isHydrated ? "animated" : "static"}
+            key={isHydrated ? "animated-p1" : "p1"}
             className="text-white/60 text-lg leading-relaxed max-w-md mb-4"
           >
             I build data-dense dashboards, complex state systems, and the
@@ -84,7 +84,7 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
             initial={isHydrated ? { y: 30, opacity: 0 } : false}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.15 }}
-            key={isHydrated ? "animated" : "static"}
+            key={isHydrated ? "animated-p2" : "p2"}
             className="text-white/60 text-lg leading-relaxed max-w-md"
           >
             I tend to be the engineer who gets routed the unclear or difficult
