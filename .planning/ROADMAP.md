@@ -32,12 +32,12 @@
 2. Career nodes appear in reverse-chronological order: Intenseye first, then Layermark, then Bilkent
 3. The reveal sequence can be interrupted/aborted without leaving the graph in a broken state
 4. No fitView prop or debouncedFitView calls remain (prerequisite for camera work)
-   **Plans**: TBD
+   **Plans**: 2 plans
 
 Plans:
 
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
+- [ ] 13-01-PLAN.md -- State machine store + click-to-reveal + remove fitView
+- [ ] 13-02-PLAN.md -- Visual verification checkpoint
 
 ### Phase 14: Camera Choreography
 
@@ -113,7 +113,7 @@ Plans:
 
 | Phase                                 | Milestone | Plans Complete | Status      | Completed |
 | ------------------------------------- | --------- | -------------- | ----------- | --------- |
-| 13. State Machine Foundation          | v1.3      | 0/TBD          | Not started | -         |
+| 13. State Machine Foundation          | v1.3      | 0/2            | Planned     | -         |
 | 14. Camera Choreography               | v1.3      | 0/TBD          | Not started | -         |
 | 15. Interaction Model and Node Polish | v1.3      | 0/TBD          | Not started | -         |
 | 16. Animated Edges                    | v1.3      | 0/TBD          | Not started | -         |
