@@ -2,6 +2,8 @@
 
 import { create } from "zustand";
 
+type RevealPhase = "idle" | "revealing" | "revealed" | "aborted";
+
 type GraphState = {
   // Expanded nodes (array for JSON serializability)
   expandedNodes: string[];
@@ -9,10 +11,18 @@ type GraphState = {
   collapseNode: (id: string) => void;
   collapseAll: () => void;
 
-  // Reveal tracking state
-  hasStartedReveal: boolean;
+  // Reveal state machine
+  revealPhase: RevealPhase;
+  revealStep: number;
+  revealTimerIds: NodeJS.Timeout[];
+  beginReveal: () => void;
+  advanceReveal: () => void;
+  abortReveal: () => void;
+  registerRevealTimer: (id: NodeJS.Timeout) => void;
+  clearRevealTimers: () => void;
+
+  // Reveal tracking state (for achievement nodes)
   revealedCompanies: string[];
-  startReveal: () => void;
   markCompanyRevealed: (companyId: string) => void;
   isCompanyRevealed: (companyId: string) => boolean;
 };
@@ -20,7 +30,9 @@ type GraphState = {
 export const useGraphStore = create<GraphState>((set, get) => ({
   // Initial state
   expandedNodes: [],
-  hasStartedReveal: false,
+  revealPhase: "idle",
+  revealStep: -1,
+  revealTimerIds: [],
   revealedCompanies: [],
 
   // Actions
@@ -38,7 +50,39 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
   collapseAll: () => set({ expandedNodes: [] }),
 
-  startReveal: () => set({ hasStartedReveal: true }),
+  beginReveal: () => {
+    const { revealPhase } = get();
+    if (revealPhase !== "idle") return;
+    set({ revealPhase: "revealing", revealStep: 0 });
+  },
+
+  advanceReveal: () => {
+    const { revealStep } = get();
+    const REVEAL_SEQUENCE_LENGTH = 3; // Intenseye, Layermark, Bilkent
+    const nextStep = revealStep + 1;
+    if (nextStep >= REVEAL_SEQUENCE_LENGTH) {
+      set({ revealPhase: "revealed", revealStep: nextStep });
+    } else {
+      set({ revealStep: nextStep });
+    }
+  },
+
+  abortReveal: () => {
+    const { revealTimerIds } = get();
+    revealTimerIds.forEach(clearTimeout);
+    set({ revealPhase: "aborted", revealTimerIds: [] });
+  },
+
+  registerRevealTimer: (id) =>
+    set((state) => ({
+      revealTimerIds: [...state.revealTimerIds, id],
+    })),
+
+  clearRevealTimers: () => {
+    const { revealTimerIds } = get();
+    revealTimerIds.forEach(clearTimeout);
+    set({ revealTimerIds: [] });
+  },
 
   markCompanyRevealed: (companyId) =>
     set((state) => ({

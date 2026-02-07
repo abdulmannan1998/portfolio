@@ -34,6 +34,7 @@ export const ACHIEVEMENT_LAYOUT = {
 /**
  * REVEAL_TIMING - Animation timing sequence
  * Controls the staggered reveal of timeline nodes in milliseconds
+ * @deprecated Use REVEAL_SEQUENCE instead for state-machine-based reveals
  */
 export const REVEAL_TIMING = {
   /** Delay before education node (Bilkent) appears in milliseconds */
@@ -43,3 +44,23 @@ export const REVEAL_TIMING = {
   /** Delay before second work experience node (Intenseye) appears in milliseconds */
   INTENSEYE_DELAY_MS: 2200,
 } as const;
+
+/**
+ * REVEAL_SEQUENCE - Career node reveal order (reverse-chronological)
+ * State machine sequencing for controlled reveal with camera choreography
+ */
+export const REVEAL_SEQUENCE = [
+  { nodeId: "Intenseye", delayMs: 600 },
+  { nodeId: "Layermark", delayMs: 600 },
+  { nodeId: "Bilkent", delayMs: 600 },
+] as const;
+
+/**
+ * SOFT_SKILL_NODE_IDS - Soft skill node identifiers
+ * These nodes appear immediately on reveal, not part of the main sequence
+ */
+export const SOFT_SKILL_NODE_IDS = [
+  "Problem-Solving",
+  "Collaboration",
+  "Quick-Learner",
+] as const;
