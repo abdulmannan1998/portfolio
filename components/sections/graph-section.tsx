@@ -20,6 +20,7 @@ import { AchievementNode } from "@/components/nodes/achievement-node";
 import { useGraphStore } from "@/lib/stores/graph-store";
 import { REVEAL_TIMING } from "@/lib/layout-constants";
 import { debounce } from "@/lib/debounce";
+import { useHydrated } from "@/lib/use-hydrated";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -27,6 +28,7 @@ const nodeTypes = {
 };
 
 function GraphSectionInner() {
+  const isHydrated = useHydrated();
   const graphContainerRef = useRef<HTMLDivElement>(null);
   const [graphDimensions, setGraphDimensions] = useState({
     width: 800,
@@ -274,9 +276,10 @@ function GraphSectionInner() {
       <p className="text-stone-400 mb-4">Interact with nodes to explore</p>
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
+        initial={isHydrated ? { opacity: 0, scale: 0.98 } : false}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
+        key={isHydrated ? "animated" : "static"}
         ref={graphContainerRef}
         className="relative h-[500px] md:h-[700px] rounded-xl border border-stone-800 bg-stone-950/50 overflow-hidden"
         onMouseEnter={handleGraphEnter}

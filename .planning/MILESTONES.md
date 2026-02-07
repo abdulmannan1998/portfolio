@@ -1,5 +1,33 @@
 # Project Milestones: Portfolio
 
+## v1.2 SSR Migration (Shipped: 2026-02-07)
+
+**Delivered:** Migrated portfolio from fully client-rendered to server-first architecture with Partial Prerendering, ISR data fetching, client boundary isolation, and hydration-aware animations.
+
+**Phases completed:** 9-12 (10 plans total)
+
+**Key accomplishments:**
+
+- Zero-flash GitHub rendering via server-side ISR (API route: 193 → 16 lines, loading spinners eliminated)
+- page.tsx converted to async server component composing all sections directly (page-content.tsx dissolved)
+- Client boundary architecture isolating framer-motion in "use client" wrappers with props-based data flow
+- Partial Prerendering with static HTML shell + dynamic GitHub streaming via Suspense/ErrorBoundary
+- Hydration-aware animation patterns ensuring PPR shell renders visibly before JS loads
+- next/image optimization for all 27 tech stack SVG icons (zero layout shift)
+
+**Stats:**
+
+- 73 files changed (6,646 insertions, 4,491 deletions)
+- 5,527 lines of TypeScript/CSS (current codebase)
+- 4 phases, 10 plans, 26 requirements
+- Same-day execution (2026-02-07, ~4.5 hours)
+
+**Git range:** `d42fb4d` → `c2d6512`
+
+**What's next:** Testing infrastructure, accessibility improvements, or new features
+
+---
+
 ## v1.1 Codebase Polish (Shipped: 2026-02-07)
 
 **Delivered:** Removed dead code, modularized page.tsx from 826 to 390 lines, fixed async cleanup patterns, and added GitHub API caching.
@@ -55,4 +83,4 @@
 
 ---
 
-_Last updated: 2026-02-07_
+_Last updated: 2026-02-07 after v1.2 SSR Migration milestone_

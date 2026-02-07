@@ -1,58 +1,20 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { Github, ExternalLink, Lock, Globe, ShieldAlert } from "lucide-react";
-
-// RedactedCommit type - matches app/api/github/route.ts
-export type RedactedCommit = {
-  id: string;
-  repo: string;
-  repoShort: string;
-  message: string;
-  sha: string;
-  timestamp: string;
-  visibility: "public" | "own-private" | "org-private";
-  repoUrl: string | null;
-  commitUrl: string | null;
-};
+import type { RedactedCommit } from "@/lib/github";
 
 export type GitHubActivityProps = {
-  username?: string;
+  commits: RedactedCommit[];
+  username: string;
+  nowTimestamp?: number;
 };
 
-// Module-level cache (outside component)
-type CacheEntry = {
-  data: RedactedCommit[];
-  timestamp: number;
-};
+function formatTimeAgo(dateString: string, now: Date | null): string {
+  const date = new Date(dateString);
 
-const commitCache = new Map<string, CacheEntry>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-function getCachedCommits(): RedactedCommit[] | null {
-  const cacheKey = "github_commits";
-  const cached = commitCache.get(cacheKey);
-
-  if (!cached) return null;
-  if (Date.now() - cached.timestamp > CACHE_TTL) {
-    commitCache.delete(cacheKey);
-    return null;
+  // If no current time provided (SSR/prerendering), just show the date
+  if (!now) {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
-  return cached.data;
-}
-
-function setCachedCommits(commits: RedactedCommit[]): void {
-  const cacheKey = "github_commits";
-  commitCache.set(cacheKey, {
-    data: commits,
-    timestamp: Date.now(),
-  });
-}
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
   const diffInMs = now.getTime() - date.getTime();
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
@@ -74,43 +36,14 @@ function Redacted({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function GitHubActivity({ username = "" }: GitHubActivityProps) {
-  const [commits, setCommits] = useState<RedactedCommit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchGitHubActivity() {
-      // Check cache first
-      const cached = getCachedCommits();
-      if (cached) {
-        setCommits(cached);
-        setLoading(false);
-        return;
-      }
-
-      // Fetch from our API route
-      try {
-        const response = await fetch("/api/github");
-        if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
-
-        if (data.error) {
-          setError(data.error);
-        } else {
-          // Cache the response
-          setCachedCommits(data.commits || []);
-          setCommits(data.commits || []);
-        }
-      } catch {
-        setError("Unable to load activity");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchGitHubActivity();
-  }, []);
-
+export function GitHubActivity({
+  commits,
+  username,
+  nowTimestamp,
+}: GitHubActivityProps) {
+  // For SSR/prerendering compatibility: if timestamp provided, use it; otherwise null (shows date only)
+  // On client side, this will be null during initial render, then hydrated with actual time
+  const now = nowTimestamp ? new Date(nowTimestamp) : null;
   return (
     <div className="relative bg-stone-900 p-6">
       {/* Corner accent */}
@@ -126,7 +59,7 @@ export function GitHubActivity({ username = "" }: GitHubActivityProps) {
             </span>
             <h3 className="text-lg font-black text-white">GITHUB</h3>
           </div>
-          {!loading && commits.length > 0 && (
+          {commits.length > 0 && (
             <span className="ml-auto flex items-center gap-1.5 px-2 py-0.5 bg-orange-500/20 text-orange-500 text-xs font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
               LIVE
@@ -135,18 +68,7 @@ export function GitHubActivity({ username = "" }: GitHubActivityProps) {
         </div>
 
         {/* Commits list */}
-        {loading ? (
-          <div className="space-y-4">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="space-y-2">
-                <div className="h-5 w-full bg-white/10 animate-pulse" />
-                <div className="h-4 w-2/3 bg-white/10 animate-pulse" />
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <p className="text-white/40 font-mono text-sm">{error}</p>
-        ) : commits.length === 0 ? (
+        {commits.length === 0 ? (
           <p className="text-white/40 font-mono text-sm">No recent commits</p>
         ) : (
           <div className="space-y-5">
@@ -185,7 +107,7 @@ export function GitHubActivity({ username = "" }: GitHubActivityProps) {
 
                   {/* Timestamp */}
                   <span className="text-white/30 font-mono text-xs shrink-0">
-                    {formatTimeAgo(commit.timestamp)}
+                    {formatTimeAgo(commit.timestamp, now)}
                   </span>
                 </div>
 

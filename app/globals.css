@@ -125,52 +125,13 @@
   }
 }
 
-/* Preloader animations */
-@keyframes preloader-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes preloader-step-fade {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 0.5;
-    transform: translateX(0);
-  }
-}
-
-@keyframes preloader-progress {
-  from {
-    width: 0%;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes preloader-welcome-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes preloader-blink {
+/* Twinkling stars animation */
+@keyframes twinkle {
   0%,
-  50% {
-    opacity: 0;
-  }
-  51%,
   100% {
-    opacity: 1;
+    opacity: var(--star-base-opacity);
+  }
+  50% {
+    opacity: var(--star-peak-opacity);
   }
 }
