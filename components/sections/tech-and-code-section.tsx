@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import type { TechCategory } from "@/data/tech-stack";
 import { GitHubActivity } from "@/components/github-activity";
 import { SOCIAL_LINKS } from "@/lib/social-links";
@@ -73,11 +74,13 @@ export function TechAndCodeSection({
                         }}
                         className="flex items-center gap-2 cursor-default group"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={tech.icon}
                           alt={tech.name}
+                          width={28}
+                          height={28}
                           className="w-6 h-6 md:w-7 md:h-7 object-contain"
+                          unoptimized
                         />
                         <span className="text-[10px] font-mono uppercase text-white/40 group-hover:text-orange-500 transition-colors">
                           {tech.name}
