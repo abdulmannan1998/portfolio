@@ -104,12 +104,13 @@ Plans:
 3. Every Suspense boundary has a paired ErrorBoundary that shows a meaningful fallback on failure
 4. Tech stack icons use next/image with explicit width/height and produce no layout shift on load
 
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
 
-- [ ] 12-01-PLAN.md -- Add Suspense streaming and ErrorBoundary for GitHub activity, split TechAndCodeSection for PPR static shell
-- [ ] 12-02-PLAN.md -- Replace raw img tags with next/image for tech stack icons
+- [x] 12-01-PLAN.md -- Add Suspense streaming and ErrorBoundary for GitHub activity, split TechAndCodeSection for PPR static shell
+- [x] 12-02-PLAN.md -- Replace raw img tags with next/image for tech stack icons
+- [ ] 12-03-PLAN.md -- Fix PPR static shell visibility (framer-motion initial opacity: 0 gap closure)
 
 ## Progress
 
@@ -123,8 +124,8 @@ Critical path: 9 -> 10 -> 11 -> 12
 | 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
 | 10. Client Boundary Extraction | v1.2      | 5/5            | Complete    | 2026-02-07 |
 | 11. Server Component Page      | v1.2      | 1/1            | Complete    | 2026-02-07 |
-| 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
+| 12. PPR & Image Optimization   | v1.2      | 2/3            | In progress | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 12 planned (2 plans in 1 wave, PPR streaming + image optimization)_
+_Last updated: 2026-02-07 -- Phase 12 gap closure plan added (12-03: fix PPR shell visibility)_
