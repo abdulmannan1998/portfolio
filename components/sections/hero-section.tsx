@@ -34,7 +34,7 @@ export function HeroSection() {
         </h1>
 
         <div
-          className="absolute top-1/2 left-0 right-0 h-1 bg-orange-500 origin-left"
+          className="absolute top-1/2 left-0 right-0 h-1 bg-orange-500 origin-center"
           style={{
             animation: "hero-bar-settle 0.6s ease-out 0.6s both",
           }}
