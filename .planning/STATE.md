@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** The portfolio must remain visually polished and performant -- changes should improve code quality without degrading the user experience.
-**Current focus:** Planning next milestone
+**Current focus:** v1.3 Graph Improvements
 
 ## Current Position
 
-Phase: 12 of 12 -- v1.2 SSR Migration milestone complete
-Plan: All complete
-Status: Ready for next milestone
-Last activity: 2026-02-07 -- v1.2 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-07 — Milestone v1.3 started
 
-Progress: [█████████████████████] 100% (3 milestones shipped: v1.0, v1.1, v1.2)
+Progress: [░░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -68,15 +68,15 @@ None.
 
 ### Blockers/Concerns
 
-None -- all milestones complete.
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: v1.2 SSR Migration milestone archived
+Stopped at: v1.3 milestone definition in progress
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-07 -- v1.2 milestone archived, ready for next milestone_
+_Last updated: 2026-02-07 — v1.3 Graph Improvements milestone started_

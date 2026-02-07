@@ -11,6 +11,7 @@ The portfolio must remain visually polished and performant — changes should im
 ## Current State
 
 **Latest shipped:** v1.2 SSR Migration (2026-02-07)
+**Current milestone:** v1.3 Graph Improvements
 
 - Server component page.tsx composing all sections directly (no page-content.tsx wrapper)
 - Partial Prerendering: static HTML shell + dynamic GitHub streaming via Suspense
@@ -61,7 +62,21 @@ The portfolio must remain visually polished and performant — changes should im
 
 ### Active
 
-(None — planning next milestone)
+#### Current Milestone: v1.3 Graph Improvements
+
+**Goal:** Transform the graph from a mechanical node reveal into a cinematic, recruiter-optimized guided career story.
+
+**Target features:**
+
+- Cinematic reveal triggered by name node interaction (not mouse enter)
+- Reverse-chronological narrative: Intenseye → Layermark → Bilkent → Courses
+- Camera follows the story — smooth pan to each new node
+- Click-to-expand achievement nodes (replacing hover-to-spawn)
+- Subtler soft skill treatment (badges/labels, not full floating nodes)
+- Polished node card design (typography, borders, shadows)
+- Animated edge connections (gradients, flowing particles)
+- Course nodes under Bilkent education
+- Smoother layout and transitions throughout
 
 ### Out of Scope
 
@@ -145,4 +160,4 @@ The portfolio must remain visually polished and performant — changes should im
 
 ---
 
-_Last updated: 2026-02-07 after v1.2 milestone_
+_Last updated: 2026-02-07 after v1.3 milestone started_
