@@ -1,829 +1,359 @@
-# Technology Stack for SSR Migration
+# Technology Stack: Cinematic Graph Improvements
 
-**Project:** Portfolio SSR Migration
+**Project:** Portfolio Graph Improvements (v1.3)
 **Researched:** 2026-02-07
-**Confidence:** HIGH
+**Confidence:** HIGH (verified from installed library type definitions)
 
 ## Executive Summary
 
-The portfolio already has a strong foundation with Next.js 16.1.6, React 19.2.3, and PPR enabled. SSR migration requires **minimal new dependencies** but significant architectural changes. The primary challenge is replacing framer-motion's scroll-based animations (whileInView, useScroll) with CSS alternatives that work in Server Components.
+The cinematic graph improvements require **zero new dependencies**. Every capability needed -- smooth camera panning, custom animated edges with particles, polished node cards, and click-to-expand interactions -- is achievable with the existing stack: React Flow 12.10.0, Framer Motion 12.31.0, and Tailwind CSS 4.x.
 
-**Key insight:** Most framer-motion usage is for entrance animations and scroll effects. These can be replaced with CSS animations + Intersection Observer API for the client boundary components that need interactivity triggers.
-
----
-
-## Current Stack (Validated)
-
-### Core Framework
-
-| Technology | Version | Status                 |
-| ---------- | ------- | ---------------------- |
-| Next.js    | 16.1.6  | ✓ Current, PPR enabled |
-| React      | 19.2.3  | ✓ Latest stable        |
-| TypeScript | 5.x     | ✓ Current              |
-
-### Rendering Configuration
-
-| Feature                    | Status      | Config                   |
-| -------------------------- | ----------- | ------------------------ |
-| PPR (Partial Prerendering) | ✓ Enabled   | `cacheComponents: true`  |
-| React Compiler             | ✓ Enabled   | `reactCompiler: true`    |
-| Suspense Streaming         | ✓ Available | Built-in with App Router |
-
-### UI/Animation Libraries
-
-| Library                    | Version | Usage                               | SSR Status            |
-| -------------------------- | ------- | ----------------------------------- | --------------------- |
-| Framer Motion              | 12.31.0 | Entrance animations, scroll effects | ⚠️ Client-only        |
-| React Flow (@xyflow/react) | 12.10.0 | Interactive graph                   | ⚠️ Client-only (keep) |
-| Zustand                    | 5.0.11  | Graph state                         | ⚠️ Client-only (keep) |
-| Tailwind CSS               | 4.x     | Styling                             | ✓ SSR-compatible      |
-| tw-animate-css             | 1.4.0   | CSS animations                      | ✓ SSR-compatible      |
-
-### Other Dependencies
-
-| Library                  | Version | Purpose           |
-| ------------------------ | ------- | ----------------- |
-| Lucide React             | 0.563.0 | Icons             |
-| Vercel Analytics         | 1.6.1   | Analytics         |
-| class-variance-authority | 0.7.1   | Variant utilities |
+The key insight is that React Flow already has a rich viewport API (`setCenter`, `fitBounds`, `setViewport`) with built-in `duration` and `ease` animation options, and its custom edge system renders edges as SVG `<path>` elements that can be animated with CSS or SVG animation techniques. Framer Motion handles the node-level animations. No particle library, no camera library, no animation library beyond what already exists.
 
 ---
 
-## Stack Additions/Changes for SSR Migration
+## Current Stack (No Changes Needed)
 
-### ✅ No New Runtime Dependencies Required
+### Core Dependencies (Existing)
 
-The existing stack already includes everything needed for SSR migration. The migration is primarily **architectural**, not dependency-based.
+| Technology     | Installed Version | Role in Graph Improvements                                |
+| -------------- | ----------------- | --------------------------------------------------------- |
+| @xyflow/react  | 12.10.0           | Camera API, custom edges, custom nodes, edge path utils   |
+| framer-motion  | 12.31.0           | Node entrance/expand animations, hover micro-interactions |
+| zustand        | 5.0.11            | Reveal sequence state machine, camera tour state          |
+| tailwind-merge | 3.4.0             | Conditional class composition for node variants           |
+| lucide-react   | 0.563.0           | Icons for node cards                                      |
 
-### CSS Animation Strategy
+### What Each Library Provides
 
-**Replace framer-motion entrance animations with native CSS + minimal client-side logic.**
+#### React Flow 12.10.0 -- Camera and Edge System
 
-#### Pattern 1: CSS Keyframes for Static Entrance Animations
+**Verified from installed `@xyflow/system@0.0.74` type definitions.**
 
-**What to replace:** `motion` components with `initial`, `animate` props (non-scroll)
+Camera/viewport methods available on `useReactFlow()`:
 
-**How:**
+| Method           | Signature                                  | Animation Support             | Use Case                                 |
+| ---------------- | ------------------------------------------ | ----------------------------- | ---------------------------------------- |
+| `setCenter`      | `(x, y, options?) => Promise<boolean>`     | `duration`, `ease`, `zoom`    | Pan to specific node position            |
+| `fitBounds`      | `(bounds, options?) => Promise<boolean>`   | `duration`, `ease`, `padding` | Zoom to region (e.g., a company cluster) |
+| `setViewport`    | `(viewport, options?) => Promise<boolean>` | `duration`, `ease`            | Full viewport control (x, y, zoom)       |
+| `fitView`        | `(options?) => Promise`                    | `duration`, `ease`, `nodes[]` | Fit to specific nodes or all nodes       |
+| `zoomTo`         | `(level, options?) => Promise<boolean>`    | `duration`, `ease`            | Zoom to specific level                   |
+| `getNodesBounds` | `(nodes[]) => Rect`                        | N/A                           | Calculate bounds for a group of nodes    |
 
-```tsx
-// BEFORE (Client Component)
-<motion.div
-  initial={{ opacity: 0, y: 50 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8 }}
->
-  Content
-</motion.div>
+**`ViewportHelperFunctionOptions` type:**
 
-// AFTER (Server Component + CSS)
-<div className="animate-fade-in-up">
-  Content
-</div>
-```
-
-**CSS (add to globals.css):**
-
-```css
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-```
-
-**Benefits:**
-
-- Works in Server Components
-- No hydration mismatch
-- Plays immediately on page load
-- Better performance (no JS execution)
-
-**Limitations:**
-
-- Cannot be triggered conditionally
-- No scroll-based triggers
-- Fixed timing (but can use `animation-delay` for staggering)
-
----
-
-#### Pattern 2: Intersection Observer for Scroll-Based Entrance Animations
-
-**What to replace:** `whileInView` props
-
-**Strategy:** Minimal client component wrapper that adds CSS class on intersection
-
-**How:**
-
-```tsx
-// NEW: Shared client component wrapper
-// components/animate-on-view.tsx
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-
-type Props = {
-  children: React.ReactNode;
-  className?: string;
-  threshold?: number;
+```typescript
+type ViewportHelperFunctionOptions = {
+  duration?: number; // ms - enables smooth animation
+  ease?: (t: number) => number; // custom easing function
+  interpolate?: "smooth" | "linear";
 };
+```
 
-export function AnimateOnView({ children, className, threshold = 0.1 }: Props) {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+**`SetCenterOptions` extends this with `zoom?: number`.**
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold },
-    );
+This means the cinematic camera tour is fully supported natively:
 
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold]);
+- Pan to root node: `setCenter(rootX, rootY, { duration: 1200, zoom: 0.9 })`
+- Pan to company cluster: `fitBounds(companyBounds, { duration: 1000, padding: 0.3 })`
+- These return `Promise<boolean>`, enabling sequential `await`-based choreography.
 
+**Custom edge system:**
+
+Custom edges receive `EdgeProps` which include:
+
+- `sourceX`, `sourceY`, `targetX`, `targetY`, `sourcePosition`, `targetPosition`
+- `data` (any custom data from edge definition)
+- `style`, `markerStart`, `markerEnd`
+
+Path generation utilities exported:
+
+- `getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition })` returns `[path, labelX, labelY, offsetX, offsetY]`
+- `getBezierPath(...)` -- same pattern
+- `BaseEdge` component -- renders the SVG path, handles interaction area and labels
+
+The custom edge pattern is:
+
+```tsx
+function AnimatedEdge(props: EdgeProps) {
+  const [edgePath] = getSmoothStepPath(props);
   return (
-    <div ref={ref} className={isVisible ? className : "opacity-0"}>
-      {children}
-    </div>
-  );
-}
-
-// USAGE in Server Component
-import { AnimateOnView } from "@/components/animate-on-view";
-
-export function MetricsSection() {
-  return (
-    <section>
-      <AnimateOnView className="animate-fade-in-up">
-        <div>Server-rendered content</div>
-      </AnimateOnView>
-    </section>
+    <>
+      <BaseEdge path={edgePath} {...props} />
+      {/* Custom SVG elements along the path */}
+    </>
   );
 }
 ```
 
-**Benefits:**
+Edges are rendered inside an SVG context, so any standard SVG animation technique works: `<animate>`, `<animateMotion>` along the path, CSS `stroke-dasharray` / `stroke-dashoffset` animations, SVG `<linearGradient>` with animated stops.
 
-- Server Components can use it via `children` pattern
-- Single, reusable client boundary
-- Native Intersection Observer (widely supported)
-- No external dependency
+**`EdgeLabelRenderer`** -- portal for rendering HTML/React content positioned alongside edges (useful for edge labels that need rich formatting).
 
-**Limitations:**
+#### Framer Motion 12.31.0 -- Node Animations
 
-- Requires one client component in the tree
-- Not as declarative as `whileInView`
-- Need to predefine animation classes
+Already used extensively in the codebase. Key capabilities for graph improvements:
+
+| Feature                           | Status                           | Use Case                          |
+| --------------------------------- | -------------------------------- | --------------------------------- |
+| `variants` + `initial`/`animate`  | Already in use                   | Node entrance animations          |
+| `whileHover`                      | Already in use                   | Node hover micro-interactions     |
+| `layout`                          | Already in use (AchievementNode) | Expand/collapse animation         |
+| `AnimatePresence`                 | Available (not yet used)         | Node removal animations if needed |
+| Spring physics (`type: "spring"`) | Already in use                   | Bounce/overshoot effects          |
+| Custom easing arrays              | Already in use                   | Cinematic entrance curves         |
+| `animate` prop with keyframes     | Already in use (root node pulse) | Complex multi-step animations     |
+
+The existing `custom-node.tsx` already demonstrates sophisticated animation patterns: keyframe arrays for pulsing, custom cubic-bezier curves, staggered delays, and infinite loops. No additional animation capability is needed.
+
+#### Zustand 5.0.11 -- State Machine
+
+Currently manages: `expandedNodes`, `hasStartedReveal`, `revealedCompanies`.
+
+Needs extension for camera tour state:
+
+- `currentTourStep` (which stop in the guided tour)
+- `isTourActive` (whether camera tour is playing)
+- `tourCompleted` (whether user has completed or skipped tour)
+
+This is a state shape change, not a library change.
 
 ---
 
-#### Pattern 3: CSS Scroll-Driven Animations (Advanced)
+## Capability Matrix: What Existing Stack Supports
 
-**What to replace:** `useScroll`, `useTransform`, scroll-linked effects
+### Cinematic Camera/Reveal Sequence
 
-**Browser Support:** Chrome 115+, Edge 115+, Safari 18+ (September 2025)
-**Fallback:** Progressive enhancement (animation just doesn't play in older browsers)
+| Requirement           | How to Achieve                                                  | Confidence                         |
+| --------------------- | --------------------------------------------------------------- | ---------------------------------- |
+| Smooth pan to node    | `setCenter(x, y, { duration: 1200 })`                           | HIGH -- verified from types        |
+| Zoom into region      | `fitBounds(rect, { duration: 1000, padding: 0.2 })`             | HIGH -- verified from types        |
+| Sequential tour stops | `await setCenter(...); await setCenter(...)` (Promise-based)    | HIGH -- returns `Promise<boolean>` |
+| Custom easing         | `ease: (t) => cubicBezier(t)` in options                        | HIGH -- verified from types        |
+| Fit to specific nodes | `fitView({ nodes: ['Intenseye', 'Layermark'], duration: 800 })` | HIGH -- verified from types        |
+| Zoom level control    | `setCenter(x, y, { zoom: 1.2, duration: 1000 })`                | HIGH -- verified from types        |
 
-**How:**
+### Edge Animations
 
-```css
-/* For scroll-linked parallax/scale effects */
-@keyframes hero-scale {
-  from {
-    scale: 1;
-    opacity: 1;
-  }
-  to {
-    scale: 0.8;
-    opacity: 0;
-  }
-}
+| Requirement                 | How to Achieve                                           | Confidence                          |
+| --------------------------- | -------------------------------------------------------- | ----------------------------------- |
+| Flowing particle along edge | SVG `<circle>` with `<animateMotion>` on the edge `path` | HIGH -- standard SVG, edges are SVG |
+| Gradient along edge path    | SVG `<linearGradient>` or animated `stroke-dasharray`    | HIGH -- standard SVG                |
+| Edge draw-in animation      | CSS `stroke-dasharray` + `stroke-dashoffset` transition  | HIGH -- standard SVG technique      |
+| Glowing edge effect         | CSS `filter: drop-shadow()` or duplicate path with blur  | HIGH -- standard SVG/CSS            |
+| Edge color transitions      | CSS transition on `stroke` color                         | HIGH -- standard CSS                |
 
-.hero-sticky {
-  animation: hero-scale linear;
-  animation-timeline: scroll();
-  animation-range: 0 15vh;
-}
-```
+### Polished Node Cards
 
-**When to use:**
+| Requirement        | How to Achieve                                              | Confidence             |
+| ------------------ | ----------------------------------------------------------- | ---------------------- |
+| Better typography  | Tailwind classes (`font-semibold`, `tracking-tight`, etc.)  | HIGH -- already in use |
+| Premium shadows    | Tailwind `shadow-2xl` + custom `boxShadow` in Framer Motion | HIGH -- already in use |
+| Gradient borders   | Tailwind `bg-gradient-to-*` with border technique           | HIGH -- standard CSS   |
+| Glow effects       | Framer Motion `boxShadow` keyframes (already done for root) | HIGH -- already in use |
+| Micro-interactions | Framer Motion `whileHover` (already done)                   | HIGH -- already in use |
 
-- Hero sections with scroll-linked transforms
-- Parallax effects
-- Progressive enhancement scenarios
+### Click-to-Expand Interactions
 
-**When NOT to use:**
-
-- Need IE11 or older Safari support
-- Animations are critical to UX (no fallback)
-- Complex gesture interactions beyond scrolling
-
----
-
-#### Pattern 4: Keep Framer Motion for Complex Interactions
-
-**What to keep:** Truly interactive animations that can't be replicated with CSS
-
-**Examples:**
-
-- `MarqueeText` - Infinite looping marquee with direction control
-- Drag interactions
-- Gesture-based animations (drag, pinch, etc.)
-- Dynamic animations based on user input
-
-**Strategy:** Isolate these in small client components
-
-```tsx
-// Keep as client component
-"use client";
-import { motion } from "framer-motion";
-
-export function MarqueeText({ text }: { text: string }) {
-  return (
-    <motion.div
-      animate={{ x: ["0%", "-50%"] }}
-      transition={{ duration: 20, repeat: Infinity }}
-    >
-      {text}
-    </motion.div>
-  );
-}
-```
+| Requirement               | How to Achieve                                                        | Confidence                  |
+| ------------------------- | --------------------------------------------------------------------- | --------------------------- |
+| Expand/collapse animation | Framer Motion `layout` + `variants` (already done in AchievementNode) | HIGH -- already implemented |
+| Camera follow on expand   | `setCenter` on the expanded node + `fitBounds` around it              | HIGH -- verified from types |
+| Z-index management        | Already implemented via `expandedNodes` + `zIndex: 1000`              | HIGH -- already in code     |
 
 ---
 
-### Next.js 16 Server Component Patterns
+## What NOT to Add (and Why)
 
-#### Data Fetching Pattern: ISR with Fetch Revalidation
+### Do NOT Add: GSAP / GreenSock
 
-**For static content with periodic updates (resume data, blog posts):**
+**Why not:** Framer Motion already handles all node animation needs. GSAP would add ~30KB+ gzipped, introduce a second animation paradigm, and conflict with React's rendering model. The imperative animation model of GSAP is unnecessary when Framer Motion's declarative approach already works well in the existing codebase.
 
-```tsx
-// app/page.tsx (Server Component)
-export const revalidate = 3600; // Revalidate every hour
+### Do NOT Add: D3.js (beyond what React Flow bundles)
 
-async function getResumeData() {
-  // Could fetch from CMS, but for now it's imported
-  return RESUME_DATA;
-}
+**Why not:** React Flow internally uses d3-zoom, d3-selection, and d3-transition for its viewport transitions. Adding d3 directly would bypass React Flow's abstraction and create maintenance burden. Use React Flow's API which wraps d3 correctly.
 
-export default async function Page() {
-  const data = await getResumeData();
+### Do NOT Add: react-particles / tsparticles
 
-  return (
-    <main>
-      <MetricsSection metrics={data.metrics} />
-    </main>
-  );
-}
-```
+**Why not:** The "particle" effect on edges is achievable with a single SVG `<circle>` element and `<animateMotion>` using the edge's path data. A full particle library adds 50KB+ for a single visual effect. SVG `animateMotion` is built into every browser and requires zero JS.
 
-**For dynamic content (GitHub activity):**
+### Do NOT Add: Lottie / Rive
 
-```tsx
-async function getGitHubActivity() {
-  const res = await fetch(
-    "https://api.github.com/users/abdulmannan1998/events",
-    {
-      next: {
-        revalidate: 300, // 5 minutes
-        tags: ["github-activity"],
-      },
-    },
-  );
-  return res.json();
-}
+**Why not:** The animations needed are geometric (paths, circles, gradients) not illustrative. SVG animations and Framer Motion cover the entire scope. Lottie/Rive would require creating animation assets externally and add significant bundle weight.
 
-// Can trigger on-demand revalidation
-import { revalidateTag } from "next/cache";
+### Do NOT Add: @react-spring/web
 
-async function refreshGitHubData() {
-  "use server";
-  revalidateTag("github-activity");
-}
-```
+**Why not:** Framer Motion is already the animation library. Adding a second spring-physics library would create confusion about which to use where. Framer Motion 12.x has all spring physics capabilities needed.
+
+### Do NOT Add: anime.js or motion-one
+
+**Why not:** Same reasoning as GSAP -- Framer Motion is sufficient and already integrated. Adding a competing library adds complexity without capability gain.
 
 ---
 
-#### Suspense Streaming Pattern
+## Implementation Patterns (Using Existing Stack)
 
-**For slow data fetches or client-heavy components:**
+### Pattern 1: Cinematic Camera Tour with Promise Chaining
 
-```tsx
-import { Suspense } from "react";
+```typescript
+// Using existing useReactFlow() hook
+const { setCenter, fitBounds, getNodesBounds, fitView } = useReactFlow();
 
-export default function Page() {
-  return (
-    <main>
-      {/* Fast: Rendered immediately */}
-      <HeroSection />
+async function playCameraTour() {
+  // Step 1: Zoom into root node
+  await setCenter(rootPos.x, rootPos.y, {
+    duration: 1200,
+    zoom: 1.0,
+    ease: easeInOutCubic,
+  });
 
-      {/* Slow: Streamed in when ready */}
-      <Suspense fallback={<MetricsSkeleton />}>
-        <MetricsSection />
-      </Suspense>
+  // Step 2: Pan to first company
+  await setCenter(companyPos.x, companyPos.y, {
+    duration: 1000,
+    zoom: 0.9,
+  });
 
-      {/* Client-only: Hydrated after static shell */}
-      <Suspense fallback={<GraphSkeleton />}>
-        <GraphSection />
-      </Suspense>
-    </main>
-  );
-}
-```
-
-**Benefits:**
-
-- Initial HTML arrives faster (TTFB)
-- Progressive enhancement
-- Better perceived performance
-
-**Critical:** Wrap runtime APIs in Suspense
-
-```tsx
-// components/user-preferences.tsx (Server Component)
-import { cookies } from "next/headers";
-
-async function UserPreferences() {
-  const cookieStore = await cookies();
-  const theme = cookieStore.get("theme");
-
-  return <div>Theme: {theme?.value}</div>;
-}
-
-// MUST wrap in Suspense in parent
-<Suspense fallback={<div>Loading preferences...</div>}>
-  <UserPreferences />
-</Suspense>;
-```
-
----
-
-#### Image Optimization Pattern
-
-**Already configured in next.config.ts:**
-
-```ts
-images: {
-  formats: ["image/avif", "image/webp"],
-}
-```
-
-**Usage pattern for remote images:**
-
-```tsx
-import Image from 'next/image'
-
-// Need to whitelist domains for remote images
-// next.config.ts:
-images: {
-  remotePatterns: [
-    {
-      protocol: 'https',
-      hostname: 'avatars.githubusercontent.com',
-      pathname: '/u/**',
-    },
-  ],
-}
-
-// Component:
-<Image
-  src="https://avatars.githubusercontent.com/u/12345"
-  alt="GitHub Avatar"
-  width={64}
-  height={64}
-  className="rounded-full"
-/>
-```
-
-**For static imports (already optimal):**
-
-```tsx
-import profileImage from "@/public/profile.png";
-
-<Image
-  src={profileImage}
-  alt="Profile"
-  placeholder="blur" // Auto-generated blur placeholder
-/>;
-```
-
----
-
-### Component Boundary Strategy
-
-**Guideline: Start with Server Components, add `'use client'` only when necessary.**
-
-#### Keep as Client Components:
-
-1. **React Flow graph** (`GraphSection`) - Canvas-based, highly interactive
-2. **Zustand store** (`graph-store.tsx`) - Client state management
-3. **Animated counter** - Uses `useEffect` for counting animation
-4. **Marquee text** - Continuous animation with framer-motion
-5. **Intersection Observer wrapper** - `AnimateOnView` (new)
-
-#### Convert to Server Components:
-
-1. **Main page layout** (`app/page.tsx`) - Remove `'use client'`
-2. **Metrics section** - Static content, replace framer with CSS
-3. **Experience timeline** - Static content, replace framer with CSS
-4. **Tech stack section** - Static content
-5. **Navigation** - Static links (can stay in layout)
-
-#### Hybrid Approach:
-
-```tsx
-// Server Component (outer)
-export function MetricsSection() {
-  const metrics = RESUME_DATA.metrics;
-
-  return (
-    <section className="py-24">
-      <h2>Measurable Results</h2>
-      <div className="grid gap-6">
-        {metrics.map((metric) => (
-          // Client Component (inner, only for animation)
-          <AnimateOnView key={metric.id} className="animate-fade-in-up">
-            <MetricCard metric={metric} />
-          </AnimateOnView>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// Server Component (metric card itself)
-function MetricCard({ metric }: { metric: Metric }) {
-  return (
-    <div className="bg-stone-900 p-8">
-      <h3>{metric.label}</h3>
-      {metric.value.includes("→") ? (
-        <span className="text-6xl">{metric.value}</span>
-      ) : (
-        <AnimatedCounter value={metric.value} /> // This stays client
-      )}
-    </div>
-  );
-}
-```
-
----
-
-## Migration Dependencies (Development Only)
-
-### Potentially Useful for Debugging
-
-| Package       | Purpose                  | Install? |
-| ------------- | ------------------------ | -------- |
-| `server-only` | Enforce server-only code | Optional |
-| `client-only` | Enforce client-only code | Optional |
-
-**Usage:**
-
-```tsx
-// lib/data.ts
-import "server-only";
-
-export async function getSecretData() {
-  // If accidentally imported in client component, build fails
-  return fetch("...", {
-    headers: { Authorization: `Bearer ${process.env.SECRET_KEY}` },
+  // Step 3: Fit to show all nodes
+  await fitView({
+    duration: 1500,
+    padding: 0.15,
+    maxZoom: 0.85,
   });
 }
 ```
 
-**Recommendation:** Add during refactor to catch boundary violations early.
-
-```bash
-npm install server-only client-only --save-dev
-```
-
----
-
-## What NOT to Add
-
-### ❌ SSR-Specific Animation Libraries
-
-**Avoid:**
-
-- `react-intersection-observer` - Built-in Intersection Observer API is sufficient
-- `react-spring` - Adds bundle size, doesn't solve SSR animation fundamentally
-- `gsap` - Overkill for entrance animations, mostly client-side
-
-**Why:** CSS + minimal Intersection Observer wrapper is lighter and more maintainable.
-
-### ❌ State Management for Server Data
-
-**Avoid:**
-
-- `@tanstack/react-query` - Not needed with Next.js built-in fetch caching
-- `swr` - Redundant with Next.js revalidation
-- `redux` / `jotai` for static data - Unnecessary complexity
-
-**Why:** Next.js App Router has built-in caching, revalidation, and streaming. Only Zustand for client-only graph state is justified.
-
-### ❌ Additional Meta Frameworks
-
-**Avoid:**
-
-- `remix` - Not compatible with Next.js
-- `astro` - Different paradigm
-- `qwik` - Different paradigm
-
-**Why:** Next.js 16 with PPR already provides optimal server/client rendering.
-
----
-
-## CSS Animation Utilities (Add to globals.css)
-
-**Recommended additions to support Server Component animations:**
-
-```css
-/* Entrance animations - replaces framer-motion initial/animate */
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in-down {
-  from {
-    opacity: 0;
-    transform: translateY(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Utility classes */
-.animate-fade-in {
-  animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.animate-fade-in-down {
-  animation: fade-in-down 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.animate-fade-in-left {
-  animation: fade-in-left 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-/* Stagger utilities (via animation-delay) */
-.delay-100 {
-  animation-delay: 100ms;
-}
-.delay-200 {
-  animation-delay: 200ms;
-}
-.delay-300 {
-  animation-delay: 300ms;
-}
-.delay-400 {
-  animation-delay: 400ms;
-}
-.delay-500 {
-  animation-delay: 500ms;
-}
-
-/* Scroll-driven animations (progressive enhancement) */
-@supports (animation-timeline: scroll()) {
-  .scroll-fade-in {
-    animation: fade-in linear;
-    animation-timeline: view();
-    animation-range: entry 0% entry 100%;
-  }
-
-  .scroll-scale {
-    animation: scale-in linear;
-    animation-timeline: scroll();
-    animation-range: 0 15vh;
-  }
-}
-```
-
-**Integration with tw-animate-css:**
-
-The portfolio already uses `tw-animate-css` which provides additional CSS animation utilities. Check if it already includes some of these patterns to avoid duplication.
-
----
-
-## Installation Summary
-
-**New runtime dependencies:** NONE
-
-**New dev dependencies (optional):**
-
-```bash
-npm install --save-dev server-only client-only
-```
-
-**New files to create:**
-
-1. `/components/animate-on-view.tsx` - Intersection Observer wrapper
-2. Add CSS keyframes to `/app/globals.css`
-
-**Configuration changes:**
-
-- None required (PPR already enabled)
-- Optionally add remote image domains to `next.config.ts` if using external images
-
----
-
-## Integration Points with Existing Stack
-
-### Framer Motion Reduction Strategy
-
-| Current Component        | Motion Usage                | Migration Strategy                                     |
-| ------------------------ | --------------------------- | ------------------------------------------------------ |
-| `page.tsx` hero          | `useScroll`, `useTransform` | CSS scroll-driven animation or keep as client boundary |
-| `page.tsx` text sections | `whileInView`               | `AnimateOnView` wrapper + CSS                          |
-| `MetricsSection`         | `whileInView` with stagger  | `AnimateOnView` + `animation-delay`                    |
-| `MarqueeText`            | Infinite animation          | Keep as-is (client component)                          |
-| `TwinklingStars`         | Pure CSS (no motion)        | Already SSR-compatible                                 |
-
-### React Flow (Keep Client-Only)
+### Pattern 2: Custom Animated Edge (SVG-only, zero deps)
 
 ```tsx
-// GraphSection remains client component
-'use client'
-import { ReactFlow } from '@xyflow/react'
-import { useGraphStore } from '@/lib/stores/graph-store'
+import { BaseEdge, getSmoothStepPath, type EdgeProps } from "@xyflow/react";
 
-export function GraphSection() {
-  // Interactive canvas, can't be server-rendered
-  return <ReactFlow ... />
-}
+function AnimatedEdge(props: EdgeProps) {
+  const [edgePath] = getSmoothStepPath(props);
+  const edgeColor = props.data?.color ?? "#3b82f6";
 
-// Parent can still be Server Component
-import { Suspense } from 'react'
-import { GraphSection } from './graph-section'
-
-export function ExperiencePage() {
   return (
-    <section>
-      <Suspense fallback={<GraphSkeleton />}>
-        <GraphSection />
-      </Suspense>
-    </section>
-  )
+    <>
+      {/* Base visible edge */}
+      <BaseEdge path={edgePath} style={{ stroke: edgeColor, strokeWidth: 2 }} />
+
+      {/* Flowing particle */}
+      <circle r="3" fill={edgeColor}>
+        <animateMotion dur="3s" repeatCount="indefinite" path={edgePath} />
+      </circle>
+
+      {/* Glow effect (blurred duplicate) */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke={edgeColor}
+        strokeWidth="6"
+        opacity="0.15"
+        filter="url(#glow)"
+      />
+    </>
+  );
 }
 ```
 
-### Zustand (Keep for Client State)
+### Pattern 3: Edge Draw-In Animation (CSS-only)
 
-Zustand is only used for graph interaction state. This is appropriate client-side state management and should remain.
+```tsx
+function DrawInEdge(props: EdgeProps) {
+  const [edgePath] = getSmoothStepPath(props);
+
+  return (
+    <BaseEdge
+      path={edgePath}
+      style={{
+        stroke: props.data?.color ?? "#3b82f6",
+        strokeWidth: 2,
+        strokeDasharray: 1000,
+        strokeDashoffset: 1000,
+        animation: "draw-edge 1.5s ease-out forwards",
+      }}
+    />
+  );
+}
+
+// In global CSS:
+// @keyframes draw-edge {
+//   to { stroke-dashoffset: 0; }
+// }
+```
+
+### Pattern 4: Node Card Polish (Tailwind + Framer Motion)
+
+```tsx
+// Enhanced company node with gradient border and premium shadow
+<motion.div
+  className={cn(
+    "relative rounded-xl border bg-gradient-to-br from-stone-900 to-stone-950",
+    "shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
+    "ring-1 ring-blue-500/20",
+  )}
+  whileHover={{
+    boxShadow: "0 12px 40px rgba(59,130,246,0.25)",
+    scale: 1.02,
+    transition: { duration: 0.2 },
+  }}
+>
+```
 
 ---
 
-## Performance Expectations
+## Versions and Compatibility
 
-### Before SSR Migration (Current)
+All verified from `package.json` and installed `node_modules`:
 
-- **TTFB:** Fast (Vercel edge)
-- **FCP:** Delayed (entire page client-rendered)
-- **LCP:** Delayed (content painted after hydration)
-- **TTI:** Slow (all JS must load and execute)
-- **JavaScript bundle:** ~500KB+ (framer-motion, react-flow, all components)
+| Package         | Installed | Locked?          | Notes                                   |
+| --------------- | --------- | ---------------- | --------------------------------------- |
+| `@xyflow/react` | 12.10.0   | `^12.10.0`       | Uses `@xyflow/system@0.0.74` internally |
+| `framer-motion` | 12.31.0   | `^12.31.0`       | React 19 compatible                     |
+| `zustand`       | 5.0.11    | `^5.0.11`        | React 19 compatible                     |
+| `react`         | 19.2.3    | `19.2.3` (exact) | Pinned                                  |
+| `tailwindcss`   | 4.x       | `^4`             | v4 (CSS-first config)                   |
+| `next`          | 16.1.6    | `16.1.6` (exact) | Pinned                                  |
 
-### After SSR Migration
-
-- **TTFB:** Same or better
-- **FCP:** Much faster (static HTML shell arrives immediately)
-- **LCP:** Much faster (static content visible before JS)
-- **TTI:** Faster (only interactive components hydrate)
-- **JavaScript bundle:** ~200-300KB (framer-motion mostly removed, only client boundaries)
-
-**Estimated improvements:**
-
-- 50-70% reduction in JavaScript bundle size
-- 2-3x faster First Contentful Paint
-- 1.5-2x faster Largest Contentful Paint
-- Better Core Web Vitals scores
+No version bumps needed. No new installs needed.
 
 ---
 
-## Confidence Assessment
+## Integration Points
 
-| Area                         | Confidence | Reason                                                                 |
-| ---------------------------- | ---------- | ---------------------------------------------------------------------- |
-| PPR Configuration            | HIGH       | Official Next.js 16 docs, already enabled in project                   |
-| Server Component Patterns    | HIGH       | Official React 19 + Next.js docs                                       |
-| ISR/Revalidation             | HIGH       | Official Next.js docs, well-established pattern                        |
-| Suspense Streaming           | HIGH       | Official React 19 docs                                                 |
-| CSS Animation Strategy       | MEDIUM     | Based on CSS standards, but requires manual implementation             |
-| Intersection Observer        | HIGH       | Standard Web API, widely supported                                     |
-| CSS Scroll-Driven Animations | MEDIUM     | New spec, limited browser support, use as progressive enhancement      |
-| Performance Impact           | MEDIUM     | Based on typical SSR benefits, actual numbers depend on implementation |
+### React Flow + Framer Motion Coordination
+
+Current codebase already handles this well. Key integration points:
+
+1. **Node components** use Framer Motion for animations but live inside React Flow's node rendering pipeline. This works because React Flow custom nodes are just React components.
+
+2. **Edge components** live in SVG context (React Flow renders edges in `<svg>`). Framer Motion's `motion.path` can animate SVG paths, but for edge animations, native SVG `<animateMotion>` is more appropriate because it handles path-following natively.
+
+3. **Camera animations** use React Flow's viewport API (d3-based internally). These are separate from Framer Motion and do not conflict. The camera tour and node entrance animations can run simultaneously without issues.
+
+4. **State coordination** via Zustand store. The reveal sequence (timer-based) triggers both node additions (which trigger Framer Motion entrance animations) and camera movements (which use React Flow viewport API). These coordinate through the same state machine.
+
+### Potential Friction Point
+
+The one area to watch: Framer Motion's `layout` animations on nodes can trigger React Flow to recalculate edge paths. The existing AchievementNode already uses `layout` for expand/collapse. When expanding a node, the node dimensions change, React Flow re-renders connected edges, and if the camera is also moving, there could be a brief visual jitter.
+
+**Mitigation:** Sequence operations: expand node first, wait for layout settle (~300ms), then move camera. Do not run layout animation and camera animation simultaneously on the same node.
 
 ---
 
 ## Sources
 
-**Official Documentation:**
+All findings verified directly from installed package type definitions:
 
-- Next.js Partial Prerendering: https://nextjs.org/docs/app/building-your-application/rendering/partial-prerendering
-- Next.js Server Components: https://nextjs.org/docs/app/building-your-application/rendering/server-components
-- Next.js ISR: https://nextjs.org/docs/app/building-your-application/data-fetching/incremental-static-regeneration
-- React Suspense: https://react.dev/reference/react/Suspense
-- Next.js Image Optimization: https://nextjs.org/docs/app/building-your-application/optimizing/images
-- MDN CSS Scroll-Driven Animations: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations
-- MDN Intersection Observer API: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-
-**Current Project Files:**
-
-- `/Users/sunny/Desktop/Sunny/portfolio/package.json` - Verified versions
-- `/Users/sunny/Desktop/Sunny/portfolio/next.config.ts` - Verified PPR configuration
-- `/Users/sunny/Desktop/Sunny/portfolio/app/page.tsx` - Current framer-motion usage
-- `/Users/sunny/Desktop/Sunny/portfolio/app/globals.css` - Existing CSS setup
-- `/Users/sunny/Desktop/Sunny/portfolio/components/twinkling-stars.tsx` - Example of CSS-only animation
-
----
-
-## Next Steps for Implementation
-
-1. **Phase 1: Setup**
-   - Add `server-only` / `client-only` dev dependencies
-   - Create `AnimateOnView` component
-   - Add CSS keyframes to globals.css
-
-2. **Phase 2: Component Migration**
-   - Remove `'use client'` from `app/page.tsx`
-   - Identify which sections can be pure Server Components
-   - Wrap interactive parts in minimal client boundaries
-
-3. **Phase 3: Animation Replacement**
-   - Replace `motion.div` with `AnimateOnView` + CSS classes
-   - Convert `useScroll`/`useTransform` to CSS scroll-driven or keep as isolated client component
-   - Test animations across browsers
-
-4. **Phase 4: Data Fetching**
-   - Add `revalidate` exports to routes
-   - Implement Suspense boundaries for slow data
-   - Test streaming behavior
-
-5. **Phase 5: Optimization**
-   - Remove unused framer-motion imports
-   - Bundle analysis to verify size reduction
-   - Performance testing (Lighthouse, Core Web Vitals)
+- `node_modules/@xyflow/react/dist/esm/types/instance.d.ts` -- ReactFlowInstance methods (GeneralHelpers + ViewportHelperFunctions)
+- `node_modules/@xyflow/react/dist/esm/types/general.d.ts` -- ViewportHelperFunctions type (setCenter, fitBounds, setViewport with duration/ease/interpolate)
+- `node_modules/.pnpm/@xyflow+system@0.0.74/.../types/general.d.ts` -- ViewportHelperFunctionOptions, SetCenterOptions, FitBoundsOptions
+- `node_modules/@xyflow/react/dist/esm/types/edges.d.ts` -- EdgeProps, BaseEdgeProps, custom edge interface
+- `node_modules/@xyflow/react/dist/esm/components/Edges/BaseEdge.d.ts` -- BaseEdge component (path, label, interaction area)
+- `node_modules/@xyflow/react/dist/esm/index.d.ts` -- All exports including getSmoothStepPath, getBezierPath, EdgeLabelRenderer
+- `components/custom-node.tsx` -- Existing Framer Motion animation patterns
+- `components/nodes/achievement-node.tsx` -- Existing expand/collapse with layout animation
+- `components/sections/graph-section.tsx` -- Existing useReactFlow usage, fitView with duration
+- `lib/stores/graph-store.tsx` -- Existing Zustand store shape
+- `lib/graph-utils.ts` -- Existing edge creation with smoothstep type and static styling
+- `package.json` -- Installed dependency versions

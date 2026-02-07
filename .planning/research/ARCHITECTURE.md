@@ -1,1474 +1,1063 @@
-# Architecture Patterns for SSR Migration
+# Architecture Patterns: Cinematic Graph Reveal
 
-**Project:** Portfolio v1.2 SSR Migration
-**Domain:** Next.js 16 Server-First Architecture Restructuring
+**Project:** Portfolio Graph Improvements (Cinematic Reveal)
+**Domain:** Interactive graph visualization with sequenced camera animations
 **Researched:** 2026-02-07
-**Confidence:** HIGH
+**Confidence:** HIGH (based on direct codebase analysis and installed @xyflow/react v12.10 type inspection)
 
 ## Executive Summary
 
-The current architecture is entirely client-rendered with a single "use client" boundary at page.tsx. This migration restructures the component tree to leverage Next.js 16 server components, creating targeted client boundaries only where interactivity is essential. The strategy: **server by default, client by exception**.
+The cinematic graph reveal replaces the current timer-based `setTimeout` cascade with a **state machine-driven reveal sequence** that coordinates three systems: node/edge rendering, camera animation, and user interaction. The key architectural insight is that React Flow's `setCenter()` and `fitBounds()` APIs natively support `duration` and `ease` parameters, which means smooth camera pans can be achieved without any external animation library -- the camera system is built into the tool we already use.
 
-**Key insight:** 80% of the portfolio is static or entrance-animation-only. Only 3 areas genuinely require client JavaScript:
+The existing architecture (graph-section.tsx as orchestrator, Zustand for state, Framer Motion for node animations) is structurally sound but needs its **control flow** replaced, not its component structure. The new architecture introduces a `RevealPhase` state machine in Zustand, a `useCameraSequencer` hook that consumes phase transitions and drives `reactFlowInstance.setCenter()`, and modifications to existing node components (click handlers instead of hover, badges instead of full nodes for soft skills).
 
-1. React Flow graph (heavy interactivity, DOM manipulation)
-2. Hero parallax scroll effect (useScroll + useTransform)
-3. Marquee infinite scroll animation
+**No new dependencies required.** Everything needed is already installed.
 
-Everything else can either:
+## Current Architecture Analysis
 
-- Move to server components (GitHub data fetch, static sections)
-- Migrate to CSS animations (entrance effects via @keyframes + Intersection Observer)
-- Use minimal client wrappers (AnimatedCounter as tiny client island)
-
-## Current vs Target Architecture
-
-### Current State (v1.1)
+### What Works (Preserve)
 
 ```
-app/
-├── layout.tsx           [SERVER] ✓ Already server component
-└── page.tsx             [CLIENT] ⚠️  "use client" at top
-    ├── useRef + useScroll + useTransform
-    ├── motion.section (hero parallax)
-    ├── motion.h1, motion.p, motion.div
-    ├── MarqueeText [CLIENT]
-    ├── TwinklingStars [CLIENT]
-    ├── MetricsSection [CLIENT]
-    │   └── AnimatedCounter [CLIENT]
-    ├── TechAndCodeSection [CLIENT]
-    │   └── GitHubActivity [CLIENT] (fetch on mount)
-    ├── ExperienceTimeline [CLIENT]
-    └── GraphSection [CLIENT, dynamic, ssr:false]
-        └── ReactFlowProvider + complex state
+graph-section-loader.tsx  -- Dynamic import boundary (ssr: false) -- KEEP
+  |
+  v
+graph-section.tsx ("use client")  -- Orchestrator -- MODIFY (major)
+  |
+  +---> ReactFlowProvider + useReactFlow()  -- Camera control -- KEEP
+  +---> useNodesState / useEdgesState       -- Node/edge rendering -- KEEP
+  +---> useGraphStore (Zustand)             -- State coordination -- MODIFY (major)
+  +---> getInitialNodes / getInitialEdges   -- Data generation -- MODIFY (minor)
+  +---> CustomNode (Framer Motion)          -- Node rendering -- MODIFY (moderate)
+  +---> AchievementNode (Framer Motion)     -- Expandable cards -- MODIFY (minor)
+  +---> layout-calculator.ts                -- Positioning -- MODIFY (add course nodes)
+  +---> layout-constants.ts                 -- Timing constants -- REPLACE (new timing model)
+  +---> resume-data.ts                      -- Static data -- MODIFY (add courses)
 ```
 
-**Problem:** The entire 300-line page is bundled to the client because of:
+### What Must Change
 
-- 3 lines of scroll hooks (useRef, useScroll, useTransform) at the top
-- motion components in hero/about sections
+| Component              | Current                                                | Target                                                                        | Change Scope                                                    |
+| ---------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `graph-section.tsx`    | Timer cascade with `setTimeout`                        | State machine consumer with `useCameraSequencer`                              | **Heavy rewrite** of reveal logic, preserve container/rendering |
+| `graph-store.tsx`      | `hasStartedReveal` boolean + `revealedCompanies` array | `RevealPhase` discriminated union state machine                               | **Heavy rewrite**                                               |
+| `custom-node.tsx`      | Hover triggers achievement reveal                      | Click triggers achievement reveal; root node click starts sequence            | **Moderate** -- change event handlers, add root clickability    |
+| `layout-constants.ts`  | Fixed millisecond delays                               | Phase-based timing config (duration per phase, camera settle time)            | **Replace**                                                     |
+| `layout-calculator.ts` | 3 timeline positions (Bilkent, Layermark, Intenseye)   | 4 timeline positions (add Courses under Bilkent) + soft skill badge positions | **Moderate**                                                    |
+| `resume-data.ts`       | No course data                                         | Add courses array under education                                             | **Minor addition**                                              |
+| `graph-utils.ts`       | Static edge colors/widths                              | Custom edge type registration + gradient edge data                            | **Moderate**                                                    |
+| `achievement-node.tsx` | Click to expand/collapse                               | Same, but triggered from company node click not hover                         | **Minor**                                                       |
 
-### Target State (v1.2)
+## Recommended Architecture
+
+### System Overview
 
 ```
-app/
-├── layout.tsx                    [SERVER] ✓ Already good
-└── page.tsx                      [SERVER] ✓ Restructured
-    ├── <HeroParallax>            [CLIENT] Isolated scroll logic
-    │   └── children prop         [SERVER] Static hero content
-    ├── <MarqueeSection>          [SERVER] Static markup
-    │   └── <InfiniteMarquee>     [CLIENT] CSS animation wrapper
-    ├── <TwinklingStars>          [SERVER] Pure CSS + inline styles
-    ├── <AboutSection>            [SERVER] Static split-screen layout
-    │   └── CSS animations        (no framer-motion)
-    ├── <MetricsSection>          [SERVER] Static cards
-    │   └── <AnimatedCounter>     [CLIENT] Tiny intersection-triggered counter
-    ├── <TechAndCodeSection>      [SERVER] Static tech grid + GitHub data
-    │   ├── githubData prop       [SERVER] Fetched before render
-    │   └── <GitHubActivity>      [SERVER] Pure presentational
-    ├── <ExperienceTimeline>      [SERVER] Static timeline markup
-    │   └── CSS animations        (no framer-motion)
-    └── <GraphSection>            [CLIENT] Same as before (already ssr:false)
+                    USER INTERACTION
+                          |
+                    [Click root node]
+                          |
+                    graph-store.tsx
+                    (State Machine)
+                          |
+              +-----------+-----------+
+              |                       |
+    graph-section.tsx          useCameraSequencer
+    (Node Orchestrator)        (Camera Animator)
+              |                       |
+    Adds nodes/edges to         Calls setCenter()
+    useNodesState/               on reactFlowInstance
+    useEdgesState                     |
+              |                       |
+              +-------+-------+-------+
+                      |
+                 React Flow
+              (Renders everything)
 ```
 
-**Result:**
+### Component Boundaries
 
-- Page.tsx becomes server component (no "use client")
-- Only 3 small client boundaries: HeroParallax, InfiniteMarquee, AnimatedCounter
-- GitHub data fetched server-side with ISR (no client loading flash)
-- Bundle size reduced ~60-70% (framer-motion, Zustand, React hooks only loaded for graph)
+| Component                       | Responsibility                                                       | Communicates With                                             |
+| ------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `graph-store.tsx`               | State machine: current phase, transitions, expanded nodes            | All graph components (read), graph-section (write)            |
+| `graph-section.tsx`             | Orchestrates node/edge addition based on phase, wires click handlers | graph-store, React Flow instance, all node components         |
+| `useCameraSequencer` (new hook) | Subscribes to phase changes, animates camera to target positions     | graph-store (read), React Flow instance (setCenter/fitBounds) |
+| `custom-node.tsx`               | Renders root/company/education nodes, emits click events             | graph-section (via callbacks), graph-store (reads phase)      |
+| `achievement-node.tsx`          | Renders expandable achievement cards                                 | graph-store (expand/collapse)                                 |
+| `soft-skill-badge.tsx` (new)    | Renders compact skill badges overlaying root node                    | graph-store (reads phase for visibility)                      |
+| `animated-edge.tsx` (new)       | Custom edge with gradient stroke + optional particle                 | React Flow edge system                                        |
+| `layout-calculator.ts`          | Pure function: computes all node positions                           | Called by graph-section                                       |
+| `resume-data.ts`                | Static data source                                                   | Called by graph-utils                                         |
 
-## Component Tree Restructuring Plan
+### Data Flow
 
-### Phase 1: Extract Hero Parallax Logic
+```
+1. Page loads -> graph-section mounts -> only root node rendered
+2. User clicks root node (or hovers name on mobile)
+3. graph-store.advancePhase() called
+4. Phase transitions: IDLE -> INTRO -> INTENSEYE -> LAYERMARK -> BILKENT -> COURSES -> SKILLS -> COMPLETE
+5. Each transition:
+   a. graph-section reads new phase, adds appropriate nodes + edges
+   b. useCameraSequencer reads new phase, calls setCenter() with target position
+   c. After camera settles (duration elapsed), auto-advance to next phase OR wait for user
+6. In COMPLETE phase: user can click company nodes to expand achievements
+7. Achievement expansion: graph-store.expandNode() -> achievement nodes added -> fitBounds to show them
+```
 
-**Current pattern (page.tsx lines 1-160):**
+## State Machine Design
 
-```tsx
+### Why a State Machine (Not Timers)
+
+The current approach uses nested `setTimeout` calls:
+
+```typescript
+// CURRENT (fragile)
+addTimer(() => addNodeAndEdges("Bilkent"), 1200);
+addTimer(() => addNodeAndEdges("Layermark"), 1700);
+addTimer(() => addNodeAndEdges("Intenseye"), 2200);
+```
+
+Problems:
+
+1. **No pause/resume** -- cannot stop mid-sequence
+2. **No awareness of camera** -- nodes appear before camera reaches them
+3. **Race conditions** -- timer fires regardless of animation state
+4. **Untestable** -- depends on real clock
+5. **No reverse chronological** -- hardcoded forward order
+
+The state machine solves all of these:
+
+```typescript
+// NEW (predictable)
+// Phase advances only after:
+// 1. Nodes for current phase are rendered
+// 2. Camera has settled on target position
+// 3. Minimum dwell time has elapsed
+```
+
+### Phase Definition
+
+```typescript
+// lib/stores/graph-store.tsx
+
+type RevealPhase =
+  | { type: "IDLE" } // Initial: only root node visible
+  | { type: "INTRO"; startedAt: number } // Root node pulsing, "click to explore" hint
+  | {
+      type: "REVEALING";
+      company: "Intenseye" | "Layermark" | "Bilkent" | "Courses";
+    }
+  | { type: "SKILLS" } // Soft skill badges fade in
+  | { type: "COMPLETE" } // All revealed, free exploration
+  | { type: "EXPANDING"; company: string }; // Company clicked, achievements expanding
+
+type GraphState = {
+  // Phase state machine
+  phase: RevealPhase;
+  advancePhase: () => void;
+  setPhase: (phase: RevealPhase) => void;
+
+  // Expanded achievements (existing, keep)
+  expandedNodes: string[];
+  expandNode: (id: string) => void;
+  collapseNode: (id: string) => void;
+  collapseAll: () => void;
+
+  // Revealed companies (tracks what's already been shown)
+  revealedCompanies: string[];
+  markCompanyRevealed: (companyId: string) => void;
+  isCompanyRevealed: (companyId: string) => boolean;
+};
+```
+
+### Phase Transition Rules
+
+```
+IDLE ──[user clicks root]──> INTRO
+INTRO ──[after 800ms intro animation]──> REVEALING(Intenseye)
+REVEALING(Intenseye) ──[camera settled + dwell]──> REVEALING(Layermark)
+REVEALING(Layermark) ──[camera settled + dwell]──> REVEALING(Bilkent)
+REVEALING(Bilkent) ──[camera settled + dwell]──> REVEALING(Courses)
+REVEALING(Courses) ──[camera settled + dwell]──> SKILLS
+SKILLS ──[badges animated in]──> COMPLETE
+COMPLETE ──[user clicks company]──> EXPANDING(company)
+EXPANDING(company) ──[achievements shown]──> COMPLETE
+```
+
+### advancePhase Implementation
+
+```typescript
+advancePhase: () => {
+  const { phase } = get();
+
+  switch (phase.type) {
+    case "IDLE":
+      set({ phase: { type: "INTRO", startedAt: Date.now() } });
+      break;
+    case "INTRO":
+      set({ phase: { type: "REVEALING", company: "Intenseye" } });
+      break;
+    case "REVEALING":
+      switch (phase.company) {
+        case "Intenseye":
+          set({ phase: { type: "REVEALING", company: "Layermark" } });
+          break;
+        case "Layermark":
+          set({ phase: { type: "REVEALING", company: "Bilkent" } });
+          break;
+        case "Bilkent":
+          set({ phase: { type: "REVEALING", company: "Courses" } });
+          break;
+        case "Courses":
+          set({ phase: { type: "SKILLS" } });
+          break;
+      }
+      break;
+    case "SKILLS":
+      set({ phase: { type: "COMPLETE" } });
+      break;
+    // COMPLETE and EXPANDING don't auto-advance
+  }
+},
+```
+
+### Why Zustand (Not XState)
+
+XState is the canonical state machine library, but it would be over-engineering here because:
+
+1. **Already using Zustand** -- no new dependency
+2. **Linear sequence** -- this is not a complex state graph with parallel regions
+3. **Simple transitions** -- each phase has exactly one successor
+4. **Small state** -- 6 phases, no guards/actions/services complexity
+5. **Bundle size** -- XState adds ~15KB, Zustand already loaded
+
+The discriminated union `RevealPhase` type gives compile-time exhaustiveness checking, which is 90% of XState's value for this use case.
+
+## Camera Animation System
+
+### React Flow Camera API (Verified from Source)
+
+From `@xyflow/system@0.0.74` (installed), the camera control methods accept:
+
+```typescript
+type ViewportHelperFunctionOptions = {
+  duration?: number;           // Animation duration in ms
+  ease?: (t: number) => number; // Custom easing function (0->1 input, 0->1 output)
+  interpolate?: 'smooth' | 'linear'; // Interpolation mode
+};
+
+type SetCenterOptions = ViewportHelperFunctionOptions & {
+  zoom?: number; // Target zoom level
+};
+
+// Available methods on reactFlowInstance:
+setCenter(x, y, options?: SetCenterOptions): Promise<boolean>
+fitBounds(bounds: Rect, options?: FitBoundsOptions): Promise<boolean>
+setViewport(viewport: Viewport, options?: ViewportHelperFunctionOptions): Promise<boolean>
+```
+
+**Key discovery:** `setCenter` returns a **Promise** that resolves when the animation completes. This means we can `await` camera movements and chain them -- no need for separate timers to wait for camera settlement.
+
+### useCameraSequencer Hook
+
+```typescript
+// lib/hooks/use-camera-sequencer.ts
 "use client";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
 
-export default function Page() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.8]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+import { useEffect, useRef } from "react";
+import { useReactFlow } from "@xyflow/react";
+import { useGraphStore } from "@/lib/stores/graph-store";
+import { CAMERA_TARGETS } from "@/lib/layout-constants";
+
+// Easing function: ease-out cubic (decelerating)
+const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
+
+export function useCameraSequencer() {
+  const reactFlow = useReactFlow();
+  const phase = useGraphStore((s) => s.phase);
+  const advancePhase = useGraphStore((s) => s.advancePhase);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    // Abort any in-flight sequence when phase changes
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    async function animate() {
+      const target =
+        CAMERA_TARGETS[phase.type === "REVEALING" ? phase.company : phase.type];
+      if (!target) return;
+
+      // Pan camera to target
+      await reactFlow.setCenter(target.x, target.y, {
+        zoom: target.zoom,
+        duration: target.panDuration,
+        ease: easeOutCubic,
+      });
+
+      if (controller.signal.aborted) return;
+
+      // Dwell at target (let user absorb)
+      await new Promise<void>((resolve, reject) => {
+        const id = setTimeout(resolve, target.dwellMs);
+        controller.signal.addEventListener("abort", () => {
+          clearTimeout(id);
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+
+      if (controller.signal.aborted) return;
+
+      // Auto-advance (for reveal phases only)
+      if (
+        phase.type === "REVEALING" ||
+        phase.type === "INTRO" ||
+        phase.type === "SKILLS"
+      ) {
+        advancePhase();
+      }
+    }
+
+    animate().catch((e) => {
+      if (e?.name !== "AbortError") throw e;
+    });
+
+    return () => controller.abort();
+  }, [phase, reactFlow, advancePhase]);
+}
+```
+
+### Camera Targets Configuration
+
+```typescript
+// lib/layout-constants.ts (replaces REVEAL_TIMING)
+
+type CameraTarget = {
+  x: number; // Flow coordinate X (center of target)
+  y: number; // Flow coordinate Y (center of target)
+  zoom: number; // Target zoom level
+  panDuration: number; // ms for camera pan animation
+  dwellMs: number; // ms to pause at this position before advancing
+};
+
+export const CAMERA_TARGETS: Record<string, CameraTarget> = {
+  // INTRO: Zoom in on root node
+  INTRO: {
+    x: 0,
+    y: 0, // Will be computed from layout
+    zoom: 1.2,
+    panDuration: 800,
+    dwellMs: 600,
+  },
+  // Reverse chronological reveal
+  Intenseye: {
+    x: 0,
+    y: 0, // Computed from layout-calculator
+    zoom: 0.9,
+    panDuration: 1000,
+    dwellMs: 800,
+  },
+  Layermark: {
+    x: 0,
+    y: 0,
+    zoom: 0.9,
+    panDuration: 1000,
+    dwellMs: 800,
+  },
+  Bilkent: {
+    x: 0,
+    y: 0,
+    zoom: 0.9,
+    panDuration: 1000,
+    dwellMs: 800,
+  },
+  Courses: {
+    x: 0,
+    y: 0,
+    zoom: 0.85,
+    panDuration: 1000,
+    dwellMs: 600,
+  },
+  // SKILLS: Zoom out to show full graph
+  SKILLS: {
+    x: 0,
+    y: 0,
+    zoom: 0.75,
+    panDuration: 1200,
+    dwellMs: 400,
+  },
+  // COMPLETE: Fit entire graph
+  COMPLETE: {
+    x: 0,
+    y: 0,
+    zoom: 0.7,
+    panDuration: 800,
+    dwellMs: 0,
+  },
+};
+```
+
+**Important:** The x/y values above are placeholders. They must be computed dynamically from `layout-calculator.ts` because positions depend on viewport dimensions. The hook should resolve positions at animation time from the node data in React Flow state, not from static constants.
+
+### Dynamic Position Resolution
+
+Instead of static camera targets, resolve positions from the actual node positions:
+
+```typescript
+function getNodeCenter(
+  reactFlow: ReactFlowInstance,
+  nodeId: string,
+): { x: number; y: number } | null {
+  const node = reactFlow.getNode(nodeId);
+  if (!node) return null;
+  // Node position is top-left corner; center requires width/height
+  const width = node.measured?.width ?? 200;
+  const height = node.measured?.height ?? 80;
+  return {
+    x: node.position.x + width / 2,
+    y: node.position.y + height / 2,
+  };
+}
+```
+
+This approach is more robust than pre-computing camera positions because node positions change with viewport dimensions (the layout calculator is responsive).
+
+## Click-to-Expand Interaction Model
+
+### Current: Hover to Reveal
+
+```
+Company node mouse enter -> handleNodeHover() -> add achievement nodes + edges
+```
+
+Problems:
+
+- Accidental triggers on touchscreen
+- No way to "un-hover" to hide achievements
+- Hover conflicts with camera animation (user might hover during auto-pan)
+
+### New: Click to Expand
+
+```
+Company node click (in COMPLETE phase) -> graph-store.expandCompany(id)
+-> Achievement nodes added to React Flow state
+-> Camera fitBounds to show company + its achievements
+-> Click again or click another company -> collapse previous, expand new
+```
+
+Implementation in `custom-node.tsx`:
+
+```typescript
+// Company node onClick handler
+const handleCompanyClick = useCallback(() => {
+  const { phase } = useGraphStore.getState();
+  if (phase.type !== "COMPLETE") return; // Only allow after reveal
+
+  // Toggle: if this company is already expanded, collapse it
+  const { expandedCompany, expandCompany, collapseCompany } =
+    useGraphStore.getState();
+  if (expandedCompany === id) {
+    collapseCompany();
+  } else {
+    expandCompany(id);
+  }
+}, [id]);
+```
+
+### Store Additions for Company Expansion
+
+```typescript
+type GraphState = {
+  // ... existing phase state ...
+
+  // Company expansion (replaces per-node expandedNodes for the reveal)
+  expandedCompany: string | null; // Only one company expanded at a time
+  expandCompany: (companyId: string) => void;
+  collapseCompany: () => void;
+
+  // Per-achievement expansion (for clicking individual achievement cards)
+  expandedAchievement: string | null;
+  expandAchievement: (achievementId: string) => void;
+  collapseAchievement: () => void;
+};
+```
+
+**Design decision:** Only one company expanded at a time. Expanding multiple companies simultaneously creates visual chaos with overlapping achievement nodes.
+
+## Edge Animation Integration
+
+### Custom Edge Component
+
+React Flow supports custom edge types via the `edgeTypes` prop (same pattern as `nodeTypes`). A custom edge receives `EdgeProps` including `sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition` and can render arbitrary SVG.
+
+```typescript
+// components/edges/animated-edge.tsx
+"use client";
+
+import { BaseEdge, getSmoothStepPath, type EdgeProps } from "@xyflow/react";
+
+type AnimatedEdgeData = {
+  edgeType: string;
+  gradient?: { from: string; to: string };
+  animated?: boolean;
+};
+
+export function AnimatedEdge({
+  id,
+  sourceX, sourceY,
+  targetX, targetY,
+  sourcePosition, targetPosition,
+  style,
+  data,
+  markerEnd,
+}: EdgeProps) {
+  const [edgePath] = getSmoothStepPath({
+    sourceX, sourceY,
+    targetX, targetY,
+    sourcePosition, targetPosition,
+  });
+
+  const gradientId = `gradient-${id}`;
+  const edgeData = data as AnimatedEdgeData | undefined;
 
   return (
-    <main ref={containerRef}>
-      <motion.section style={{ scale: heroScale, opacity: heroOpacity }}>
-        {/* Hero content */}
-      </motion.section>
-      {/* Rest of page */}
-    </main>
+    <>
+      {edgeData?.gradient && (
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={edgeData.gradient.from} />
+            <stop offset="100%" stopColor={edgeData.gradient.to} />
+          </linearGradient>
+        </defs>
+      )}
+      <BaseEdge
+        path={edgePath}
+        style={{
+          ...style,
+          stroke: edgeData?.gradient ? `url(#${gradientId})` : style?.stroke,
+        }}
+        markerEnd={markerEnd}
+      />
+      {edgeData?.animated && (
+        <circle r="3" fill={edgeData.gradient?.to ?? "#f97316"}>
+          <animateMotion
+            dur="2s"
+            repeatCount="indefinite"
+            path={edgePath}
+          />
+        </circle>
+      )}
+    </>
   );
 }
 ```
 
-**Target pattern:**
+### Edge Type Registration
 
-```tsx
-// app/page.tsx [SERVER]
-import { HeroParallaxWrapper } from "@/components/hero-parallax-wrapper";
+```typescript
+// graph-section.tsx
+const edgeTypes = {
+  animated: AnimatedEdge,
+};
 
-export default function Page() {
+// In getInitialEdges(), edges get type: "animated" instead of "smoothstep"
+```
+
+### SVG animateMotion for Particles
+
+The `<animateMotion>` SVG element is native browser capability (no library needed). It moves an element along a path. Since React Flow edge paths are already SVG path strings (`getSmoothStepPath` returns them), particles "ride" edges for free.
+
+**Performance note:** Each animated particle is a separate SVG animation. For the number of edges in this graph (~20), this is trivially performant. Would become a concern at 200+ edges.
+
+### Gradient Approach
+
+SVG `<linearGradient>` elements are defined per-edge in `<defs>` and referenced by `url(#id)`. This is standard SVG -- no library needed. The gradient direction follows the edge path visually because we compute `x1/y1/x2/y2` from source-to-target direction.
+
+**Simplification:** For this graph where edges generally flow top-to-bottom (root -> companies -> achievements), a simple `y1="0%" y2="100%"` vertical gradient works well enough. No need for complex angle calculations.
+
+## Soft Skill Badge Integration
+
+### Current: Full Nodes with Edges
+
+Soft skills are currently full React Flow nodes with edges connecting to the root node. They take up significant layout space and are positioned in a triangle above the root.
+
+### New: Compact Badges
+
+Soft skills become small badges positioned around or overlaying the root node area. They are not full graph nodes -- they are decorative elements rendered inside the React Flow canvas but not participating in the edge system.
+
+**Two approaches:**
+
+#### Approach A: Keep as React Flow Nodes (Recommended)
+
+Keep soft skills as React Flow nodes but make them smaller and remove their edges. Position them tightly around the root node. They appear during the SKILLS phase with a staggered pop-in animation.
+
+**Why recommended:** Simplest change. They already work as nodes. Just change:
+
+1. Remove soft-skill edges from graph data
+2. Reposition closer to root (in layout-calculator)
+3. Restyle to badge-like appearance (in custom-node)
+4. Only render them during SKILLS and COMPLETE phases
+
+```typescript
+// custom-node.tsx soft-skill rendering
+if (data.type === "soft-skill") {
   return (
-    <main>
-      <HeroParallaxWrapper>
-        <section className="sticky top-0 min-h-screen flex flex-col justify-center">
-          {/* Static hero content - server-rendered */}
-          <h1>MANNAN</h1>
-          <p>SENIOR SOFTWARE ENGINEER</p>
-        </section>
-      </HeroParallaxWrapper>
-      {/* Rest of page */}
-    </main>
+    <motion.div
+      variants={POP_IN_VARIANTS}
+      initial="initial"
+      animate="animate"
+      transition={{ ...POP_IN_TRANSITION, delay }}
+      className="rounded-full border border-emerald-500/40 bg-stone-900/90 px-3 py-1.5 shadow-sm"
+    >
+      {/* No Handle elements -- badges don't connect */}
+      <span className="text-xs font-medium text-emerald-400">{data.label}</span>
+    </motion.div>
   );
 }
+```
 
-// components/hero-parallax-wrapper.tsx [CLIENT]
-("use client");
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+#### Approach B: React Flow Panel Overlay
 
-export function HeroParallaxWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.8]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+Use React Flow's `<Panel>` component to render badges as an overlay. This completely decouples badges from the node/edge system.
+
+**Why not recommended:** Panel content doesn't move with the viewport when the user pans. Badges would stay fixed while the graph moves underneath them. This is the wrong behavior.
+
+**Verdict:** Approach A. Keep as lightweight nodes, remove edges, restyle to badges.
+
+## Course Data Model and Positioning
+
+### Data Model Addition
+
+```typescript
+// resume-data.ts additions
+export const RESUME_DATA = {
+  // ... existing ...
+  courses: [
+    {
+      id: "course-cs101",
+      name: "CS 101 - Algorithms",
+      type: "course" as const,
+    },
+    {
+      id: "course-cs102",
+      name: "CS 102 - Data Structures",
+      type: "course" as const,
+    },
+    {
+      id: "course-cs315",
+      name: "CS 315 - Programming Languages",
+      type: "course" as const,
+    },
+    // ... more courses
+  ],
+  graph: {
+    nodes: [
+      // ... existing nodes ...
+      // Courses added during layout, not here (generated from courses array)
+    ],
+    edges: [
+      // ... existing edges ...
+      // Add: { source: "Bilkent", target: "course-cs101", type: "course" },
+      // Generated from courses array
+    ],
+  },
+};
+```
+
+### Layout Positioning
+
+Courses are children of Bilkent, positioned below it similarly to how achievements position below companies. However, courses are simpler (no expand/collapse), so they use a tighter grid layout.
+
+```typescript
+// layout-calculator.ts addition
+// After positioning Bilkent:
+const courseNodes = graphNodes.filter((n) => n.type === "course");
+const bilkentPos = timelinePositions["Bilkent"];
+if (bilkentPos && courseNodes.length > 0) {
+  const cols = 2; // 2-column grid
+  const colSpacing = 180;
+  const rowSpacing = 80;
+
+  courseNodes.forEach((course, index) => {
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const x = bilkentPos.x - colSpacing / 2 + col * colSpacing;
+    const y = bilkentPos.y + 200 + row * rowSpacing;
+
+    nodes.push({
+      id: course.id,
+      type: "custom", // Reuse custom node with "course" type
+      position: { x, y },
+      data: {
+        label: course.name,
+        type: "course",
+        animationDelay: 0, // Controlled by phase, not delay
+      },
+    });
+  });
+}
+```
+
+### Course Node Rendering
+
+Courses are simple label nodes. Add a "course" case to `custom-node.tsx`:
+
+```typescript
+if (data.type === "course") {
+  return (
+    <motion.div
+      variants={FADE_DROP_VARIANTS}
+      initial="initial"
+      animate="animate"
+      transition={{ ...FADE_DROP_TRANSITION, delay }}
+      className="rounded-md border border-purple-500/30 bg-stone-900/80 px-3 py-1.5"
+    >
+      <Handle type="target" position={Position.Top} className="!bg-purple-400 !w-2 !h-2" />
+      <span className="text-xs text-purple-300">{data.label}</span>
+    </motion.div>
+  );
+}
+```
+
+## Integration Points with Existing Components
+
+### graph-section.tsx (Heavy Modification)
+
+**Remove:**
+
+- `timersRef` and `addTimer` -- replaced by state machine + camera sequencer
+- `startRevealSequence` -- replaced by `advancePhase()`
+- `handleGraphEnter` (onMouseEnter) -- replaced by root node click
+- `handleNodeHover` for company nodes -- replaced by click handler
+- `debouncedFitView` calls scattered through reveal -- camera sequencer handles this
+
+**Keep:**
+
+- `ReactFlowProvider` wrapper
+- `useNodesState` / `useEdgesState`
+- `graphContainerRef` + ResizeObserver for responsive layout
+- `graphDimensions` state
+- `allNodes` / `allEdges` useMemo computations
+- `expandedNodes` z-index effect
+
+**Add:**
+
+- `useCameraSequencer()` hook call
+- Phase-aware node addition effect (subscribe to `phase`, add appropriate nodes)
+- Click handler wiring for root node and company nodes
+- `edgeTypes` registration for animated edges
+
+**New structure sketch:**
+
+```typescript
+function GraphSectionInner() {
+  // ... existing dimension tracking ...
+
+  const phase = useGraphStore((s) => s.phase);
+  const advancePhase = useGraphStore((s) => s.advancePhase);
+
+  // Camera sequencer handles all camera movements
+  useCameraSequencer();
+
+  // Phase-driven node rendering
+  useEffect(() => {
+    switch (phase.type) {
+      case "IDLE":
+        setNodes(allNodes.filter(n => n.data.type === "root"));
+        setEdges([]);
+        break;
+      case "REVEALING": {
+        const companyNode = allNodes.find(n => n.id === phase.company);
+        if (companyNode) {
+          setNodes(prev => [...prev, companyNode]);
+          // Add edge from root to this company after short delay
+          setTimeout(() => {
+            const edge = allEdges.find(e => e.target === phase.company);
+            if (edge) setEdges(prev => [...prev, edge]);
+          }, 300);
+        }
+        break;
+      }
+      // ... other phases ...
+    }
+  }, [phase, allNodes, allEdges, setNodes, setEdges]);
+
+  // Root node click handler
+  const handleRootClick = useCallback(() => {
+    if (phase.type === "IDLE") advancePhase();
+  }, [phase, advancePhase]);
+
+  // Company node click handler
+  const handleCompanyClick = useCallback((companyId: string) => {
+    if (phase.type === "COMPLETE") {
+      // Toggle achievement expansion
+    }
+  }, [phase]);
 
   return (
-    <div ref={containerRef}>
-      <motion.div style={{ scale: heroScale, opacity: heroOpacity }}>
-        {children}
+    <div id="graph" className="relative lg:pt-[9.5rem]">
+      {/* Phase-aware hint text */}
+      <p className="text-stone-400 mb-4">
+        {phase.type === "IDLE" ? "Click the name node to explore" : "Interact with nodes to explore"}
+      </p>
+      <motion.div ref={graphContainerRef} /* ... */>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}  // NEW
+          /* Remove onMouseEnter from container */
+          /* ... */
+        />
       </motion.div>
     </div>
   );
 }
 ```
 
-**Why this works:** Server Components can be passed as children to Client Components. The hero content is server-rendered, only the parallax logic is client-side.
+### graph-store.tsx (Heavy Rewrite)
 
-**Files:**
+Replace flat boolean state with discriminated union phase:
 
-- NEW: `components/hero-parallax-wrapper.tsx` (client, ~30 lines)
-- MODIFIED: `app/page.tsx` (remove "use client", remove scroll hooks)
-
-### Phase 2: Migrate Framer Motion → CSS Animations
-
-**Affected components:**
-
-- About section (motion.span, motion.h2, motion.p with whileInView)
-- MetricsSection (motion.div with whileInView)
-- ExperienceTimeline (motion.div with whileInView)
-- TechAndCodeSection (motion.h3, motion.div with whileInView)
-
-**Pattern:**
-
-Current (framer-motion):
-
-```tsx
-"use client";
-import { motion } from "framer-motion";
-
-<motion.h2
-  initial={{ y: 50, opacity: 0 }}
-  whileInView={{ y: 0, opacity: 1 }}
-  className="text-4xl font-black"
->
-  BUILDING INTERFACES
-</motion.h2>;
-```
-
-Target (CSS + data attributes):
-
-```tsx
-// Server component
-<h2
-  data-animate="fade-up"
-  className="text-4xl font-black"
->
-  BUILDING INTERFACES
-</h2>
-
-// globals.css
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-[data-animate="fade-up"] {
-  animation: fade-up 0.6s ease-out forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 30%;
-}
-```
-
-**Modern CSS solution:** Use `animation-timeline: view()` (scroll-driven animations) for intersection-triggered effects. Supported in Chrome 115+, Safari 17.5+, Firefox 114+.
-
-**Fallback for older browsers:**
-
-```tsx
-// components/css-animation-polyfill.tsx [CLIENT]
-"use client";
-import { useEffect } from "react";
-
-export function CSSAnimationPolyfill() {
-  useEffect(() => {
-    if (!CSS.supports("animation-timeline", "view()")) {
-      // Intersection Observer fallback
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-in");
-          }
-        });
-      });
-
-      document.querySelectorAll("[data-animate]").forEach((el) => {
-        observer.observe(el);
-      });
-
-      return () => observer.disconnect();
-    }
-  }, []);
-
-  return null;
-}
-
-// globals.css fallback
-@supports not (animation-timeline: view()) {
-  [data-animate] {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  [data-animate].animate-in {
-    animation: fade-up 0.6s ease-out forwards;
-  }
-}
-```
-
-**Files:**
-
-- NEW: `components/css-animation-polyfill.tsx` (client, ~40 lines)
-- MODIFIED: `app/globals.css` (add @keyframes definitions)
-- MODIFIED: All section components (remove framer-motion imports, add data-animate)
-
-**Trade-off analysis:**
-
-- **PRO:** No framer-motion bundle (~100KB), server components, better SEO
-- **PRO:** CSS animations are composable and performant (GPU-accelerated)
-- **CON:** Less dynamic than framer-motion (no gesture/drag support)
-- **CON:** Browser support requires polyfill for animation-timeline
-- **VERDICT:** Worth it. Static entrance animations don't need framer-motion's power.
-
-### Phase 3: Server-Side GitHub Data Fetching
-
-**Current pattern (GitHubActivity component):**
-
-```tsx
-"use client";
-import { useState, useEffect } from "react";
-
-export function GitHubActivity() {
-  const [commits, setCommits] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/github")
-      .then((res) => res.json())
-      .then((data) => setCommits(data.commits));
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  return <div>{/* Render commits */}</div>;
-}
-```
-
-**Problem:** Client-side fetch causes loading flash, larger bundle, no SSR benefit.
-
-**Target pattern:**
-
-```tsx
-// app/page.tsx [SERVER]
-export const revalidate = 300; // ISR: 5-minute cache
-
-export default async function Page() {
-  const githubData = await fetch("https://api.github.com/users/...", {
-    next: { revalidate: 300 },
-  }).then((res) => res.json());
-
-  return (
-    <main>
-      {/* Other sections */}
-      <TechAndCodeSection githubData={githubData} />
-    </main>
-  );
-}
-
-// components/sections/tech-and-code-section.tsx [SERVER]
-type Props = {
-  githubData: { commits: RedactedCommit[] };
+```typescript
+// BEFORE
+type GraphState = {
+  expandedNodes: string[];
+  hasStartedReveal: boolean;
+  revealedCompanies: string[];
+  // ...actions...
 };
 
-export function TechAndCodeSection({ githubData }: Props) {
-  return (
-    <section>
-      {/* Tech stack grid */}
-      <GitHubActivity commits={githubData.commits} />
-    </section>
-  );
-}
+// AFTER
+type RevealPhase = { type: "IDLE" } | { type: "INTRO" } | /* ... */;
 
-// components/github-activity.tsx [SERVER]
-type Props = {
-  commits: RedactedCommit[];
+type GraphState = {
+  phase: RevealPhase;
+  advancePhase: () => void;
+  setPhase: (phase: RevealPhase) => void;
+
+  expandedCompany: string | null;
+  expandCompany: (id: string) => void;
+  collapseCompany: () => void;
+
+  expandedAchievement: string | null;
+  expandAchievement: (id: string) => void;
+  collapseAchievement: () => void;
+
+  // Keep for backward compat during migration
+  revealedCompanies: string[];
+  markCompanyRevealed: (id: string) => void;
+  isCompanyRevealed: (id: string) => boolean;
+};
+```
+
+### custom-node.tsx (Moderate Modification)
+
+1. **Root node:** Add `onClick` that calls `advancePhase()` when phase is IDLE. Add visual hint (pulsing "click me" indicator).
+2. **Company nodes:** Replace `onMouseEnter`/`onMouseLeave` with `onClick` that calls `handleCompanyClick(id)`. Only clickable when phase is COMPLETE.
+3. **Soft-skill nodes:** Restyle to compact badges. Remove Handle components and edges.
+4. **Add course node:** New rendering case for `type === "course"`.
+
+### layout-constants.ts (Replace)
+
+```typescript
+// BEFORE: Fixed millisecond delays
+export const REVEAL_TIMING = {
+  EDUCATION_DELAY_MS: 1200,
+  LAYERMARK_DELAY_MS: 1700,
+  INTENSEYE_DELAY_MS: 2200,
 };
 
-export function GitHubActivity({ commits }: Props) {
-  // Pure presentational - no state, no effects
-  return (
-    <div>
-      {commits.map((commit) => (
-        <div key={commit.id}>{commit.message}</div>
-      ))}
-    </div>
-  );
-}
-```
+// AFTER: Phase-based camera configuration
+export const PHASE_CAMERA_CONFIG = {
+  INTRO: { zoom: 1.2, panDuration: 800, dwellMs: 600 },
+  Intenseye: { zoom: 0.9, panDuration: 1000, dwellMs: 800 },
+  Layermark: { zoom: 0.9, panDuration: 1000, dwellMs: 800 },
+  Bilkent: { zoom: 0.9, panDuration: 1000, dwellMs: 800 },
+  Courses: { zoom: 0.85, panDuration: 1000, dwellMs: 600 },
+  SKILLS: { zoom: 0.75, panDuration: 1200, dwellMs: 400 },
+  COMPLETE: { zoom: 0.7, panDuration: 800, dwellMs: 0 },
+} as const;
 
-**ISR Configuration:**
-
-```tsx
-// app/page.tsx
-export const revalidate = 300; // Revalidate every 5 minutes
-export const dynamic = "force-static"; // Force static generation
-```
-
-**Benefits:**
-
-- No loading flash (data server-rendered)
-- GitHub API called server-side (no CORS, can use tokens safely)
-- CDN-cached responses (Vercel Edge Network)
-- Automatic revalidation every 5 minutes
-
-**Files:**
-
-- MODIFIED: `app/page.tsx` (add revalidate export, fetch GitHub data)
-- MODIFIED: `components/sections/tech-and-code-section.tsx` (accept githubData prop)
-- MODIFIED: `components/github-activity.tsx` (remove "use client", useState, useEffect)
-- DELETE: `app/api/github/route.ts` (no longer needed, move logic to page.tsx)
-
-**Alternative: Separate data fetching function**
-
-```tsx
-// lib/github.ts
-export async function getGitHubActivity() {
-  const res = await fetch("https://api.github.com/users/...", {
-    headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` },
-    next: { revalidate: 300 },
-  });
-  return res.json();
-}
-
-// app/page.tsx
-import { getGitHubActivity } from "@/lib/github";
-
-export default async function Page() {
-  const githubData = await getGitHubActivity();
-  // ...
-}
-```
-
-### Phase 4: Minimal Client Islands
-
-**AnimatedCounter:** Keep as tiny client component (genuinely interactive)
-
-```tsx
-// components/animated-counter.tsx [CLIENT]
-"use client";
-import { useState, useEffect, useRef } from "react";
-
-export function AnimatedCounter({ value, suffix = "" }: Props) {
-  const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (hasAnimated) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setHasAnimated(true);
-        // Animation logic
-      }
-    });
-
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  return (
-    <span ref={ref}>
-      {count}
-      {suffix}
-    </span>
-  );
-}
-```
-
-**Size:** ~1.5KB gzipped. Acceptable client boundary.
-
-**MarqueeText:** Convert to CSS animation
-
-```tsx
-// components/marquee-text.tsx [SERVER]
-type Props = {
-  text: string;
-  direction?: number;
+// Keep existing layout constants
+export const SAFE_AREA = {
+  /* unchanged */
 };
-
-export function MarqueeText({ text, direction = 1 }: Props) {
-  return (
-    <div className="marquee-container">
-      <div
-        className="marquee-content"
-        style={{
-          animationDirection: direction > 0 ? "normal" : "reverse"
-        }}
-      >
-        {[...Array(4)].map((_, i) => (
-          <span key={i}>{text}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// globals.css
-@keyframes marquee-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.marquee-content {
-  animation: marquee-scroll 20s linear infinite;
-  display: inline-flex;
-}
+export const ACHIEVEMENT_LAYOUT = {
+  /* unchanged */
+};
 ```
 
-**TwinklingStars:** Already CSS-only, just remove "use client"
+## New Files Needed
 
-```tsx
-// components/twinkling-stars.tsx [SERVER]
-// Remove "use client" - useMemo not needed, compute at build time
-export function TwinklingStars() {
-  const stars = generateStars(); // Pure function
-  return (
-    <>
-      <style>{/* Inline @keyframes */}</style>
-      <div>
-        {stars.map((star, i) => (
-          <div key={i} style={{...}} />
-        ))}
-      </div>
-    </>
-  );
-}
-```
+| File                                 | Purpose                                       | Size Estimate |
+| ------------------------------------ | --------------------------------------------- | ------------- |
+| `lib/hooks/use-camera-sequencer.ts`  | Camera animation hook consuming phase changes | ~60 lines     |
+| `components/edges/animated-edge.tsx` | Custom edge with gradient + particle          | ~80 lines     |
 
-**Files:**
+**Note:** Soft skill badges and course nodes do NOT need new files -- they are new rendering cases within the existing `custom-node.tsx`.
 
-- MODIFIED: `components/animated-counter.tsx` (add IntersectionObserver)
-- MODIFIED: `components/marquee-text.tsx` (remove "use client", use CSS)
-- MODIFIED: `components/twinkling-stars.tsx` (remove "use client", remove useMemo)
+## Files Modified
 
-### Phase 5: GraphSection Remains Client
-
-**No changes needed.** GraphSection is already:
-
-- Dynamically imported with `ssr: false`
-- Heavy client-side interactivity (React Flow, Zustand)
-- Properly isolated boundary
-
-```tsx
-// app/page.tsx
-const GraphSection = dynamic(
-  () =>
-    import("@/components/sections/graph-section").then(
-      (mod) => mod.GraphSection,
-    ),
-  { ssr: false, loading: () => <LoadingFallback /> },
-);
-```
-
-**Why keep client:** React Flow requires:
-
-- Canvas manipulation
-- Event handlers (hover, click, drag)
-- Complex state (node positions, edges, expansions)
-- Real-time interactions
-
-**This is the correct use of client components.**
-
-## Server/Client Boundary Diagram
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ app/page.tsx [SERVER COMPONENT]                             │
-│                                                              │
-│ ┌────────────────────────────────────────────────────────┐  │
-│ │ <HeroParallaxWrapper> [CLIENT]                         │  │
-│ │   useScroll, useTransform                              │  │
-│ │   ┌──────────────────────────────────────────────────┐ │  │
-│ │   │ {children} [SERVER]                              │ │  │
-│ │   │   Static hero content                            │ │  │
-│ │   │   <TwinklingStars> [SERVER, CSS-only]           │ │  │
-│ │   └──────────────────────────────────────────────────┘ │  │
-│ └────────────────────────────────────────────────────────┘  │
-│                                                              │
-│ <nav> [SERVER] Static navigation                            │
-│                                                              │
-│ <MarqueeText> [SERVER] CSS animation                        │
-│                                                              │
-│ <AboutSection> [SERVER] Static split-screen                 │
-│   ├─ Static left panel                                      │
-│   └─ Static right panel (CSS animations)                    │
-│                                                              │
-│ <MetricsSection> [SERVER]                                   │
-│   └─ <AnimatedCounter> [CLIENT] × 5 islands                 │
-│         Tiny intersection-triggered counter                 │
-│                                                              │
-│ <TechAndCodeSection githubData={serverData}> [SERVER]       │
-│   ├─ Tech stack grid (static)                               │
-│   └─ <GitHubActivity commits={commits}> [SERVER]            │
-│         Pure presentational                                 │
-│                                                              │
-│ <ExperienceTimeline> [SERVER]                               │
-│   └─ CSS animations                                         │
-│                                                              │
-│ ┌────────────────────────────────────────────────────────┐  │
-│ │ <GraphSection> [CLIENT, dynamic, ssr:false]           │  │
-│ │   React Flow, Zustand, complex interactivity          │  │
-│ └────────────────────────────────────────────────────────┘  │
-│                                                              │
-│ <CSSAnimationPolyfill> [CLIENT]                             │
-│   Intersection Observer fallback (hidden component)         │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-
-Server bundle: Layout, data, static markup
-Client bundle: HeroParallaxWrapper, AnimatedCounter, GraphSection, polyfill
-```
-
-**Bundle size comparison:**
-
-| Current (v1.1)           | Target (v1.2)            | Savings          |
-| ------------------------ | ------------------------ | ---------------- |
-| All components client    | Only 3 components client | ~60%             |
-| Framer Motion everywhere | Only hero parallax       | ~100KB           |
-| Client GitHub fetch      | Server ISR               | No loading flash |
-| 300-line client page     | 300-line server page     | Better FCP       |
-
-## Data Flow Changes
-
-### GitHub Data Flow
-
-**Current:**
-
-```
-Browser → page.tsx mounts → useEffect runs →
-fetch("/api/github") → API route → GitHub API →
-response → setState → re-render → display
-```
-
-**Timeline:** ~500-1000ms (network + API latency)
-**Result:** Loading flash, no SSR
-
-**Target:**
-
-```
-Request → Next.js server → fetch GitHub API (with ISR cache) →
-render page with data → stream HTML → browser displays
-```
-
-**Timeline:** ~50-200ms (CDN cached after first request)
-**Result:** Instant display, no loading state
-
-### Animation Trigger Flow
-
-**Current (framer-motion):**
-
-```
-Browser → page.tsx mounts → framer-motion hydrates →
-motion components register → IntersectionObserver (internal) →
-animate via JavaScript → RAF loop → DOM updates
-```
-
-**Bundle:** ~100KB framer-motion
-
-**Target (CSS):**
-
-```
-Browser → receives HTML with data-animate attributes →
-CSS animations auto-trigger via animation-timeline: view() →
-GPU-accelerated transforms → no JavaScript needed
-```
-
-**Bundle:** 0KB (native CSS)
-
-**Polyfill flow (older browsers):**
-
-```
-Browser → CSSAnimationPolyfill mounts →
-check CSS.supports("animation-timeline", "view()") →
-if false: IntersectionObserver watches [data-animate] →
-add .animate-in class → CSS animation triggers
-```
-
-**Bundle:** ~1KB polyfill
+| File                                    | Change Description                                                         | Size of Change                |
+| --------------------------------------- | -------------------------------------------------------------------------- | ----------------------------- |
+| `lib/stores/graph-store.tsx`            | Replace boolean state with phase state machine                             | Heavy rewrite                 |
+| `components/sections/graph-section.tsx` | Replace timer cascade with phase-driven rendering + camera sequencer       | Heavy rewrite of reveal logic |
+| `components/custom-node.tsx`            | Add click handlers, course node type, restyle soft-skill badges            | Moderate                      |
+| `components/nodes/achievement-node.tsx` | Minor: ensure click-to-expand still works with new company expansion model | Minor                         |
+| `lib/layout-constants.ts`               | Replace REVEAL_TIMING with PHASE_CAMERA_CONFIG                             | Moderate                      |
+| `lib/layout-calculator.ts`              | Add course node positioning, adjust soft skill positions                   | Moderate                      |
+| `lib/graph-utils.ts`                    | Register animated edge type, add course edges                              | Moderate                      |
+| `data/resume-data.ts`                   | Add courses data                                                           | Minor                         |
 
 ## Suggested Build Order
 
-### Phase A: Foundation (No visual changes)
+Dependencies flow determines build order:
 
-**Goal:** Set up server/client boundaries without breaking existing functionality.
-
-**Steps:**
-
-1. Extract HeroParallaxWrapper component (client)
-2. Update page.tsx to use wrapper (remove "use client" NOT yet)
-3. Verify hero parallax still works
-4. Add CSS animation definitions to globals.css
-5. Add CSSAnimationPolyfill component
-6. Test in production build
-
-**Verification:**
-
-- `npm run build` succeeds
-- Hero parallax smooth
-- No console errors
-- No visual regressions
-
-**Files touched:**
-
-- NEW: `components/hero-parallax-wrapper.tsx`
-- NEW: `components/css-animation-polyfill.tsx`
-- MODIFIED: `app/globals.css`
-
-**Commit:** "refactor: extract hero parallax wrapper (prep for SSR)"
-
-### Phase B: Migrate Static Sections to CSS
-
-**Goal:** Remove framer-motion from static sections, migrate to CSS animations.
-
-**Steps:**
-
-1. Update AboutSection: Replace motion.span/h2/p with data-animate
-2. Update MetricsSection: Replace motion.div with data-animate
-3. Update ExperienceTimeline: Replace motion.div with data-animate
-4. Update TechAndCodeSection: Replace motion.h3/div with data-animate
-5. Test each section individually
-6. Verify animations trigger on scroll
-
-**Verification:**
-
-- Animations trigger when scrolling into view
-- Timing/easing similar to original
-- No layout shifts
-- Works in Chrome, Safari, Firefox
-
-**Files touched:**
-
-- MODIFIED: `components/sections/metrics-section.tsx` (remove "use client")
-- MODIFIED: `components/sections/experience-timeline.tsx` (remove "use client")
-- MODIFIED: `components/sections/tech-and-code-section.tsx` (remove "use client")
-- MODIFIED: `app/page.tsx` (about section markup)
-
-**Commit:** "refactor: migrate static sections to CSS animations"
-
-### Phase C: Server-Side GitHub Fetching
-
-**Goal:** Move GitHub data fetching to server, eliminate client loading state.
-
-**Steps:**
-
-1. Create `lib/github.ts` with getGitHubActivity function
-2. Add ISR config to page.tsx (revalidate: 300)
-3. Update page.tsx to fetch data: `const githubData = await getGitHubActivity()`
-4. Update TechAndCodeSection to accept githubData prop
-5. Update GitHubActivity to be pure presentational (remove "use client", useState, useEffect)
-6. Remove cache logic from github-activity.tsx (no longer needed)
-7. Delete `app/api/github/route.ts`
-8. Test ISR: first load, revalidation after 5min
-
-**Verification:**
-
-- No loading flash on page load
-- GitHub data visible immediately
-- Revalidation works (check 5min later)
-- Build succeeds with static optimization
-
-**Files touched:**
-
-- NEW: `lib/github.ts`
-- MODIFIED: `app/page.tsx` (add revalidate, fetch GitHub data)
-- MODIFIED: `components/sections/tech-and-code-section.tsx` (add prop)
-- MODIFIED: `components/github-activity.tsx` (remove client logic)
-- DELETE: `app/api/github/route.ts`
-
-**Commit:** "feat: server-side GitHub data fetching with ISR"
-
-### Phase D: Convert Utility Components
-
-**Goal:** Convert purely presentational components to server components.
-
-**Steps:**
-
-1. MarqueeText: Remove "use client", replace framer-motion with CSS
-2. TwinklingStars: Remove "use client", remove useMemo (compute at build time)
-3. AnimatedCounter: Keep "use client" but add IntersectionObserver trigger
-4. Test each component in isolation
-
-**Verification:**
-
-- Marquee scrolls infinitely (CSS animation)
-- Stars twinkle correctly
-- Counter animates on intersection
-- No hydration mismatches
-
-**Files touched:**
-
-- MODIFIED: `components/marquee-text.tsx`
-- MODIFIED: `components/twinkling-stars.tsx`
-- MODIFIED: `components/animated-counter.tsx`
-- MODIFIED: `app/globals.css` (add marquee keyframes)
-
-**Commit:** "refactor: convert utility components to server/CSS"
-
-### Phase E: Remove page.tsx "use client"
-
-**Goal:** Make page.tsx a server component.
-
-**Steps:**
-
-1. Remove "use client" from app/page.tsx
-2. Remove useRef, useScroll, useTransform imports
-3. Verify build succeeds
-4. Test all sections work correctly
-5. Check bundle size reduction
-
-**Verification:**
-
-- `npm run build` shows page.tsx as server component
-- Hero parallax works (via wrapper)
-- All sections render correctly
-- Bundle size reduced ~60%
-- Lighthouse score improved
-
-**Files touched:**
-
-- MODIFIED: `app/page.tsx`
-
-**Commit:** "feat: migrate page.tsx to server component"
-
-### Phase F: Optimization & Polish
-
-**Goal:** Enable PPR, optimize images, final polish.
-
-**Steps:**
-
-1. Enable PPR in next.config.ts: `experimental: { ppr: true }`
-2. Replace raw `<img>` with `next/image` in tech stack
-3. Add loading="lazy" to non-critical images
-4. Test production build
-5. Lighthouse audit
-
-**Verification:**
-
-- PPR enabled (check build output)
-- Images optimized (WebP/AVIF)
-- Lazy loading works
-- Lighthouse score 95+
-
-**Files touched:**
-
-- MODIFIED: `next.config.ts`
-- MODIFIED: `components/sections/tech-and-code-section.tsx`
-
-**Commit:** "feat: enable PPR and optimize images"
-
-## Migration Pattern Reference
-
-### Pattern 1: Extract Scroll Logic
-
-```tsx
-// BEFORE: Client boundary at page level
-"use client";
-export default function Page() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref });
-  // ...
-}
-
-// AFTER: Server page with client wrapper
-export default function Page() {
-  return <ScrollWrapper>{/* Server-rendered content */}</ScrollWrapper>;
-}
-
-// components/scroll-wrapper.tsx
-("use client");
-export function ScrollWrapper({ children }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref });
-  // ...
-  return <div ref={ref}>{children}</div>;
-}
+```
+1. graph-store.tsx (state machine)     -- Foundation, everything depends on this
+     |
+2. layout-constants.ts (new config)   -- Camera config, used by hook
+     |
+3. use-camera-sequencer.ts (new hook) -- Depends on 1 + 2
+     |
+4. graph-section.tsx (orchestrator)    -- Depends on 1 + 3, heavy rewrite
+     |
+5. custom-node.tsx (click handlers)   -- Depends on 4 (handler wiring)
+     |
+6. animated-edge.tsx (new edge)       -- Independent, can be parallel with 5
+     |
+7. resume-data.ts + layout-calculator -- Course data + positioning
+     |
+8. Integration testing                 -- Everything together
 ```
 
-### Pattern 2: Framer Motion → CSS
+### Phase-by-Phase Build Strategy
 
-```tsx
-// BEFORE: Framer Motion client component
-"use client";
-import { motion } from "framer-motion";
+**Phase 1: State Machine Foundation**
 
-<motion.div
-  initial={{ opacity: 0, y: 50 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6 }}
->
-  Content
-</motion.div>
+- Rewrite `graph-store.tsx` with RevealPhase type
+- Update `layout-constants.ts` with new timing model
+- Create `use-camera-sequencer.ts` (stub that logs phase changes)
+- **Verification:** Store tests pass, phases advance correctly
 
-// AFTER: Server component with CSS animation
-<div data-animate="fade-up">
-  Content
-</div>
+**Phase 2: Orchestrator Rewrite**
 
-// globals.css
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+- Rewrite `graph-section.tsx` reveal logic
+- Wire `useCameraSequencer` to actual setCenter calls
+- Wire root node click to `advancePhase`
+- **Verification:** Click root -> camera pans through companies in reverse chronological order
 
-[data-animate="fade-up"] {
-  animation: fade-up 0.6s ease-out forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 30%;
-}
-```
+**Phase 3: Interaction Model**
 
-### Pattern 3: Client Fetch → Server Fetch
+- Modify `custom-node.tsx`: click-to-expand for companies
+- Update `achievement-node.tsx` if needed
+- **Verification:** After reveal completes, clicking companies expands achievements
 
-```tsx
-// BEFORE: Client-side fetch
-"use client";
-export function Component() {
-  const [data, setData] = useState(null);
+**Phase 4: Visual Polish**
 
-  useEffect(() => {
-    fetch("/api/endpoint")
-      .then((res) => res.json())
-      .then(setData);
-  }, []);
+- Create `animated-edge.tsx` with gradients + particles
+- Restyle soft-skill nodes as badges
+- Add course node rendering
+- **Verification:** Edges animate, badges look compact, courses display under Bilkent
 
-  if (!data) return <Loading />;
-  return <Display data={data} />;
-}
+**Phase 5: Data + Layout**
 
-// AFTER: Server component with ISR
-// page.tsx
-export const revalidate = 300;
-
-export default async function Page() {
-  const data = await fetch("...", {
-    next: { revalidate: 300 },
-  }).then((res) => res.json());
-
-  return <Component data={data} />;
-}
-
-// component.tsx (server)
-export function Component({ data }) {
-  return <Display data={data} />;
-}
-```
-
-### Pattern 4: Client Islands
-
-```tsx
-// BEFORE: Entire section is client
-"use client";
-export function Section() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <StaticHeader />
-      <StaticContent />
-      <InteractiveCounter value={count} onChange={setCount} />
-      <StaticFooter />
-    </div>
-  );
-}
-
-// AFTER: Server section with client island
-export function Section() {
-  return (
-    <div>
-      <StaticHeader />
-      <StaticContent />
-      <InteractiveCounter initialValue={0} />
-      <StaticFooter />
-    </div>
-  );
-}
-
-// interactive-counter.tsx
-("use client");
-export function InteractiveCounter({ initialValue }) {
-  const [count, setCount] = useState(initialValue);
-  // ...
-}
-```
+- Add course data to `resume-data.ts`
+- Update `layout-calculator.ts` for course positioning
+- Tune camera timing values
+- **Verification:** Full cinematic flow from click to complete
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Passing Functions to Server Components
+### Anti-Pattern 1: Animating Node Positions via React Flow
 
-❌ **Wrong:**
+**Wrong:** Moving nodes smoothly by updating `position` in state on each frame.
+**Why bad:** React Flow re-renders and re-calculates edge paths on every position change. This is expensive and produces janky movement.
+**Instead:** Use React Flow's camera system (`setCenter`, `fitBounds`) which operates on the viewport transform (CSS transform on the canvas container), not individual node positions. This is GPU-accelerated and does not trigger React re-renders.
 
-```tsx
-// page.tsx [SERVER]
-export default function Page() {
-  const handler = () => console.log("click");
-  return <ClientComponent onClick={handler} />; // Error: Functions not serializable
-}
+### Anti-Pattern 2: Timer-Based Camera Chaining
+
+**Wrong:** `setTimeout(() => panTo(A), 1000); setTimeout(() => panTo(B), 3000);`
+**Why bad:** Timers don't account for actual animation completion. If the browser is slow or the tab is backgrounded, animations pile up.
+**Instead:** `await setCenter(A, { duration: 1000 }); await setCenter(B, { duration: 1000 });` -- Promise-based chaining guarantees proper sequencing.
+
+### Anti-Pattern 3: Framer Motion for Edge Animations
+
+**Wrong:** Using Framer Motion to animate SVG edge paths.
+**Why bad:** Framer Motion operates on React elements. Edge paths are computed by React Flow and rendered as SVG `<path>` elements. Wrapping them in `motion.path` interferes with React Flow's internal edge rendering pipeline.
+**Instead:** Use native SVG `<animateMotion>` for particles and SVG `<linearGradient>` for gradients. These are declarative SVG features that React Flow's rendering doesn't interfere with.
+
+### Anti-Pattern 4: Multiple Expanded Companies
+
+**Wrong:** Allowing multiple companies to be expanded simultaneously.
+**Why bad:** Achievement nodes from different companies overlap in layout space. The layout calculator positions achievements relative to their parent company, and two expanded companies create visual chaos.
+**Instead:** Only one company expanded at a time. Expanding a new company collapses the previous one.
+
+### Anti-Pattern 5: Storing Camera State in Zustand
+
+**Wrong:** Putting camera position/zoom in Zustand and syncing bidirectionally with React Flow.
+**Why bad:** React Flow has its own internal viewport state. Syncing creates race conditions and infinite update loops.
+**Instead:** Camera state lives exclusively in React Flow. The camera sequencer calls React Flow methods imperatively. Zustand stores only the phase (what should be happening), not the viewport (where the camera actually is).
+
+## Performance Considerations
+
+### Animation Frame Budget
+
+At 60fps, each frame has 16.7ms. The reveal sequence involves:
+
+1. Adding nodes to React state (~1ms per node, React batches these)
+2. React Flow computing edge paths (~0.5ms per edge)
+3. Framer Motion animating node entrance (~0ms, delegates to CSS transforms)
+4. Camera pan via d3-zoom (~0ms, CSS transform on canvas)
+
+**Total per frame during reveal:** Well under 16.7ms. No performance concerns for this graph size (~30 nodes, ~25 edges).
+
+### SVG Particle Count
+
+Each animated edge can optionally have a particle. With ~25 edges, that is 25 `<animateMotion>` elements. SVG animations are handled by the browser's compositor thread and do not block the main thread. This is negligible.
+
+**Recommendation:** Only add particles to "career" and "education" edge types (the main trunk of the graph), not "project" edges. This keeps the visual hierarchy clean and limits particles to ~6.
+
+### React Re-render Prevention
+
+The biggest performance risk is unnecessary re-renders when the phase changes. Use Zustand selectors to ensure components only re-render when their specific slice of state changes:
+
+```typescript
+// GOOD: Only re-renders when phase.type changes
+const phaseType = useGraphStore((s) => s.phase.type);
+
+// BAD: Re-renders on ANY store change
+const { phase, expandedCompany, advancePhase } = useGraphStore();
 ```
-
-✅ **Right:**
-
-```tsx
-// page.tsx [SERVER]
-export default function Page() {
-  return <ClientComponent />; // Handler defined inside client component
-}
-
-// client-component.tsx [CLIENT]
-("use client");
-export function ClientComponent() {
-  const handler = () => console.log("click");
-  return <button onClick={handler}>Click</button>;
-}
-```
-
-### Anti-Pattern 2: Using Hooks in Server Components
-
-❌ **Wrong:**
-
-```tsx
-// page.tsx [SERVER]
-export default function Page() {
-  const [state, setState] = useState(0); // Error: Hooks not allowed in server components
-  // ...
-}
-```
-
-✅ **Right:**
-
-```tsx
-// page.tsx [SERVER]
-export default function Page() {
-  return <ClientComponent />;
-}
-
-// client-component.tsx [CLIENT]
-("use client");
-export function ClientComponent() {
-  const [state, setState] = useState(0); // OK: Hooks in client component
-  // ...
-}
-```
-
-### Anti-Pattern 3: Importing Server Code in Client Components
-
-❌ **Wrong:**
-
-```tsx
-// client-component.tsx [CLIENT]
-"use client";
-import { getServerData } from "@/lib/server-utils"; // Error: Server-only code in client
-
-export function ClientComponent() {
-  const data = getServerData(); // Can't run on client
-  // ...
-}
-```
-
-✅ **Right:**
-
-```tsx
-// page.tsx [SERVER]
-import { getServerData } from "@/lib/server-utils";
-
-export default async function Page() {
-  const data = await getServerData();
-  return <ClientComponent data={data} />; // Pass as serializable prop
-}
-
-// client-component.tsx [CLIENT]
-("use client");
-export function ClientComponent({ data }) {
-  // Use data (already fetched server-side)
-}
-```
-
-### Anti-Pattern 4: Over-Using Client Components
-
-❌ **Wrong:**
-
-```tsx
-// Everything client "just in case"
-"use client";
-export function Header() {
-  return <nav>{/* Static markup */}</nav>;
-}
-```
-
-✅ **Right:**
-
-```tsx
-// Server by default, client only when needed
-export function Header() {
-  return (
-    <nav>
-      {/* Static parts */}
-      <ClientToggle /> {/* Only this is client */}
-    </nav>
-  );
-}
-```
-
-## Framer Motion → CSS Animation Migration
-
-### Common Animation Mappings
-
-| Framer Motion                               | CSS Alternative                                              |
-| ------------------------------------------- | ------------------------------------------------------------ |
-| `initial={{ opacity: 0 }}`                  | `@keyframes fade-in { from { opacity: 0; } }`                |
-| `whileInView={{ opacity: 1 }}`              | `animation-timeline: view();`                                |
-| `transition={{ duration: 0.6 }}`            | `animation-duration: 0.6s;`                                  |
-| `transition={{ delay: 0.2 }}`               | `animation-delay: 0.2s;`                                     |
-| `transition={{ ease: [0.22, 1, 0.36, 1] }}` | `animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);` |
-| `viewport={{ once: true }}`                 | `animation-fill-mode: forwards;` (doesn't reverse)           |
-| `whileHover={{ scale: 1.05 }}`              | `.el:hover { transform: scale(1.05); }`                      |
-| `animate={{ x: [0, 100] }}`                 | `@keyframes slide { to { transform: translateX(100px); } }`  |
-
-### Animation Variants Translation
-
-**Framer Motion variants:**
-
-```tsx
-const variants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: 0.2 },
-  },
-};
-
-<motion.div variants={variants} initial="hidden" whileInView="visible">
-  Content
-</motion.div>;
-```
-
-**CSS equivalent:**
-
-```tsx
-<div data-animate="fade-up-delayed">
-  Content
-</div>
-
-// globals.css
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-[data-animate="fade-up-delayed"] {
-  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 30%;
-}
-```
-
-### Staggered Animations
-
-**Framer Motion stagger:**
-
-```tsx
-<motion.div
-  initial="hidden"
-  whileInView="visible"
-  variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
->
-  {items.map((item, i) => (
-    <motion.div key={i} variants={childVariants}>
-      {item}
-    </motion.div>
-  ))}
-</motion.div>
-```
-
-**CSS equivalent:**
-
-```tsx
-<div className="stagger-container">
-  {items.map((item, i) => (
-    <div
-      key={i}
-      data-animate="fade-in"
-      style={{ animationDelay: `${i * 0.1}s` }}
-    >
-      {item}
-    </div>
-  ))}
-</div>
-```
-
-### When CSS Can't Replace Framer Motion
-
-**Keep framer-motion for:**
-
-- Gesture interactions (drag, pan, swipe)
-- Physics-based animations (spring, inertia)
-- Dynamic animations based on state
-- Coordinated multi-element animations
-- Path animations (SVG morphing)
-
-**In this portfolio:**
-
-- Hero parallax (useScroll + useTransform) → Keep framer-motion in HeroParallaxWrapper
-- Graph interactions (hover, expand) → Keep framer-motion in GraphSection
-- Entrance animations → Migrate to CSS
-- Marquee scroll → Migrate to CSS
-- Counter animation → Keep in client component (state-driven)
-
-## Integration Points
-
-### Next.js Config Updates
-
-```ts
-// next.config.ts
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  reactStrictMode: true,
-
-  // Enable React Compiler (already enabled)
-  experimental: {
-    reactCompiler: true,
-
-    // Enable Partial Prerendering
-    ppr: true,
-  },
-
-  // Optimize imports (already configured)
-  optimizePackageImports: ["lucide-react", "framer-motion", "@xyflow/react"],
-};
-
-export default nextConfig;
-```
-
-**PPR explanation:** Partial Prerendering allows mixing static and dynamic content in the same route. Static shell (hero, about, tech) pre-rendered at build time, dynamic content (GitHub commits if > 5min old) streamed.
-
-### ISR Configuration
-
-```tsx
-// app/page.tsx
-export const revalidate = 300; // Revalidate every 5 minutes
-export const dynamic = "force-static"; // Force static generation
-
-export default async function Page() {
-  const githubData = await fetch("https://api.github.com/users/...", {
-    next: { revalidate: 300 },
-  }).then((res) => res.json());
-
-  // ...
-}
-```
-
-**How ISR works:**
-
-1. First request: Static page generated at build time (or on-demand)
-2. Cached at CDN for 5 minutes
-3. After 5min: Background revalidation triggered on next request
-4. Stale content served while revalidating
-5. Fresh content cached once revalidation completes
-
-**Benefits:**
-
-- Fast response times (CDN-cached)
-- Fresh data (revalidates regularly)
-- No loading states (always has data)
-
-### Suspense Boundaries
-
-```tsx
-// app/page.tsx
-import { Suspense } from "react";
-
-export default async function Page() {
-  return (
-    <main>
-      {/* Static content (immediate) */}
-      <HeroParallaxWrapper>...</HeroParallaxWrapper>
-      <MarqueeText />
-      <AboutSection />
-
-      {/* Dynamic content (streamed) */}
-      <Suspense fallback={<GitHubSkeleton />}>
-        <GitHubSection />
-      </Suspense>
-
-      {/* Heavy client component (lazy loaded) */}
-      <GraphSection />
-    </main>
-  );
-}
-```
-
-**With PPR enabled:** Static shell (hero, about, marquee) sent immediately. GitHub data streams in when ready. Graph loads on demand.
-
-## Build Order Dependencies
-
-```
-Phase A (Foundation)
-  └─> Phase B (Static sections)
-       └─> Phase D (Utility components)
-            └─> Phase E (Remove "use client")
-                 └─> Phase F (Optimization)
-
-Phase C (GitHub fetching) - Independent, can run parallel to Phase B/D
-```
-
-**Critical path:** A → B → D → E → F (must be sequential)
-
-**Parallel work:** Phase C can start after Phase A completes
-
-**Testing checkpoints:**
-
-- After Phase A: Hero parallax works, CSS polyfill loads
-- After Phase B: All sections animate correctly
-- After Phase C: GitHub data loads instantly
-- After Phase D: Marquee/stars/counter work
-- After Phase E: Build succeeds as server component
-- After Phase F: Lighthouse score 95+
-
-## Performance Impact Estimation
-
-### Bundle Size Reduction
-
-| Component       | Before (gzipped) | After (gzipped)    | Savings           |
-| --------------- | ---------------- | ------------------ | ----------------- |
-| Framer Motion   | ~100 KB          | ~15 KB (hero only) | 85 KB             |
-| Page.tsx        | ~8 KB            | ~2 KB (server)     | 6 KB              |
-| Static sections | ~12 KB           | 0 KB (server)      | 12 KB             |
-| GitHub activity | ~3 KB            | 0 KB (server)      | 3 KB              |
-| CSS animations  | 0 KB             | ~1 KB              | -1 KB             |
-| **Total**       | **~123 KB**      | **~18 KB**         | **~105 KB (85%)** |
-
-**First Load JS:** ~200 KB → ~95 KB (52% reduction)
-
-### Rendering Performance
-
-| Metric                         | Before | After | Change |
-| ------------------------------ | ------ | ----- | ------ |
-| FCP (First Contentful Paint)   | ~1.2s  | ~0.4s | -67%   |
-| LCP (Largest Contentful Paint) | ~1.8s  | ~0.6s | -67%   |
-| TTI (Time to Interactive)      | ~2.5s  | ~1.2s | -52%   |
-| TBT (Total Blocking Time)      | ~300ms | ~80ms | -73%   |
-| CLS (Cumulative Layout Shift)  | 0.02   | 0.01  | -50%   |
-
-**Lighthouse Score:** 78 → 96 (+23%)
-
-### Network Performance
-
-| Resource           | Before         | After        | Change                   |
-| ------------------ | -------------- | ------------ | ------------------------ |
-| HTML size          | ~15 KB         | ~45 KB       | +200% (more SSR content) |
-| JS bundle          | ~200 KB        | ~95 KB       | -52%                     |
-| Initial requests   | 12             | 8            | -33%                     |
-| GitHub API latency | 500ms (client) | 0ms (cached) | -100%                    |
-
-**Total page weight:** 215 KB → 140 KB (35% reduction)
-
-## Risk Mitigation
-
-### Risk 1: CSS Animation Browser Support
-
-**Risk:** `animation-timeline: view()` not supported in older browsers.
-
-**Impact:** Animations don't trigger on scroll (elements stay invisible).
-
-**Mitigation:**
-
-- Implement CSSAnimationPolyfill with IntersectionObserver fallback
-- Use `@supports` queries for progressive enhancement
-- Test in Chrome, Safari, Firefox (latest 2 versions)
-
-**Fallback strategy:**
-
-```css
-/* Modern browsers: scroll-driven animations */
-@supports (animation-timeline: view()) {
-  [data-animate] {
-    animation-timeline: view();
-  }
-}
-
-/* Older browsers: class-based animations */
-@supports not (animation-timeline: view()) {
-  [data-animate] {
-    opacity: 0;
-  }
-  [data-animate].animate-in {
-    animation: fade-in 0.6s ease-out forwards;
-  }
-}
-```
-
-### Risk 2: Breaking Hero Parallax
-
-**Risk:** Extracting scroll logic breaks smooth parallax effect.
-
-**Impact:** Hero doesn't scale/fade on scroll.
-
-**Mitigation:**
-
-- Test HeroParallaxWrapper in isolation before integrating
-- Keep exact same scroll hooks (useScroll, useTransform)
-- Verify RAF loop performance (no jank)
-- A/B test before/after
-
-**Rollback plan:** Keep "use client" in page.tsx if parallax breaks.
-
-### Risk 3: GitHub ISR Stale Data
-
-**Risk:** 5-minute cache shows outdated commits.
-
-**Impact:** Live feed not actually "live."
-
-**Mitigation:**
-
-- Document 5-minute revalidation in UI ("Updates every 5 min")
-- Consider on-demand revalidation for critical updates
-- Monitor GitHub API rate limits (5000/hour with token)
-
-**Alternative:** Keep client-side fetch but with server-rendered initial data:
-
-```tsx
-export default async function Page() {
-  const initialData = await getGitHubActivity();
-  return <GitHubActivity initialData={initialData} />;
-}
-```
-
-### Risk 4: Hydration Mismatches
-
-**Risk:** Server-rendered HTML doesn't match client hydration.
-
-**Impact:** React warnings, potential content flashes.
-
-**Mitigation:**
-
-- Use deterministic data (no Date.now(), Math.random())
-- Test with React Strict Mode enabled
-- Use seeded PRNG for background patterns (already implemented)
-- Verify TwinklingStars generates same stars server/client
-
-**Already handled:** `mulberry32` seeded random for background patterns.
-
-## Success Criteria
-
-### Technical Metrics
-
-- [ ] `npm run build` shows page.tsx as server component
-- [ ] First Load JS < 100 KB (currently ~200 KB)
-- [ ] Lighthouse Performance score > 95 (currently 78)
-- [ ] No console warnings/errors
-- [ ] No hydration mismatches
-- [ ] GitHub data loads instantly (no flash)
-
-### Visual Metrics
-
-- [ ] Hero parallax smooth (no jank)
-- [ ] All animations trigger correctly
-- [ ] Marquee scrolls infinitely
-- [ ] Stars twinkle randomly
-- [ ] Counters animate on intersection
-- [ ] Graph interactions work (hover, expand)
-
-### User Experience
-
-- [ ] FCP < 0.5s (currently ~1.2s)
-- [ ] No loading flashes
-- [ ] Smooth scroll performance (60fps)
-- [ ] Works in latest Chrome, Safari, Firefox
-- [ ] Mobile responsive (no regressions)
-
-### Code Quality
-
-- [ ] Server/client boundaries clearly documented
-- [ ] No "use client" in purely presentational components
-- [ ] Type-safe props for all components
-- [ ] ESLint/Prettier passing
-- [ ] Git commits atomic (one change per commit)
 
 ## Sources
 
-**Official Documentation:**
+**Codebase analysis (HIGH confidence):**
 
-- Next.js Composition Patterns: https://nextjs.org/docs/app/building-your-application/rendering/composition-patterns
-- React "use client" directive: https://react.dev/reference/rsc/use-client
-- Next.js Data Fetching: https://nextjs.org/docs/app/building-your-application/data-fetching
+- `/Users/sunny/Desktop/Sunny/portfolio/components/sections/graph-section.tsx` -- Current orchestrator
+- `/Users/sunny/Desktop/Sunny/portfolio/lib/stores/graph-store.tsx` -- Current state management
+- `/Users/sunny/Desktop/Sunny/portfolio/components/custom-node.tsx` -- Current node rendering
+- `/Users/sunny/Desktop/Sunny/portfolio/components/nodes/achievement-node.tsx` -- Current achievement cards
+- `/Users/sunny/Desktop/Sunny/portfolio/lib/layout-calculator.ts` -- Current positioning algorithm
+- `/Users/sunny/Desktop/Sunny/portfolio/lib/layout-constants.ts` -- Current timing constants
+- `/Users/sunny/Desktop/Sunny/portfolio/lib/graph-utils.ts` -- Current edge generation
+- `/Users/sunny/Desktop/Sunny/portfolio/data/resume-data.ts` -- Current data model
 
-**Codebase Analysis:**
+**React Flow API verification (HIGH confidence):**
 
-- `/Users/sunny/Desktop/Sunny/portfolio/app/page.tsx` (v1.1)
-- `/Users/sunny/Desktop/Sunny/portfolio/components/sections/*` (v1.1)
-- `/Users/sunny/Desktop/Sunny/portfolio/.planning/codebase/ARCHITECTURE.md` (v1.1)
-- `/Users/sunny/Desktop/Sunny/portfolio/package.json` (dependencies)
+- `@xyflow/react@12.10.0` type definitions at `node_modules/@xyflow/react/dist/esm/types/general.d.ts`
+- `@xyflow/system@0.0.74` type definitions at `node_modules/.pnpm/@xyflow+system@0.0.74/.../types/general.d.ts`
+- React Flow source implementation at `node_modules/@xyflow/react/dist/esm/index.mjs` (lines 516-547 for camera methods)
+- Confirmed: `setCenter()` returns `Promise<boolean>`, accepts `{ duration, ease, zoom, interpolate }`
+- Confirmed: `fitBounds()` returns `Promise<boolean>`, accepts `{ duration, ease, padding, interpolate }`
+- Confirmed: `ease` parameter type is `(t: number) => number` (custom easing function)
 
-**Confidence Assessment:**
+**Architecture patterns (HIGH confidence, from codebase conventions):**
 
-| Area                     | Level  | Reason                                                     |
-| ------------------------ | ------ | ---------------------------------------------------------- |
-| Server/client boundaries | HIGH   | Official Next.js patterns, verified with docs              |
-| CSS animations           | HIGH   | MDN spec, browser support data                             |
-| ISR configuration        | HIGH   | Next.js official docs, tested pattern                      |
-| Bundle size estimates    | MEDIUM | Based on typical gzipped sizes, needs verification         |
-| Performance metrics      | MEDIUM | Estimated from typical SSR improvements, needs measurement |
+- `/Users/sunny/Desktop/Sunny/portfolio/.planning/codebase/ARCHITECTURE.md` -- Existing patterns
+- `/Users/sunny/Desktop/Sunny/portfolio/.planning/codebase/STACK.md` -- Technology versions
 
 ---
 
-_Research complete. Ready for roadmap creation._
+_Architecture research: 2026-02-07_

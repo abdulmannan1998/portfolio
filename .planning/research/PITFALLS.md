@@ -1,745 +1,647 @@
-# Domain Pitfalls: Next.js Client-to-Server Migration
+# Domain Pitfalls: Cinematic Graph Reveal & Edge Animations
 
-**Domain:** Next.js 16 + React 19 Portfolio SSR Migration
+**Domain:** React Flow cinematic animations, camera control, edge effects
 **Researched:** 2026-02-07
-**Context:** 24 "use client" files, heavy framer-motion usage, React Flow, Zustand, previous hydration issues
+**Context:** Existing React Flow v12.10.0 graph with Framer Motion v12.31.0 nodes, Zustand state, timer-based reveal, debounced fitView, ~23 nodes, ~22 edges
+
+---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, broken builds, or runtime failures.
+Mistakes that cause broken animations, janky camera, or require rearchitecting the reveal system.
 
-### Pitfall 1: Breaking Dynamic Import Boundaries
+### Pitfall 1: fitView Prop and Programmatic setCenter/setViewport Fighting for Viewport Control
 
-**What goes wrong:** Dynamically imported client components with `ssr: false` stop working when parent moves to server component. React Flow is currently dynamically imported in page.tsx with `ssr: false` — if page.tsx becomes a server component, the dynamic import behavior changes.
+**What goes wrong:** The existing `<ReactFlow fitView fitViewOptions={...} />` prop (graph-section.tsx line 294-300) runs fitView on every node/edge change. When you add programmatic camera panning via `setCenter()` or `setViewport()` to follow nodes during reveal, the `fitView` prop immediately overrides your camera position, snapping the viewport back to "fit all nodes." The camera appears to jank or rubber-band between your intended position and the auto-fit position.
 
-**Why it happens:** `dynamic(import, { ssr: false })` in a client component means "don't render on server at all". When the parent becomes a server component, Next.js may try to pre-render the fallback on the server, breaking the assumption that nothing renders server-side.
+**Why it happens:** React Flow's `fitView` prop is declarative -- it tells the library "always fit to all visible nodes." It triggers on node additions, removals, and dimension changes. The existing code also calls `debouncedFitView()` manually after reveal steps (lines 137, 208, 254). Both the prop AND the manual calls will interrupt any ongoing programmatic camera animation.
+
+**Specific conflict in current codebase:**
+
+- `fitView` prop (line 294) fires on every `setNodes` call
+- `debouncedFitView()` called after achievement reveal (line 137) and after timeline nodes (line 208)
+- Both use 800ms duration transitions via d3-zoom internally
+- If you call `setCenter(nodeX, nodeY, { duration: 600 })` during reveal, the debounced fitView fires 150ms later and overrides it
 
 **Consequences:**
 
-- React Flow throws runtime errors about `window` or DOM APIs being undefined
-- Hydration mismatches between server fallback and client render
-- Graph section breaks entirely
+- Camera snaps to "all nodes" view instead of staying focused on newly revealed node
+- Viewport jitters as d3-zoom transitions compete (two transitions running on same d3-selection)
+- On mobile, the jank is especially noticeable because viewport is smaller and zoom changes are more dramatic
 
 **Prevention:**
 
-1. Keep dynamic imports with `ssr: false` at the client component boundary
-2. Create a thin client wrapper around React Flow that lives in a separate file
-3. Import the wrapper in server component page.tsx
+1. **Remove the `fitView` prop entirely.** Replace with manual `fitView()` calls only at specific moments (initial render, final reveal completion). Use `setCenter()` or `fitBounds()` for mid-sequence camera control.
+2. **Remove ALL debouncedFitView calls during reveal sequence.** Replace with targeted `setCenter(x, y, { duration, zoom })` that focuses on the specific node being revealed.
+3. **Use React Flow's `setCenter()` with the Promise return** -- it returns `Promise<boolean>`, so you can chain camera movements: `await setCenter(x1, y1, { duration: 500 }); await setCenter(x2, y2, { duration: 500 });`
+4. **Only call fitView once at the end** of the complete reveal sequence to show the full graph.
 
-**Example structure:**
+**Warning signs:**
 
-```typescript
-// components/sections/graph-section-client.tsx (NEW)
-"use client";
-export { GraphSection } from "./graph-section"; // re-export
+- Camera snaps to a wide view immediately after you programmatically zoom to a node
+- Two d3 transitions run simultaneously (visible as stuttering/oscillation)
+- The viewport "bounces" during reveal
 
-// app/page.tsx (SERVER)
-const GraphSectionClient = dynamic(
-  () => import("@/components/sections/graph-section-client").then(m => m.GraphSection),
-  { ssr: false, loading: () => <GraphSkeleton /> }
-);
-```
+**Phase recommendation:** Must be the FIRST thing addressed. Remove fitView prop before adding any camera animation.
 
-**Detection:** Build fails with "cannot import client component in server component" OR graph section renders blank.
+**Confidence:** HIGH -- verified from React Flow v12.10.0 types: `fitView` prop triggers on node changes; `setCenter`, `setViewport`, `fitBounds` all return `Promise<boolean>` and accept `{ duration, ease }` options.
 
 ---
 
-### Pitfall 2: Module-Level Client State Breaks SSR
+### Pitfall 2: Framer Motion `layout` Prop Triggering React Flow Edge Recalculation Storm
 
-**What goes wrong:** The GitHub activity component uses module-level `Map` for caching (line 29: `const commitCache = new Map<string, CacheEntry>()`). When this component moves to server context or is imported by server components, the module-level cache causes unpredictable behavior.
+**What goes wrong:** The AchievementNode (achievement-node.tsx line 66) uses `<motion.div layout>` for its expand/collapse animation. When `layout` is true, Framer Motion measures the element's bounding box before and after state changes, then animates between them using FLIP (First, Last, Invert, Play). This changes the node's actual DOM dimensions mid-animation. React Flow watches node dimensions (via ResizeObserver internally) to recalculate edge paths. Every frame of the Framer Motion layout animation triggers React Flow's edge path recalculation, causing:
 
-**Why it happens:** Server components execute on every request. Module-level state that works in client components (executed once in browser) becomes shared across all requests on the server, causing:
+- Edges flicker as their path recalculates 60 times per second during expand
+- React Flow fires onNodesChange rapidly, triggering re-renders
+- If animated edges (gradients, particles) are running, they restart on every edge recalculation
 
-- Cache pollution between users
-- Race conditions
-- Memory leaks (Map never clears across requests)
+**Why it happens:** React Flow v12 uses InternalNode with measured dimensions. When Framer Motion's `layout` animates width from 250px to 400px over 300ms, React Flow detects ~18 dimension changes (60fps \* 0.3s) and recalculates all edge paths connected to that node each time.
+
+**Current codebase evidence:**
+
+- `achievement-node.tsx` line 66: `<motion.div layout ...>`
+- `EXPAND_COLLAPSE_VARIANTS` line 16: `{ collapsed: { width: 250, height: 80 }, expanded: { width: 400, height: "auto", minHeight: 300 } }`
+- The comment on line 68 says "use only opacity/scale to avoid edge path calculation issues" -- this is ALREADY a known issue, but `layout` is still enabled
 
 **Consequences:**
 
-- User A sees User B's cached GitHub data
-- Memory grows unbounded on server
-- ISR revalidation doesn't clear stale cache
-- Dev mode shows different data than production
+- Edge animations (particles, gradients) restart every frame during node expand
+- Performance drops noticeably during expand/collapse (especially with 10+ achievement nodes visible)
+- SVG gradient `<defs>` elements get recreated on each edge recalculation, causing visual flicker
 
 **Prevention:**
 
-1. Move cache to server-side solution (Next.js fetch cache, Redis, or Vercel KV)
-2. For ISR pattern, rely on Next.js built-in caching with `revalidate`
-3. Remove module-level Map entirely
+1. **Replace `layout` with `animate` variants that use `transform: scale()` for the expand effect.** Scale transforms don't change the DOM bounding box, so React Flow doesn't recalculate. The tradeoff: text inside will be scaled (blurry), so you need a two-phase approach -- scale up, then switch to actual dimensions.
+2. **Alternative: Use `layout="position"` instead of `layout`.** This tells Framer Motion to only animate position changes, not size changes. Combine with a CSS transition on width/height instead.
+3. **Disconnect edge recalculation during animation** by temporarily hiding edges connected to the animating node (`setEdges` to remove, then re-add after animation completes).
+4. **Best approach: Animate with `width`/`height` CSS transitions** on the inner content div, NOT via Framer Motion `layout`. Keep the outer node container at a fixed size, and let the inner content expand within it (overflow: visible). React Flow only watches the outer container dimensions.
 
-**Recommended migration path:**
+**Warning signs:**
 
-```typescript
-// app/api/github/route.ts (KEEP as API route OR move to server component)
-export async function getGitHubActivity() {
-  const res = await fetch('...', {
-    next: { revalidate: 300 } // 5 minutes, replaces module cache
-  });
-  return res.json();
-}
+- Open DevTools Performance tab -- hundreds of "recalculate edge" events during expand
+- Edges visually stutter or flash during node expand/collapse
+- Edge particle animations reset to starting position during expand
 
-// app/page.tsx (SERVER)
-export default async function Page() {
-  const githubActivity = await getGitHubActivity();
-  return <GitHubActivityDisplay data={githubActivity} />;
-}
+**Phase recommendation:** Address when implementing edge animations. If edges are static (current state), this pitfall is cosmetic. Once edges have animations/particles, it becomes critical.
 
-// components/github-activity-display.tsx (CLIENT - just UI)
-"use client";
-export function GitHubActivityDisplay({ data }: { data: RedactedCommit[] }) {
-  // No fetch, no loading state, just render
-}
-```
-
-**Detection:**
-
-- Warning signs: `const X = new Map()` or `const cache = {}` at module level in client components
-- Tests: Multiple users see same data in dev mode
-- Build warnings about server-side module execution
+**Confidence:** HIGH -- the existing code comment (line 68) confirms this was already encountered. The `layout` prop is still present and will compound with edge animations.
 
 ---
 
-### Pitfall 3: Framer Motion Entrance Animations Cause Massive Hydration Mismatches
+### Pitfall 3: setTimeout Chain Reveal Becomes Unrecoverable After User Interruption
 
-**What goes wrong:** 12+ components use framer-motion with `initial`, `animate`, `whileInView` props. When these components are rendered on the server, they output the `initial` state HTML. On client, motion skips `initial` and jumps to `animate`, causing hydration mismatches.
+**What goes wrong:** The current reveal uses chained `setTimeout` calls (graph-section.tsx lines 184-209) with hardcoded delays. This is a fire-and-forget system. If the user scrolls away mid-reveal, navigates, resizes the window, or clicks a node during reveal, the timeouts continue firing. Nodes appear in the wrong order, camera targets nodes that are off-screen, and the state becomes inconsistent.
 
-**Why it happens:** Framer Motion animations rely on client-side JavaScript and viewport intersection observers. Server renders the "initial" state (opacity: 0, y: 50), but React expects server HTML to match first client render. If client detects viewport immediately, it renders "animate" state (opacity: 1, y: 0), and React throws hydration errors.
+**Why it happens:** `setTimeout` chains have no awareness of:
+
+- Whether the component is still mounted (the cleanup in line 267-269 helps, but only on full unmount)
+- Whether a previous animation completed (next step fires regardless)
+- Whether the user interacted (click on a company node during reveal starts a SECOND parallel reveal sequence for achievements, overlapping with the main reveal)
+- Whether a camera animation is in progress (new `setCenter` call interrupts ongoing one)
+
+**Current timing chain:**
+
+```
+t=0:     soft skill nodes (3x, 200ms stagger)
+t=1200:  Bilkent (education)
+t=1700:  Layermark (company)
+t=2200:  Intenseye (company)
+t=2700:  fitView
+```
+
+This 2.7-second sequence has no pause, skip, or recovery mechanism.
 
 **Consequences:**
 
-- Console floods with hydration warnings: "Text content did not match. Server: 'opacity: 0' Client: 'opacity: 1'"
-- Layout shift as components re-render on client
-- Performance degradation from full client re-render
-- Breaks React Fast Refresh in dev mode
-
-**Current examples in codebase:**
-
-- page.tsx line 110-160: Hero section with motion.h1, motion.p, motion.div
-- page.tsx line 201-240: About section with motion.span, motion.h2, motion.p
-- graph-section.tsx line 276: motion.div with whileInView
-- graph-legend.tsx line 14: motion.div with whileInView
-- All section components use framer-motion entrance animations
+- User hovers Layermark at t=1800 (before Intenseye reveals) -- achievement reveal interleaves with main reveal, camera fights between two targets
+- User resizes window at t=1500 -- the ResizeObserver fires `debouncedFitView` while reveal is still adding nodes, causing layout recalculation mid-sequence
+- Fast scroll past graph -- timeouts fire but nodes are added to a section the user can't see, wasting CPU
+- The `hasStartedReveal` flag (line 180) prevents restart but doesn't prevent interruption
 
 **Prevention:**
 
-1. **Replace with CSS animations** where possible (entrance animations don't need JS)
-2. **Use view-timeline CSS** for scroll-triggered animations (no JS needed)
-3. **Keep framer-motion ONLY for interactive animations** (hover, click, drag)
-4. **Suppress hydration warnings as last resort** (not recommended, masks real issues)
+1. **Replace setTimeout chain with a state machine.** Define states: `idle`, `revealing-skills`, `revealing-education`, `revealing-companies`, `complete`. Each state transition triggers the next animation. If interrupted (user click, resize), the machine can pause, skip, or gracefully recover.
+2. **Use an async generator or async/await chain** instead of nested timeouts:
+   ```typescript
+   async function revealSequence() {
+     await revealSoftSkills();
+     await panToEducation();
+     await revealNode("Bilkent");
+     // ... etc
+   }
+   ```
+   This is cancellable via AbortController and awaits completion of each step.
+3. **Lock user interaction during reveal** (disable hover-to-expand on company nodes until reveal completes). This prevents the parallel reveal sequence conflict.
+4. **Make reveal sequence skippable** -- if user clicks, fast-forward to complete state (add all nodes instantly, fitView).
 
-**CSS animation replacement pattern:**
+**Warning signs:**
 
-```css
-/* Replace motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+- Two camera animations running simultaneously (viewport oscillates between two targets)
+- Achievement nodes appear before their parent company node has finished revealing
+- Console logs show setNodes being called from multiple setTimeout callbacks in rapid succession
 
-.fade-in-up {
-  animation: fade-in-up 0.8s ease-out forwards;
-}
-```
+**Phase recommendation:** Must be replaced BEFORE implementing camera animation. Camera animation makes the timing issues catastrophically worse because each step now involves a 500-1000ms viewport transition that can be interrupted.
 
-**For scroll-triggered animations (whileInView replacement):**
-
-```css
-/* Modern CSS with view-timeline (replaces whileInView) */
-@keyframes appear {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.scroll-animate {
-  animation: appear linear;
-  animation-timeline: view();
-  animation-range: entry 0% entry 100%;
-}
-```
-
-**Detection:**
-
-- Build succeeds but console shows: "Warning: Expected server HTML to contain..."
-- Components flash/flicker on page load
-- Layout shift visible in Lighthouse/Core Web Vitals
-
-**Phase recommendation:** Address in Phase 2 (after basic server migration works). Start with non-critical sections.
+**Confidence:** HIGH -- directly observed in codebase. The `timersRef` cleanup (line 267) only fires on unmount, not on interruption.
 
 ---
 
-### Pitfall 4: useEffect Hooks in Server-Migrated Components
+### Pitfall 4: SVG Edge Animations (Particles/Gradients) Killing Performance on 22+ Edges
 
-**What goes wrong:** When converting client components to server components, forgetting to remove or extract `useEffect` logic causes immediate build failures. Multiple components currently use `useEffect` for:
+**What goes wrong:** Adding animated SVG effects to edges -- moving particles (`<circle>` with `<animateMotion>`), animated gradients (`<linearGradient>` with animated `offset`), or glowing effects (`<feGaussianBlur>` filters) -- on all 22 edges simultaneously causes significant frame drops. Each animated SVG element triggers independent repaints in the browser's SVG rendering pipeline.
 
-- Animated counter: useEffect for count animation (line 14-29)
-- GitHub activity: useEffect for data fetching (line 82-112)
-- Graph section: useEffect for reveal sequence, resize observer, timers (lines 217-270)
+**Why it happens:**
 
-**Why it happens:** Server components can't use hooks. React hooks are client-side APIs. Attempting to use `useEffect`, `useState`, `useRef` in a server component causes:
+- SVG animations are NOT composited on the GPU by default. Each `<animateMotion>` or CSS animation on an SVG path triggers a main-thread repaint.
+- SVG `<filter>` elements (blur, glow) are extremely expensive -- `<feGaussianBlur>` rerenders on every frame.
+- React Flow renders ALL edges in a single SVG container (`<svg class="react-flow__edges">`). Animating any edge triggers repaint of the entire SVG layer.
+- With 22 edges, that's 22 simultaneous SVG animations, each causing repaints.
 
-```
-Error: Cannot use hooks in Server Components
-```
+**Scale of the problem in this codebase:**
 
-**Consequences:**
-
-- Build fails immediately
-- TypeScript errors in IDE before build
-- Forces complete rewrite of component logic
-
-**Prevention:**
-
-1. **Audit all useEffect usage before migration** — map out what each effect does
-2. **Extract effects into client wrapper components**
-3. **Replace data-fetching effects with server-side async calls**
-4. **Keep timer/animation effects in client boundary**
-
-**Decision matrix:**
-
-| useEffect Purpose     | Solution                                                             |
-| --------------------- | -------------------------------------------------------------------- |
-| Data fetching         | Move to server component as `async function` or `fetch` with caching |
-| Timers/intervals      | Keep in client component                                             |
-| Animation logic       | Keep in client OR replace with CSS                                   |
-| Event listeners       | Keep in client component                                             |
-| Intersection observer | Keep in client OR use CSS view-timeline                              |
-
-**Example migration:**
-
-```typescript
-// BEFORE (client component)
-"use client";
-export function Section() {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    fetch('/api/data').then(r => r.json()).then(setData);
-  }, []);
-  return <div>{data?.value}</div>;
-}
-
-// AFTER (server component)
-async function getData() {
-  const res = await fetch('...', { next: { revalidate: 300 } });
-  return res.json();
-}
-
-export async function Section() {
-  const data = await getData();
-  return <div>{data.value}</div>;
-}
-```
-
-**Detection:**
-
-- Build error: "Error: Cannot use hooks in Server Components"
-- TypeScript error in IDE before build
-
-**Phase recommendation:** Address in Phase 1 (during initial server component conversion).
-
----
-
-### Pitfall 5: Zustand Store Imported by Server Component
-
-**What goes wrong:** graph-store.tsx is used by graph-section.tsx and achievement nodes. If any part of the import chain reaches a server component, the build breaks or causes runtime errors.
-
-**Why it happens:** Zustand creates client-side reactive state with subscriptions. Server components can't subscribe to reactive state. If server component imports file that imports Zustand store:
-
-```
-app/page.tsx (server)
-  → imports graph-section.tsx (client) ✓
-    → imports graph-store.tsx (client state) ✓
-
-app/page.tsx (server)
-  → imports some-helper.tsx (server)
-    → imports graph-store.tsx (client state) ✗ BUILD ERROR
-```
+- 6 structural edges (career, education, soft-skill) -- always visible after reveal
+- ~16 project edges (appear on hover) -- up to 10 visible simultaneously after hovering Intenseye
+- If all are animated: 16-22 concurrent SVG animations
 
 **Consequences:**
 
-- Build error: "Unsupported module imported in Server Component"
-- Runtime error if build succeeds: "Cannot subscribe in server environment"
-- Forces rearchitecture of state management
+- Frame rate drops below 30fps on mid-range mobile devices
+- Scrolling becomes janky because SVG repaints block main thread
+- Battery drain on mobile (constant GPU/CPU activity for decorative animations)
+- Framer Motion node animations (hover effects, floating soft skills) become choppy because main thread is saturated
 
 **Prevention:**
 
-1. **Keep Zustand store imports strictly inside "use client" boundaries**
-2. **Never import store in shared utility files** (lib/graph-utils.ts should NOT import store)
-3. **Pass store state as props** from client to server-side utilities if needed
-4. **Use React Context** if state needs to be shared across server/client boundary
+1. **Tier the animation intensity:**
+   - Career/education edges (6): Full animation (gradients, particles) -- these are always visible and structurally important
+   - Project edges (16): Subtle animation only (opacity pulse, dash-offset) -- these appear on hover and are secondary
+   - Soft-skill edges (3): Static or very subtle -- decorative only
+2. **Use CSS animations on SVG, not SMIL (`<animate>`) or JS.** CSS `stroke-dashoffset` animation with `will-change: stroke-dashoffset` gets composited on GPU:
+   ```css
+   .animated-edge path {
+     stroke-dasharray: 5 5;
+     animation: dash-flow 1s linear infinite;
+     will-change: stroke-dashoffset;
+   }
+   @keyframes dash-flow {
+     to {
+       stroke-dashoffset: -10;
+     }
+   }
+   ```
+3. **Avoid SVG filters entirely.** Replace `<feGaussianBlur>` glow effects with `box-shadow` on a positioned HTML overlay, or use a CSS `filter: blur()` on a pseudo-element (GPU-composited).
+4. **Animate only visible edges.** Use IntersectionObserver or React Flow's viewport bounds to disable animation on edges outside the current viewport.
+5. **For particle effects: Use a single Canvas overlay** instead of individual SVG `<circle>` elements. One canvas with 22 particles is vastly cheaper than 22 SVG circles with individual animations.
 
-**Current risk areas in codebase:**
+**Warning signs:**
 
-- graph-store.tsx (line 18): Used by graph-section.tsx (client) — SAFE
-- graph-store.tsx: Used by achievement-node.tsx (client) — SAFE
-- lib/graph-utils.ts: Does NOT import store — SAFE
-- Risk: If any new server utility imports graph-store, breaks
+- Open DevTools Performance tab -- look for "Paint" events > 10ms per frame
+- Frame rate drops when scrolling near the graph section
+- Mobile users report heat/battery drain
+- Lighthouse Performance score drops > 10 points after adding edge animations
 
-**Detection:**
+**Phase recommendation:** Implement edge animations in a dedicated phase AFTER the reveal/camera system works. Start with CSS dash-offset (cheapest), measure performance, then add gradient/particles only if budget allows.
 
-- Build error: "You're importing a component that needs X. It only works in a Client Component"
-- grep check: `grep -r "useGraphStore" --include="*.tsx" --exclude="*node_modules*"`
-
-**Phase recommendation:** Validate in Phase 1 during initial migration. Add boundary tests.
+**Confidence:** HIGH -- SVG animation performance is well-documented. The edge count (22) is moderate but the combination with Framer Motion node animations on the same page creates compounding cost.
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause delays, technical debt, or require refactoring.
+Mistakes that cause visual glitches, technical debt, or suboptimal UX.
 
-### Pitfall 6: Seeded PRNG Pattern Becomes Unnecessary Complexity
+### Pitfall 5: d3-zoom Transition Easing Mismatch With Framer Motion Easing
 
-**What goes wrong:** TwinklingStars component uses seeded PRNG (mulberry32) to generate deterministic star positions, solving previous hydration mismatches. When component becomes server-rendered, the seeded PRNG is still correct but adds unnecessary complexity.
+**What goes wrong:** React Flow uses d3-zoom for viewport transitions (`setCenter`, `setViewport`, `fitView` with `duration`). The `ease` parameter accepts a `(t: number) => number` function. Framer Motion uses its own easing system (spring physics, cubic-bezier arrays, named easings like "easeOut"). When the camera pans with d3-zoom's default easing while nodes animate in with Framer Motion's spring/cubic-bezier, the motions feel disconnected -- the camera arrives at a node before the node finishes its entrance animation, or the node pops in while the camera is still traveling.
 
-**Why it happens:** The original problem was: client-side `Math.random()` generates different values on every render, causing server HTML (stars at positions A) to not match client hydration (stars at positions B). Seeded PRNG solved this by ensuring deterministic values. BUT: if component is server-rendered, positions are generated once on server and sent as HTML — client never re-generates them, so any PRNG works (or even just hardcoded positions).
+**Why it happens:**
 
-**Consequences:**
+- d3-zoom default easing: `d3.easeCubicInOut` (symmetric S-curve)
+- Framer Motion spring: Overdamped physics sim (overshoots, settles)
+- Framer Motion cubic-bezier: Custom curves like `[0.34, 1.56, 0.64, 1]` (current hero-entrance, line 45)
+- These have fundamentally different timing characteristics -- d3 is time-based (always exactly X ms), Framer Motion springs are physics-based (duration varies with stiffness/damping)
 
-- Maintains technical debt (seeded-random.ts library)
-- Confuses future developers ("why do we need this?")
-- Miss opportunity to simplify
+**Current mismatch evidence:**
 
-**Prevention:**
-
-1. When migrating static-on-server components, reconsider if deterministic generation is needed
-2. Seeded PRNG only needed when: component is client-rendered AND generates dynamic values
-3. If server-rendered: generate once on server, send as props
-
-**Recommended refactor:**
-
-```typescript
-// BEFORE (client component with seeded PRNG to avoid hydration mismatch)
-"use client";
-export function TwinklingStars() {
-  const stars = useMemo(() => {
-    const random = mulberry32(42); // deterministic
-    return generateStars(random);
-  }, []);
-  return <StarElements stars={stars} />;
-}
-
-// AFTER (server component, generate on server)
-// No "use client", no seeded PRNG needed
-export function TwinklingStars() {
-  const stars = generateStars(Math.random); // or just hardcode 50 stars
-  return <StarElements stars={stars} />;
-}
-```
-
-**Detection:** Components using `mulberry32` that move to server components.
-
-**Phase recommendation:** Phase 3-4 (cleanup after core migration works). Not urgent.
-
----
-
-### Pitfall 7: Animated Counter Fires on Mount Instead of Viewport Entry
-
-**What goes wrong:** AnimatedCounter component fires useEffect on mount (line 14), animating count from 0 to target. If metrics section is below fold, counter animates before user sees it. User arrives at section and sees static final number (no animation).
-
-**Why it happens:** useEffect with empty deps array runs once on mount, not on viewport entry. This is broken UX, but unrelated to SSR migration — EXCEPT that fixing it during migration may introduce new hydration issues.
-
-**Consequences (current):**
-
-- Animation plays off-screen
-- User never sees the satisfying count-up effect
-- Metrics feel static/boring
-
-**Consequences (during migration):**
-
-- If fixed with IntersectionObserver, risk hydration mismatch (observer fires on client, not server)
-- If fixed with framer-motion's `whileInView`, adds to framer-motion hydration issue (Pitfall 3)
-- If fixed with CSS scroll-timeline, requires browser support check
-
-**Prevention:**
-
-1. **Fix UX issue separate from SSR migration** (don't bundle two changes)
-2. **Use IntersectionObserver in client component** (keep "use client")
-3. **OR use CSS view-timeline** and accept browser support limitations
-4. **OR server-render final value, client-animate only when visible** (requires Suspense boundary)
-
-**Recommended approach:**
-
-```typescript
-// Keep as client component, fix viewport detection
-"use client";
-export function AnimatedCounter({ value }: Props) {
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-        }
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  // Animate only after hasAnimated is true
-  useEffect(() => {
-    if (!hasAnimated) return;
-    // ... existing animation logic
-  }, [hasAnimated]);
-
-  return <span ref={ref}>{count}</span>;
-}
-```
-
-**Detection:**
-
-- Metrics section loads, animation plays, then user scrolls down and sees static number
-- No animation visible when metrics come into viewport
-
-**Phase recommendation:** Phase 4-5 (polish after SSR migration stable). Not blocking.
-
----
-
-### Pitfall 8: GraphLegend Uses Framer-Motion But Could Be Pure CSS
-
-**What goes wrong:** GraphLegend component (graph-legend.tsx) is marked "use client" solely for framer-motion's `whileInView` animation (line 14-18). The legend itself is static markup — no interactivity, no state, no effects beyond entrance animation.
-
-**Why it happens:** Developer reached for framer-motion by default for entrance animation, not considering CSS alternative. This forces client boundary, increases bundle size, and creates hydration risk.
+- `fitView` uses 800ms d3 transition (line 48)
+- Node entrance uses Framer Motion with custom easings: `[0.34, 1.56, 0.64, 1]` for hero, `[0.25, 0.46, 0.45, 0.94]` for slide-up (lines 45-56)
+- Achievement expand uses spring: `{ stiffness: 300, damping: 30 }` (line 79)
 
 **Consequences:**
 
-- Unnecessarily large client bundle (framer-motion imported for 1 component)
-- Component must stay client-rendered (can't be static HTML)
-- Hydration mismatch risk (Pitfall 3 applies)
+- Camera pans to a node position, but the node hasn't appeared yet (camera arrives early)
+- Node pops in with spring overshoot while camera is still sliding (feels disconnected)
+- The "cinematic" feel is broken because camera and content aren't synchronized
 
 **Prevention:**
 
-1. **Audit all framer-motion usage** — separate interactive from entrance-only
-2. **Replace entrance-only animations with CSS** before marking "use client"
-3. **Reserve framer-motion for** hover effects, drag interactions, complex sequencing
+1. **Match easing curves between camera and node animations.** Pass a custom `ease` function to `setCenter()` that matches the Framer Motion curve:
+   ```typescript
+   const cubicBezier = (p1x, p1y, p2x, p2y) => {
+     // Convert cubic-bezier to (t) => number for d3
+     // Use a library like bezier-easing
+   };
+   await setCenter(x, y, {
+     duration: 600,
+     ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+   });
+   ```
+2. **Use a consistent easing library** for both camera and node animations. The `bezier-easing` npm package creates functions compatible with both d3 and Framer Motion.
+3. **Sequence, don't overlap.** Move camera first (300ms), THEN animate node in (300ms). This avoids the synchronization problem entirely and creates a natural "look here, now see this" cinematic feel.
+4. **Use `interpolate: 'smooth'`** in ViewportHelperFunctionOptions (available in React Flow v12) for built-in smooth interpolation.
 
-**Recommended refactor:**
+**Warning signs:**
 
-```typescript
-// BEFORE (client component for animation)
-"use client";
-import { motion } from "framer-motion";
-export function GraphLegend() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      className="..."
-    >
-      {/* static content */}
-    </motion.div>
-  );
-}
+- Camera arrives at a position where no node is visible yet
+- Node appears and "catches up" to the camera position
+- The overall sequence feels like a slideshow, not a smooth cinematic reveal
 
-// AFTER (server component with CSS)
-export function GraphLegend() {
-  return (
-    <div className="animate-fade-in-left ...">
-      {/* static content */}
-    </div>
-  );
-}
+**Phase recommendation:** Address during camera animation implementation. This is about polish, not functionality.
 
-// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      keyframes: {
-        'fade-in-left': {
-          from: { opacity: 0, transform: 'translateX(-20px)' },
-          to: { opacity: 1, transform: 'translateX(0)' }
-        }
-      },
-      animation: {
-        'fade-in-left': 'fade-in-left 0.5s ease-out'
-      }
-    }
-  }
-}
-```
-
-**Detection:** Search for `"use client"` components that only use framer-motion for entrance animations.
-
-**Phase recommendation:** Phase 2-3 (during animation refactor). Medium priority.
+**Confidence:** HIGH -- verified from @xyflow/system types that `ViewportHelperFunctionOptions` accepts `ease?: (t: number) => number` and `interpolate?: 'smooth' | 'linear'`.
 
 ---
 
-### Pitfall 9: CSSPreloader Marked Client But Uses No Client APIs
+### Pitfall 6: Mobile/Responsive Cinematic Sequence Breaks at Small Viewports
 
-**What goes wrong:** CSSPreloader component (css-preloader.tsx) is marked "use client" (line 1) but uses zero client-side APIs. It's pure JSX with inline styles and Tailwind classes. Could be server component.
+**What goes wrong:** The graph container is 500px tall on mobile (`h-[500px]`) vs 700px on desktop (`md:h-[700px]`) (graph-section.tsx line 284). The node layout uses absolute pixel positions calculated from `calculateSafeArea()` (layout-calculator.ts). At 375px width, the safe area becomes extremely constrained. Camera panning to individual nodes requires high zoom levels where text overflows, nodes overlap, and edges cross confusingly. The "cinematic" experience degrades to a claustrophobic, jerky sequence.
 
-**Why it happens:** Component was created during client-first architecture. Developer added "use client" by default, never reconsidered during refactors.
+**Why it happens:**
+
+- Node positions are calculated with margins: leftMargin=240px, rightMargin=100px (layout-constants.ts lines 16-18). On a 375px screen, safe area width = 375 - 240 - 100 = 35px. This is unusable.
+- `companySpacing` in layout-calculator.ts line 196: `Math.min(spacing.horizontal * 3.5, 800)` -- on small viewports, this collapses to near zero
+- `setCenter(x, y, { zoom: 1.2 })` on a 375px-wide container clips most of the node
+- Touch interactions (pinch-to-zoom, swipe) conflict with cinematic camera control
+
+**Current state:** The graph currently works on mobile because `fitView` with `minZoom: 0.65` zooms out enough to show everything. But focused camera panning (zoom into individual nodes) will break this.
 
 **Consequences:**
 
-- Forces client boundary unnecessarily
-- Misses opportunity for static generation
-- Sets bad pattern (mark everything client by default)
+- On mobile, camera pans reveal nodes that are too small to read
+- Zooming into a node clips its neighbors, losing context
+- Touch events (pinch zoom) interrupt the camera animation
+- Achievement node expand (250px to 400px) extends beyond viewport on mobile
 
 **Prevention:**
 
-1. **Default to server components** — only add "use client" when needed
-2. **Audit for client APIs before marking**: useState, useEffect, event handlers, browser APIs
-3. **Run build and let Next.js tell you** if client directive is needed
+1. **Skip cinematic camera panning on mobile.** Detect viewport width and fall back to the current fitView-based behavior. Reserve cinematic reveal for `min-width: 1024px`.
+2. **Recalculate safe area margins for mobile.** The current 240px left margin and 100px right margin are desktop-appropriate. Mobile should use 20px margins:
+   ```typescript
+   const isMobile = viewport.width < 768;
+   const leftMargin = isMobile ? 20 : 240;
+   const rightMargin = isMobile ? 20 : 100;
+   ```
+3. **Disable user zoom/pan during cinematic reveal** on mobile to prevent conflicts:
+   ```tsx
+   <ReactFlow
+     zoomOnScroll={!isRevealing}
+     panOnDrag={!isRevealing}
+     zoomOnPinch={!isRevealing}
+   />
+   ```
+4. **Use a different layout algorithm for mobile** -- vertical stack instead of horizontal spread, which naturally fits narrow viewports.
 
-**How to validate:**
+**Warning signs:**
 
-```bash
-# Remove "use client" from css-preloader.tsx
-# Run build
-pnpm build
+- Graph appears as tiny unreadable dots on mobile
+- Camera pans to a position where the target node is off-screen
+- Touch interactions feel broken during reveal
+- Achievement nodes extend beyond the container on expand
 
-# If build succeeds → was server-compatible all along
-# If build fails with "Cannot use X in server component" → add "use client" back
+**Phase recommendation:** Address mobile AFTER desktop cinematic is working. Design the responsive degradation strategy before implementation. The existing `useResponsiveLayout` hook (hooks/use-responsive-layout.ts) provides breakpoint detection.
+
+**Confidence:** HIGH -- verified from layout-constants.ts that margins are hardcoded at 240px/100px, and from graph-section.tsx that container is 500px tall on mobile. Math confirms 35px usable width on 375px screens with current margins.
+
+---
+
+### Pitfall 7: Zustand Store Complexity Explosion With Reveal State Machine
+
+**What goes wrong:** The current Zustand store (graph-store.tsx) has 7 state fields and 5 actions -- simple and manageable. Adding a state machine for cinematic reveal requires: current state (`idle`/`revealing-skills`/`panning-to-education`/etc.), queue of pending transitions, camera target position, animation completion callbacks, user interaction lock, and skip/fast-forward state. This easily triples the store size and introduces race conditions between state transitions.
+
+**Why it happens:**
+
+- State machines need transition guards ("can I move from state A to state B?")
+- Camera animations are async (Promise-based in React Flow) but Zustand is synchronous
+- Multiple consumers read the store: graph-section.tsx (reveal), custom-node.tsx (animations), achievement-node.tsx (expand/collapse)
+- A state update from achievement-node.tsx (expand) can conflict with a reveal transition in progress
+
+**Current store state:**
+
+```typescript
+{
+  expandedNodes: string[];       // UI state
+  hasStartedReveal: boolean;     // Simple flag
+  revealedCompanies: string[];   // Tracking
+}
 ```
 
-**Detection:** Search for `"use client"` and manually review each file for client API usage.
+**Required state machine state (estimated):**
 
-**Phase recommendation:** Phase 1 (during initial audit). Quick win.
+```typescript
+{
+  expandedNodes: string[];
+  revealPhase: 'idle' | 'soft-skills' | 'education' | 'layermark' | 'intenseye' | 'complete';
+  cameraTarget: { x: number; y: number; zoom: number } | null;
+  isAnimating: boolean;           // Camera animation in progress
+  interactionLocked: boolean;     // Prevent user interaction during reveal
+  revealedCompanies: string[];
+  revealQueue: RevealStep[];      // Pending steps
+  skipRequested: boolean;         // User wants to skip ahead
+}
+```
+
+**Consequences:**
+
+- Store becomes the most complex file in the codebase
+- Bugs from stale closures: setTimeout callbacks read old state, trigger wrong transitions
+- Race condition: user clicks "skip" while camera is mid-animation -- what state should we be in?
+- Multiple components subscribing to many fields causes unnecessary re-renders
+
+**Prevention:**
+
+1. **Use XState or a dedicated state machine library** instead of raw Zustand for the reveal state machine. Zustand is for reactive state, not state machines. XState handles transitions, guards, and async effects natively.
+2. **If staying with Zustand: Separate stores.** Keep the existing `useGraphStore` for UI state (expandedNodes). Create a new `useRevealStore` for reveal machine state. This prevents cross-contamination.
+3. **Use Zustand selectors aggressively** to prevent re-render cascading:
+   ```typescript
+   // Bad: subscribes to entire store
+   const store = useGraphStore();
+   // Good: subscribes to single field
+   const revealPhase = useGraphStore((state) => state.revealPhase);
+   ```
+4. **Keep async logic OUTSIDE the store.** The reveal sequence orchestrator should be a custom hook or utility function that reads/writes the store, not an action inside the store. This keeps the store synchronous and predictable.
+
+**Warning signs:**
+
+- Store file grows beyond 100 lines
+- Actions that call other actions (cascading updates)
+- `useGraphStore.getState()` called inside setTimeout callbacks (stale closure risk)
+- Multiple `set()` calls in a single action (batching issues)
+
+**Phase recommendation:** Decide architecture (XState vs separate Zustand stores vs hook-based orchestration) BEFORE implementing the reveal sequence. This is a structural decision that affects all subsequent phases.
+
+**Confidence:** MEDIUM -- the complexity estimate is based on the feature requirements. The actual complexity depends on how many reveal states are needed and whether XState or Zustand is used.
+
+---
+
+### Pitfall 8: Custom Edge Components Re-mount on Every Edge Array Update
+
+**What goes wrong:** The current code uses `setEdges((prev) => [...prev, ...newEdges])` to add edges during reveal (graph-section.tsx lines 130-136, 166-169). When React Flow receives a new edges array, it diffs and re-renders changed edges. If custom edge components (with animated gradients, particles) are used, React may unmount and remount edge components when the array reference changes, resetting animation state. An edge that was mid-particle-animation suddenly restarts from the beginning.
+
+**Why it happens:**
+
+- React Flow uses edge `id` for reconciliation, but if the edge component is a function that creates new JSX each render, React may not preserve instance state
+- `setEdges((prev) => [...prev, ...newEdges])` creates a new array every time, triggering React reconciliation
+- Custom edge components with internal `useState` (for animation progress) or `useRef` (for requestAnimationFrame) lose state on remount
+- The reveal sequence adds edges in batches (soft-skills first, then career, then project), each batch triggering a full edges re-render
+
+**Consequences:**
+
+- Edge particle animations visibly reset (jump back to start) whenever new edges are added
+- Gradient animations flicker during reveal as edges remount
+- Performance degrades because remounting re-initializes SVG elements, animation timers, and React state
+
+**Prevention:**
+
+1. **Use stable edge IDs** (already done: `edge-${index}`) and ensure custom edge components are properly memoized with `React.memo()`.
+2. **Avoid internal state in custom edge components.** Use CSS animations (which survive React remounts) instead of JS-driven animation state. CSS `stroke-dashoffset` animation continues even if the React component re-renders, as long as the DOM element is preserved.
+3. **Use `onEdgesChange` middleware** to detect additions vs updates, and only animate newly added edges:
+   ```typescript
+   // Mark new edges with a "justAdded" flag
+   setEdges((prev) => [
+     ...prev,
+     ...newEdges.map((e) => ({ ...e, data: { ...e.data, justAdded: true } })),
+   ]);
+   ```
+4. **Add edges all at once** instead of in batches if possible. This reduces the number of reconciliation cycles.
+
+**Warning signs:**
+
+- Particle animations visibly restart when a new node is revealed (because new edges get added for that node)
+- Console shows component mount/unmount logs for edge components during reveal
+- Edge animations are smooth only when no nodes are being added
+
+**Phase recommendation:** Address during edge animation implementation. Test by adding a `console.log` in edge component lifecycle to verify edges aren't remounting.
+
+**Confidence:** MEDIUM -- depends on implementation details of custom edge components. If edges use only CSS animations (not React state), this is less of an issue.
+
+---
+
+### Pitfall 9: React 19 + React Compiler + Framer Motion Memoization Breakage
+
+**What goes wrong:** The project uses `babel-plugin-react-compiler` (devDependencies in package.json, line 39). React Compiler automatically memoizes components and hooks. Framer Motion relies on specific re-render patterns and ref mutations that the compiler may over-optimize. A component that should re-render on animation state change (e.g., `isExpanded` toggling from the Zustand store) may be skipped by the compiler's memoization, causing animations to not trigger.
+
+**Why it happens:**
+
+- React Compiler analyzes component dependencies and adds automatic `useMemo`/`useCallback` wrapping
+- Framer Motion's `animate` prop accepts object literals that change identity every render -- the compiler may memoize these, preventing Framer Motion from detecting the change
+- Zustand selectors return stable references for primitive values, but the compiler may further optimize the subscription
+- The existing pattern of `useGraphStore((state) => state.expandedNodes)` returns an array -- compiler may compare by reference and skip re-renders even when array contents change
+
+**Specific risk in current codebase:**
+
+- `achievement-node.tsx` line 47: `const { expandedNodes, expandNode, collapseNode } = useGraphStore()` -- destructuring the entire store may be "optimized" by the compiler to only subscribe to used fields
+- `custom-node.tsx` line 136: `animate={{ ...variants.animate, scale: [1, 1.05, 1], boxShadow: [...] }}` -- this object literal changes identity every render, which is how Framer Motion detects it should animate. Compiler may memoize it.
+
+**Consequences:**
+
+- Node entrance animations don't play (Framer Motion doesn't see prop change)
+- Expand/collapse doesn't trigger visual change (component skips re-render)
+- Intermittent: works in dev mode (compiler less aggressive) but breaks in production build
+
+**Prevention:**
+
+1. **Test with and without React Compiler.** Add `"use no memo"` directive to Framer Motion components if compiler causes issues:
+   ```typescript
+   // At top of component file
+   "use no memo";
+   ```
+2. **Avoid inline object literals for `animate` props.** Use refs or state to hold animation values, which the compiler can track correctly.
+3. **Watch for React Compiler compatibility announcements** from both React and Framer Motion teams. As of the installed versions (React 19.2.3, framer-motion 12.31.0), the integration may have known issues.
+4. **Use Framer Motion's `useAnimate` hook** for imperative animations instead of declarative `animate` prop -- imperative calls aren't affected by component memoization.
+
+**Warning signs:**
+
+- Animations work in `next dev` but not in `next build` output
+- Clicking expand does nothing visually, but state updates (DevTools shows expandedNodes change)
+- Some nodes animate on first render but not on subsequent state changes
+
+**Phase recommendation:** Test early. After adding any new Framer Motion animation, verify it works in production build (`pnpm build && pnpm start`), not just dev mode.
+
+**Confidence:** MEDIUM -- React Compiler + Framer Motion interaction is not yet widely documented. The risk is real but may have been resolved in framer-motion v12.31.0.
+
+---
+
+### Pitfall 10: Camera Panning to Nodes That Haven't Measured Yet
+
+**What goes wrong:** When you call `setCenter(node.position.x, node.position.y, { duration: 600 })` immediately after `setNodes(prev => [...prev, newNode])`, the node's DOM element may not have been measured by React Flow yet. React Flow needs at least one render cycle to measure node dimensions and calculate the InternalNode position. If you `setCenter` before measurement, you're panning to the raw position from your layout calculator, which may not match where React Flow actually placed the node (especially with handles, padding, or CSS margins).
+
+**Why it happens:**
+
+- `setNodes` triggers a React state update (batched in React 19)
+- React Flow's internal ResizeObserver needs to measure the new node's DOM element
+- The measured position includes node width/height adjustments
+- `setCenter` called synchronously after `setNodes` uses stale node dimensions
+- React 19's automatic batching makes this worse: `setNodes` + `setCenter` in the same event handler are batched, so the DOM update hasn't happened when `setCenter` reads positions
+
+**Consequences:**
+
+- Camera pans to a position slightly off from the actual node center
+- On first reveal, camera targets raw layout position; after resize/re-render, it targets correct position -- visible jump
+- `getNodesBounds([nodeId])` returns `{ x: 0, y: 0, width: 0, height: 0 }` if called before measurement
+
+**Prevention:**
+
+1. **Use `useNodesInitialized()` hook** or the `onNodesChange` callback to detect when nodes have been measured:
+   ```typescript
+   // Wait for node measurement before panning
+   const unsubscribe = reactFlowInstance.onNodesChange((changes) => {
+     const dimensionChange = changes.find(
+       (c) => c.type === "dimensions" && c.id === newNodeId,
+     );
+     if (dimensionChange) {
+       reactFlowInstance.setCenter(x, y, { duration: 600 });
+       unsubscribe();
+     }
+   });
+   ```
+2. **Add a small delay** (requestAnimationFrame or setTimeout(0)) between `setNodes` and `setCenter`:
+   ```typescript
+   setNodes((prev) => [...prev, newNode]);
+   requestAnimationFrame(() => {
+     requestAnimationFrame(() => {
+       // Double-rAF ensures React has committed and RF has measured
+       setCenter(x, y, { duration: 600 });
+     });
+   });
+   ```
+3. **Pre-calculate node center positions** in the layout calculator (accounting for node width/height) so that `setCenter` targets are correct even before measurement. This works if node sizes are known and consistent.
+4. **Use `getInternalNode(id)` to check measurement status** before panning -- if it returns undefined or has zero dimensions, wait.
+
+**Warning signs:**
+
+- Camera pans to slightly wrong positions (offset by ~half the node width/height)
+- First reveal animation is off-center; subsequent viewport interactions correct it
+- `getNodesBounds` returns zero-size rect for just-added nodes
+
+**Phase recommendation:** Address during camera animation implementation. The double-rAF approach is the simplest reliable fix.
+
+**Confidence:** HIGH -- React Flow's measurement lifecycle is observable in the types (InternalNode has `measured` property) and this is a common issue in the React Flow community.
 
 ---
 
 ## Minor Pitfalls
 
-Mistakes that cause annoyance but are fixable.
+Mistakes that cause annoyance, visual imperfections, or minor technical debt.
 
-### Pitfall 10: next/image Migration Blocks SSR Benefits
+### Pitfall 11: Edge Gradient `<defs>` ID Collisions in SVG
 
-**What goes wrong:** Tech stack icons currently use raw `<img>` tags (PROJECT.md line 63: "Replace raw `<img>` with `next/image`"). These don't benefit from Next.js optimization. BUT: migrating to `next/image` during SSR refactor may introduce layout shift issues if sizes aren't specified.
+**What goes wrong:** SVG `<linearGradient>` elements are defined in `<defs>` and referenced by `id`. If multiple custom edges use gradients with the same `id` (e.g., `id="edge-gradient"`), all edges share one gradient definition. Changing the gradient on one edge changes it on all.
 
-**Why it happens:** `next/image` requires width/height or fill. Without explicit dimensions, component can't render correctly on server. Original `<img>` tags may not have width/height attributes, relying on CSS to size them.
+**Why it happens:** React Flow renders all edges in a single `<svg>`. All `<defs>` share the same namespace. If custom edge components each create `<linearGradient id="gradient">`, there's only one `id="gradient"` in the DOM.
 
-**Consequences:**
+**Prevention:** Use edge ID in gradient ID: `id={`gradient-${props.id}`}`. Reference with `url(#gradient-${props.id})`.
 
-- Layout shift during hydration (image size changes)
-- Cumulative Layout Shift (CLS) penalty in Lighthouse
-- TypeScript errors if width/height missing
+**Phase recommendation:** Address during custom edge component creation. Simple to prevent, hard to debug after the fact.
 
-**Prevention:**
-
-```typescript
-// BEFORE (raw img)
-<img src="/icons/react.svg" alt="React" className="w-12 h-12" />
-
-// AFTER (next/image, WRONG)
-<Image src="/icons/react.svg" alt="React" className="w-12 h-12" />
-// Error: width and height required
-
-// AFTER (next/image, CORRECT)
-<Image src="/icons/react.svg" alt="React" width={48} height={48} className="w-12 h-12" />
-```
-
-**Detection:** TypeScript error: "Property 'width' is missing in type"
-
-**Phase recommendation:** Phase 5-6 (optimization after SSR migration). Not blocking SSR work.
+**Confidence:** HIGH -- standard SVG behavior, well-documented limitation.
 
 ---
 
-### Pitfall 11: Suspense Boundaries Without Error Boundaries
+### Pitfall 12: onMouseEnter Reveal Trigger Fires During Camera Pan
 
-**What goes wrong:** Planning includes "Implement Suspense streaming for dynamic content" (PROJECT.md line 61). Adding Suspense without error boundaries means server errors crash the entire page instead of showing fallback UI.
+**What goes wrong:** The current reveal triggers on `onMouseEnter` of the graph container (graph-section.tsx line 285). During camera panning, if the mouse happens to be over a company node (because the viewport moved under the cursor), it triggers `handleNodeHover`, starting achievement reveal for that company. This creates an unintended cascade where camera movement triggers hover-based reveals.
 
-**Why it happens:** Suspense handles loading states, not error states. Need parallel error boundary implementation.
-
-**Consequences (without error boundary):**
-
-- Server fetch error crashes entire page
-- User sees blank screen or Next.js error page
-- No graceful degradation
+**Why it happens:** Mouse events fire relative to viewport, not graph coordinates. When the camera pans, nodes move under the cursor. The browser fires `mouseenter` on nodes that arrive under the static cursor position.
 
 **Prevention:**
 
-```typescript
-// WRONG (Suspense only)
-<Suspense fallback={<Skeleton />}>
-  <ServerComponent /> {/* if this throws, page crashes */}
-</Suspense>
+1. **Disable hover-based reveals during camera animation** (set a flag in reveal state machine)
+2. **Switch from hover-trigger to click-trigger for achievement reveal** (the milestone description already mentions "click-triggered cinematic reveal")
+3. **Use `pointer-events: none`** on nodes during camera animation to suppress all mouse events
 
-// RIGHT (Suspense + Error Boundary)
-<ErrorBoundary fallback={<ErrorMessage />}>
-  <Suspense fallback={<Skeleton />}>
-    <ServerComponent />
-  </Suspense>
-</ErrorBoundary>
-```
+**Phase recommendation:** Address when switching to click-triggered reveal. Current hover behavior will be replaced anyway.
 
-**Detection:** Test by intentionally throwing error in server component — page crashes instead of showing fallback.
-
-**Phase recommendation:** Phase 3 (when adding Suspense streaming). Must be paired.
+**Confidence:** HIGH -- standard DOM event behavior. Camera panning moves elements under cursor, triggering mouse events.
 
 ---
 
-### Pitfall 12: ISR Revalidation Tag Strategy Not Defined
+### Pitfall 13: Animated Edge `strokeDashoffset` Not Consistent Across SmoothStep Path Lengths
 
-**What goes wrong:** GitHub activity will use ISR with 5-minute revalidation (PROJECT.md line 60: "Server-side GitHub data fetching with ISR"). But no strategy defined for:
+**What goes wrong:** CSS `stroke-dashoffset` animation creates a "flowing" effect along edges. But SmoothStep edges have variable path lengths (longer paths for edges that need to route around obstacles). A fixed `stroke-dasharray: 5 5` with animation `stroke-dashoffset: -10` runs at different apparent speeds on different edges -- short edges look fast, long edges look slow.
 
-- Manual revalidation (what if user wants fresh data now?)
-- Revalidation on deployment (stale data persists across deploys)
-- Cache warming (first visitor after revalidation waits for fetch)
-
-**Why it happens:** ISR planning focuses on happy path (automatic revalidation) without considering edge cases.
-
-**Consequences:**
-
-- User reports "data is stale" but no way to force refresh
-- Deploy new code, old cached data persists
-- First visitor after revalidation has slow page load
+**Why it happens:** `stroke-dashoffset` is an absolute pixel value, not relative to path length. A 100px path completes one dash cycle 5x faster than a 500px path.
 
 **Prevention:**
 
-1. **Define revalidation tags** for manual invalidation
-2. **Document revalidation strategy** in code comments
-3. **Add cache warming** to deployment pipeline (optional)
+1. **Calculate path length in custom edge component** using `pathElement.getTotalLength()` and set `stroke-dasharray` proportionally
+2. **Use `pathLength` SVG attribute** to normalize: `<path pathLength="100" />` makes `stroke-dashoffset: 100` always equal to one full path length, regardless of actual pixel length
+3. **Accept the inconsistency** for subtle effects (flowing dots) where speed variation is barely noticeable
 
-**Recommended pattern:**
+**Phase recommendation:** Address during edge animation implementation if consistent speed matters for the visual design.
 
-```typescript
-// app/api/github/route.ts
-export async function GET() {
-  const data = await fetchGitHub();
-  return Response.json(data, {
-    headers: {
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
-    },
-  });
-}
-
-// For manual revalidation:
-import { revalidateTag } from "next/cache";
-await fetch("...", { next: { tags: ["github-activity"] } });
-// Later: revalidateTag('github-activity');
-```
-
-**Detection:** No detection method — requires proactive planning.
-
-**Phase recommendation:** Phase 4 (during ISR implementation). Define before coding.
+**Confidence:** HIGH -- standard SVG path animation behavior.
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase Topic                       | Likely Pitfall                                                     | Mitigation                                               |
-| --------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- |
-| Phase 1: Initial server migration | Pitfall 4 (useEffect hooks), Pitfall 5 (Zustand imports)           | Audit all hooks and imports before removing "use client" |
-| Phase 2: Animation refactor       | Pitfall 3 (framer-motion hydration), Pitfall 8 (GraphLegend)       | Start with low-risk components (about section, legend)   |
-| Phase 3: Suspense streaming       | Pitfall 11 (missing error boundaries)                              | Always pair Suspense with ErrorBoundary                  |
-| Phase 4: GitHub ISR migration     | Pitfall 2 (module-level cache), Pitfall 12 (revalidation strategy) | Remove Map cache, define revalidation tags               |
-| Phase 5: Dynamic imports          | Pitfall 1 (React Flow boundary)                                    | Keep ssr:false at client wrapper level                   |
-| Phase 6: Image optimization       | Pitfall 10 (layout shift)                                          | Measure width/height before migration                    |
-
----
-
-## Testing Strategy per Pitfall
-
-| Pitfall              | Test Method                                        | Expected Outcome                      |
-| -------------------- | -------------------------------------------------- | ------------------------------------- |
-| 1: Dynamic imports   | Load page with React Flow section                  | No console errors, graph renders      |
-| 2: Module cache      | Open in 2 incognito windows, check GitHub activity | Different users don't share cache     |
-| 3: Framer Motion     | Check console for hydration warnings               | Zero hydration errors                 |
-| 4: useEffect         | Build succeeds                                     | No "cannot use hooks" error           |
-| 5: Zustand           | Build succeeds                                     | No "unsupported module" error         |
-| 6: Seeded PRNG       | Visual regression test                             | Stars render identically              |
-| 7: Animated counter  | Scroll to metrics section                          | Counter animates on entry             |
-| 8: GraphLegend       | Check bundle size                                  | Framer-motion not in legend chunk     |
-| 9: CSSPreloader      | Build without "use client"                         | Build succeeds                        |
-| 10: next/image       | Lighthouse CLS score                               | CLS < 0.1                             |
-| 11: Suspense errors  | Throw error in server component                    | Error UI shows, page doesn't crash    |
-| 12: ISR revalidation | Deploy, check GitHub data                          | Fresh data appears after revalidation |
-
----
-
-## Quick Reference: "Should This Be Server or Client?"
-
-Use this decision tree when converting components:
-
-```
-Does component use useState/useReducer?
-├─ YES → Client component
-└─ NO → Continue
-
-Does component use useEffect/useLayoutEffect?
-├─ YES → Client component
-└─ NO → Continue
-
-Does component use event handlers (onClick, onChange, etc)?
-├─ YES → Client component
-└─ NO → Continue
-
-Does component use browser APIs (window, document, IntersectionObserver)?
-├─ YES → Client component
-└─ NO → Continue
-
-Does component use client-only libraries (framer-motion, zustand)?
-├─ YES → Client component (or refactor to remove)
-└─ NO → Continue
-
-Does component use React Context?
-├─ YES, and needs to PROVIDE context → Client component
-├─ YES, and only CONSUMES context → Client component
-└─ NO → Server component ✓
-```
+| Phase Topic                                    | Likely Pitfall                                                                               | Mitigation                                                |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Remove fitView prop, add manual camera control | Pitfall 1 (fitView fighting programmatic control)                                            | Remove fitView prop first, replace with manual calls      |
+| State machine for reveal sequence              | Pitfall 3 (setTimeout chain), Pitfall 7 (store complexity)                                   | Decide XState vs Zustand architecture before coding       |
+| Camera pan following nodes                     | Pitfall 5 (easing mismatch), Pitfall 10 (unmeasured nodes)                                   | Sequence camera then node animation; use double-rAF       |
+| Animated edge components                       | Pitfall 4 (SVG performance), Pitfall 8 (remount resets), Pitfall 11 (gradient ID collisions) | Tier animation intensity; use CSS not JS; unique IDs      |
+| Achievement node expand with edge animations   | Pitfall 2 (layout prop + edge recalculation)                                                 | Replace `layout` with CSS transitions or scale transforms |
+| Click-triggered reveal                         | Pitfall 12 (hover fires during pan)                                                          | Lock interaction during camera animation                  |
+| Mobile responsive                              | Pitfall 6 (small viewport)                                                                   | Skip cinematic on mobile; recalculate margins             |
+| React Compiler interaction                     | Pitfall 9 (memoization breakage)                                                             | Test production builds early and often                    |
 
 ---
 
 ## Confidence Assessment
 
-| Pitfall                           | Confidence | Source                                                          |
-| --------------------------------- | ---------- | --------------------------------------------------------------- |
-| 1: Dynamic imports                | HIGH       | Next.js docs on dynamic imports, observed in codebase           |
-| 2: Module-level cache             | HIGH       | Identified in github-activity.tsx:29, server component patterns |
-| 3: Framer Motion hydration        | HIGH       | Known React hydration behavior, 12+ instances in codebase       |
-| 4: useEffect in server components | HIGH       | React documentation, TypeScript will error                      |
-| 5: Zustand in server context      | HIGH       | Zustand client-only, observed usage in graph components         |
-| 6: Seeded PRNG complexity         | MEDIUM     | Observed in twinkling-stars.tsx, SSR pattern knowledge          |
-| 7: Animated counter timing        | HIGH       | Observed in animated-counter.tsx:14, UX issue                   |
-| 8: GraphLegend optimization       | HIGH       | Observed in graph-legend.tsx:14, unnecessary client boundary    |
-| 9: CSSPreloader client directive  | HIGH       | Observed in css-preloader.tsx:1, no client API usage            |
-| 10: next/image migration          | MEDIUM     | Common Next.js migration pattern, PROJECT.md:63                 |
-| 11: Suspense error handling       | HIGH       | React error boundary patterns, PROJECT.md:61                    |
-| 12: ISR revalidation strategy     | MEDIUM     | Next.js ISR patterns, PROJECT.md:60                             |
+| Pitfall                               | Confidence | Source                                                                      |
+| ------------------------------------- | ---------- | --------------------------------------------------------------------------- |
+| 1: fitView vs setCenter conflict      | HIGH       | Verified from React Flow v12.10.0 types and existing codebase usage         |
+| 2: Framer Motion layout + edge recalc | HIGH       | Existing code comment confirms issue; `layout` prop still present           |
+| 3: setTimeout chain fragility         | HIGH       | Directly observed in graph-section.tsx lines 184-209                        |
+| 4: SVG edge animation performance     | HIGH       | SVG rendering pipeline is well-documented; 22 edges is quantified           |
+| 5: d3-zoom vs Framer Motion easing    | HIGH       | Verified both easing systems from installed type definitions                |
+| 6: Mobile viewport constraints        | HIGH       | Math verified: 375px - 240px - 100px = 35px usable width                    |
+| 7: Zustand state machine complexity   | MEDIUM     | Complexity estimate based on requirements; depends on implementation choice |
+| 8: Custom edge remounting             | MEDIUM     | Depends on implementation details of custom edge components                 |
+| 9: React Compiler + Framer Motion     | MEDIUM     | Known risk area but may be resolved in current versions                     |
+| 10: Unmeasured node camera targeting  | HIGH       | React Flow measurement lifecycle confirmed in InternalNode types            |
+| 11: SVG gradient ID collisions        | HIGH       | Standard SVG behavior                                                       |
+| 12: Hover triggers during pan         | HIGH       | Standard DOM event behavior                                                 |
+| 13: strokeDashoffset speed variance   | HIGH       | Standard SVG path animation behavior                                        |
 
 ---
 
 ## Sources
 
-**Primary sources:**
+**Primary sources (HIGH confidence):**
 
-- Codebase analysis: /Users/sunny/Desktop/Sunny/portfolio/
-- .planning/PROJECT.md (milestone context)
-- Next.js 16 App Router documentation (server/client components)
-- React 19 documentation (hydration, server components)
-- Framer Motion documentation (animation patterns)
+- Codebase analysis: `/Users/sunny/Desktop/Sunny/portfolio/` (all component and library files)
+- React Flow v12.10.0 installed types: `@xyflow/react/dist/esm/types/` (ViewportHelperFunctions, SetCenter, FitView, ReactFlowInstance)
+- `@xyflow/system@0.0.74` types: ViewportHelperFunctionOptions `{ duration, ease, interpolate }`, d3-zoom usage in xypanzoom
+- Framer Motion animation variants in custom-node.tsx, achievement-node.tsx (existing easing definitions)
 
-**Key files analyzed:**
+**Key codebase files analyzed:**
 
-- app/page.tsx (main client component, 390 lines)
-- components/github-activity.tsx (module-level cache pattern)
-- components/twinkling-stars.tsx (seeded PRNG pattern)
-- components/animated-counter.tsx (useEffect timing issue)
-- components/sections/graph-section.tsx (complex client interactions)
-- components/graph-legend.tsx (unnecessary client directive)
-- components/css-preloader.tsx (pure JSX marked client)
-- lib/seeded-random.ts (hydration mismatch solution)
+- `components/sections/graph-section.tsx` -- reveal sequence, fitView, timer management
+- `components/custom-node.tsx` -- Framer Motion animation variants and easing curves
+- `components/nodes/achievement-node.tsx` -- `layout` prop, expand/collapse variants
+- `lib/stores/graph-store.tsx` -- current store shape (7 fields, 5 actions)
+- `lib/layout-calculator.ts` -- safe area calculation, node positioning
+- `lib/layout-constants.ts` -- margin constants (240px left, 100px right)
+- `lib/graph-utils.ts` -- edge creation (22 edges with types and styles)
+- `data/resume-data.ts` -- node/edge counts (7 graph nodes + ~16 achievement nodes + 22 edges)
 
-**Knowledge base:**
+**Domain knowledge (MEDIUM confidence):**
 
-- Next.js server/client component boundaries (as of training, verified patterns still apply in Next.js 16)
-- React hydration mismatch patterns
-- Framer Motion SSR limitations (well-documented in community)
-- Zustand server compatibility (explicitly client-only library)
-
-**Confidence level:** HIGH for architectural patterns, MEDIUM for Next.js 16 specific behaviors (training data is Jan 2025, Next.js 16.1.6 release may have nuances)
+- SVG animation performance characteristics (main-thread repaints vs GPU compositing)
+- d3-zoom transition internals (d3-transition library)
+- React 19 automatic batching behavior with state updates
+- React Compiler memoization patterns (documented but rapidly evolving)
