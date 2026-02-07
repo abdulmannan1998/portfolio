@@ -30,7 +30,7 @@ See MILESTONES.md for details.
 
 - [x] **Phase 9: Server-side GitHub Fetching** - Move GitHub data to server with ISR, eliminate loading flash
 - [x] **Phase 10: Client Boundary Extraction** - Extract animated sections and interactive components into client boundary wrappers, convert eligible utilities to server components
-- [ ] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
+- [x] **Phase 11: Server Component Page** - Remove "use client" from page.tsx, compose server content with client boundary wrappers
 - [ ] **Phase 12: PPR & Image Optimization** - Enable Partial Prerendering with streaming and next/image
 
 ## Phase Details
@@ -90,7 +90,7 @@ Plans:
 
 Plans:
 
-- [ ] 11-01-PLAN.md -- Dissolve page-content.tsx into server component page.tsx, internalize hero scroll parallax
+- [x] 11-01-PLAN.md -- Dissolve page-content.tsx into server component page.tsx, internalize hero scroll parallax
 
 ### Phase 12: PPR & Image Optimization
 
@@ -120,9 +120,9 @@ Critical path: 9 -> 10 -> 11 -> 12
 | ------------------------------ | --------- | -------------- | ----------- | ---------- |
 | 9. Server-side GitHub Fetching | v1.2      | 1/1            | Complete    | 2026-02-07 |
 | 10. Client Boundary Extraction | v1.2      | 5/5            | Complete    | 2026-02-07 |
-| 11. Server Component Page      | v1.2      | 0/1            | Not started | -          |
+| 11. Server Component Page      | v1.2      | 1/1            | Complete    | 2026-02-07 |
 | 12. PPR & Image Optimization   | v1.2      | 0/2            | Not started | -          |
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 11 planned (1 plan, 1 wave)_
+_Last updated: 2026-02-07 -- Phase 11 complete (1/1 plans, page.tsx as server component)_

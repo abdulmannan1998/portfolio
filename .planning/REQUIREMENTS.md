@@ -9,7 +9,7 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Server Components
 
-- [ ] **RSC-01**: Page.tsx is a server component (no "use client" directive)
+- [x] **RSC-01**: Page.tsx is a server component (no "use client" directive)
 - [x] **RSC-02**: Hero parallax scroll logic is isolated in a client wrapper component that accepts server-rendered children
 - [x] **RSC-03**: Twinkling-stars renders as server component (pure CSS, no client hooks)
 - [x] **RSC-04**: CSS-preloader renders as server component (no client APIs used)
@@ -49,7 +49,7 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 - [x] **CBH-01**: AnimatedCounter uses Intersection Observer to animate only when visible (not on mount)
 - [x] **CBH-02**: GraphSection remains client with dynamic import and ssr:false (no regression)
-- [ ] **CBH-03**: Zustand store imports exist only inside "use client" boundary files
+- [x] **CBH-03**: Zustand store imports exist only inside "use client" boundary files
 
 ## v2 Requirements
 
@@ -77,7 +77,7 @@ Deferred to future milestone. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status   |
 | ----------- | ----- | -------- |
-| RSC-01      | 13    | Pending  |
+| RSC-01      | 11    | Complete |
 | RSC-02      | 9     | Complete |
 | RSC-03      | 10    | Complete |
 | RSC-04      | 10    | Complete |
@@ -102,7 +102,7 @@ Deferred to future milestone. Tracked but not in current roadmap.
 | PPR-04      | 14    | Pending  |
 | CBH-01      | 10    | Complete |
 | CBH-02      | 10    | Complete |
-| CBH-03      | 13    | Pending  |
+| CBH-03      | 11    | Complete |
 
 **Coverage:**
 
@@ -113,4 +113,4 @@ Deferred to future milestone. Tracked but not in current roadmap.
 ---
 
 _Requirements defined: 2026-02-07_
-_Last updated: 2026-02-07 -- Phase 10 complete (RSC-03, RSC-04, RSC-05, ANIM-08, CBH-01, CBH-02)_
+_Last updated: 2026-02-07 -- Phase 11 complete (RSC-01, CBH-03)_
