@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type BackgroundPatternItem = {
   top: number;
@@ -13,6 +14,8 @@ type AboutSectionProps = {
 };
 
 export function AboutSection({ backgroundPattern }: AboutSectionProps) {
+  const isHydrated = useHydrated();
+
   return (
     <section className="relative min-h-screen grid grid-cols-1 md:grid-cols-2">
       {/* Left - Image/Pattern */}
@@ -46,15 +49,17 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
       <div className="relative bg-black flex items-center p-12 md:p-16">
         <div>
           <motion.span
-            initial={{ opacity: 0 }}
+            initial={isHydrated ? { opacity: 0 } : false}
             whileInView={{ opacity: 1 }}
+            key={isHydrated ? "animated" : "static"}
             className="text-orange-500 font-mono text-sm uppercase tracking-widest"
           >
             About
           </motion.span>
           <motion.h2
-            initial={{ y: 50, opacity: 0 }}
+            initial={isHydrated ? { y: 50, opacity: 0 } : false}
             whileInView={{ y: 0, opacity: 1 }}
+            key={isHydrated ? "animated" : "static"}
             className="text-4xl md:text-5xl font-black mt-4 mb-8 leading-tight"
           >
             BUILDING
@@ -64,9 +69,10 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
             THAT FEEL ALIVE
           </motion.h2>
           <motion.p
-            initial={{ y: 30, opacity: 0 }}
+            initial={isHydrated ? { y: 30, opacity: 0 } : false}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
+            key={isHydrated ? "animated" : "static"}
             className="text-white/60 text-lg leading-relaxed max-w-md mb-4"
           >
             I build data-dense dashboards, complex state systems, and the
@@ -75,9 +81,10 @@ export function AboutSection({ backgroundPattern }: AboutSectionProps) {
             raises the ceiling for entire engineering teams.
           </motion.p>
           <motion.p
-            initial={{ y: 30, opacity: 0 }}
+            initial={isHydrated ? { y: 30, opacity: 0 } : false}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.15 }}
+            key={isHydrated ? "animated" : "static"}
             className="text-white/60 text-lg leading-relaxed max-w-md"
           >
             I tend to be the engineer who gets routed the unclear or difficult

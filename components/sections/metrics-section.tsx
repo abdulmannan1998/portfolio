@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export type Metric = {
   id: string;
@@ -16,6 +17,8 @@ type MetricsSectionProps = {
 };
 
 export function MetricsSection({ metrics }: MetricsSectionProps) {
+  const isHydrated = useHydrated();
+
   return (
     <section className="relative py-24 bg-black">
       <div className="px-6 md:px-12 mb-12">
@@ -34,8 +37,8 @@ export function MetricsSection({ metrics }: MetricsSectionProps) {
         >
           {metrics.map((metric, index) => (
             <motion.div
-              key={metric.id}
-              initial={{ opacity: 0, y: 50 }}
+              key={isHydrated ? `animated-${metric.id}` : metric.id}
+              initial={isHydrated ? { opacity: 0, y: 50 } : false}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               className="relative w-80 h-96 bg-stone-900 rounded-none p-8 flex flex-col justify-between group hover:bg-stone-800 transition-colors"

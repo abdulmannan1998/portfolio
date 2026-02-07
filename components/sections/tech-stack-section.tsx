@@ -3,12 +3,14 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import type { TechCategory } from "@/data/tech-stack";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type TechStackSectionProps = {
   categories: TechCategory[];
 };
 
 export function TechStackSection({ categories }: TechStackSectionProps) {
+  const isHydrated = useHydrated();
   const categoryOffsets = categories.reduce<number[]>((acc, cat, i) => {
     acc.push(i === 0 ? 0 : acc[i - 1] + categories[i - 1].items.length);
     return acc;
@@ -22,10 +24,11 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
           <div key={category.name}>
             {/* Oversized category header */}
             <motion.h3
-              initial={{ x: -30, opacity: 0 }}
+              initial={isHydrated ? { x: -30, opacity: 0 } : false}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: catIndex * 0.1 }}
+              key={isHydrated ? `animated-${category.name}` : category.name}
               className="text-2xl md:text-3xl font-black text-orange-500/25 uppercase leading-none mb-3"
             >
               {category.name}
@@ -35,8 +38,8 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
             <div className="flex flex-wrap gap-3 pl-1">
               {category.items.map((tech, index) => (
                 <motion.div
-                  key={tech.name}
-                  initial={{ opacity: 0, y: 6 }}
+                  key={isHydrated ? `animated-${tech.name}` : tech.name}
+                  initial={isHydrated ? { opacity: 0, y: 6 } : false}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{

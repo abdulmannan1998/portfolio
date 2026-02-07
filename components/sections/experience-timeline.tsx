@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { ExperienceItem } from "@/data/experience";
+import { useHydrated } from "@/lib/use-hydrated";
 
 // Tailwind purges unused classes - use explicit mappings
 const colorMap: Record<ExperienceItem["color"], { bg: string; text: string }> =
@@ -16,6 +17,8 @@ type ExperienceTimelineProps = {
 };
 
 export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
+  const isHydrated = useHydrated();
+
   return (
     <div>
       <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
@@ -33,8 +36,8 @@ export function ExperienceTimeline({ experiences }: ExperienceTimelineProps) {
 
           return (
             <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -30 }}
+              key={isHydrated ? `animated-${item.id}` : item.id}
+              initial={isHydrated ? { opacity: 0, x: -30 } : false}
               whileInView={{ opacity: 1, x: 0 }}
               className={`relative pl-12 ${isLast ? "" : "pb-16"}`}
             >
