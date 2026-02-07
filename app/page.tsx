@@ -1,18 +1,21 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Github, Linkedin, Mail, Beaker } from "lucide-react";
 import { MarqueeText } from "@/components/marquee-text";
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { MetricsSection } from "@/components/sections/metrics-section";
-import { TechAndCodeSection } from "@/components/sections/tech-and-code-section";
+import { TechStackSection } from "@/components/sections/tech-stack-section";
 import { HeroSection } from "@/components/sections/hero-section";
 import { AboutSection } from "@/components/sections/about-section";
 import { GraphSectionLoader } from "@/components/sections/graph-section-loader";
+import { GitHubActivityStream } from "@/components/github-activity-stream";
+import { GitHubActivityError } from "@/components/github-activity-error";
+import { GitHubActivitySkeleton } from "@/components/github-activity-skeleton";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 import { mulberry32 } from "@/lib/seeded-random";
 import { RESUME_DATA } from "@/data/resume-data";
 import { experienceData } from "@/data/experience";
 import { techCategories } from "@/data/tech-stack";
-import { fetchGitHubCommits } from "@/lib/github";
 
 // Generate deterministic positions for background pattern (seeded PRNG prevents hydration mismatches)
 const bgRandom = mulberry32(137);
@@ -23,9 +26,8 @@ const backgroundPattern = [...Array(20)].map(() => ({
 }));
 
 // ISR revalidation is configured in lib/github.ts via fetch options (revalidate: 300)
-export default async function Page() {
-  const commits = await fetchGitHubCommits();
-
+// Page function is now synchronous - static shell only, GitHub streams via Suspense
+export default function Page() {
   return (
     <main className="relative min-h-screen bg-black text-white font-sans overflow-x-hidden">
       {/* Fixed navigation */}
@@ -94,7 +96,73 @@ export default async function Page() {
       <MetricsSection metrics={RESUME_DATA.metrics} />
 
       {/* Tech stack + GitHub activity combined */}
-      <TechAndCodeSection categories={techCategories} commits={commits} />
+      <section className="relative py-24 bg-black overflow-hidden">
+        <div className="px-6 md:px-12 mb-16">
+          <span className="text-orange-500 font-mono text-sm uppercase tracking-widest">
+            Technologies
+          </span>
+          <h2 className="text-5xl md:text-6xl font-black mt-2">
+            STACK &amp; CODE
+          </h2>
+        </div>
+        <div className="px-6 md:px-12">
+          <div className="relative grid grid-cols-1 lg:grid-cols-2">
+            {/* Diagonal orange stripe at junction */}
+            <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-10 z-10 overflow-hidden pointer-events-none">
+              <div
+                className="absolute inset-0 bg-orange-500"
+                style={{
+                  clipPath: "polygon(35% 0%, 65% 0%, 50% 100%, 20% 100%)",
+                }}
+              />
+            </div>
+
+            {/* LEFT: Tech Stack (static, part of PPR shell) */}
+            <TechStackSection categories={techCategories} />
+
+            {/* Mobile orange divider */}
+            <div className="lg:hidden h-1 bg-orange-500 my-10" />
+
+            {/* RIGHT: GitHub Activity (dynamic, streams via Suspense) */}
+            <div className="lg:pl-14">
+              <div className="mb-8">
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span className="text-4xl md:text-5xl font-black text-white/15 uppercase leading-none">
+                    LIVE
+                  </span>
+                  <div className="w-2 h-2 bg-orange-500 animate-pulse" />
+                </div>
+                <div className="h-px bg-white/20" />
+              </div>
+              <GitHubActivityError>
+                <Suspense fallback={<GitHubActivitySkeleton />}>
+                  <GitHubActivityStream />
+                </Suspense>
+              </GitHubActivityError>
+              <div className="mt-10 pt-6 border-t border-white/10">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-white/35 font-mono text-[9px] uppercase tracking-widest block mb-1">
+                      Source
+                    </span>
+                    <span className="text-white/55 font-mono text-xs">
+                      GitHub API
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-white/35 font-mono text-[9px] uppercase tracking-widest block mb-1">
+                      Refresh
+                    </span>
+                    <span className="text-white/55 font-mono text-xs">
+                      5 min cache
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Experience + Career Graph side by side */}
       <section className="relative py-24 bg-stone-950">
