@@ -104,10 +104,12 @@ Plans:
 3. Every Suspense boundary has a paired ErrorBoundary that shows a meaningful fallback on failure
 4. Tech stack icons use next/image with explicit width/height and produce no layout shift on load
 
+**Plans:** 2 plans
+
 Plans:
 
-- [ ] 12-01: TBD
-- [ ] 12-02: TBD
+- [ ] 12-01-PLAN.md -- Add Suspense streaming and ErrorBoundary for GitHub activity, split TechAndCodeSection for PPR static shell
+- [ ] 12-02-PLAN.md -- Replace raw img tags with next/image for tech stack icons
 
 ## Progress
 
@@ -125,4 +127,4 @@ Critical path: 9 -> 10 -> 11 -> 12
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 11 complete (1/1 plans, page.tsx as server component)_
+_Last updated: 2026-02-07 -- Phase 12 planned (2 plans in 1 wave, PPR streaming + image optimization)_
