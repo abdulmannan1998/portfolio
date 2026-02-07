@@ -86,9 +86,11 @@ Plans:
 2. GraphSection loads via dynamic import with ssr:false inside a client boundary wrapper -- graph interactions work identically to before
 3. Zustand store imports (graph-store) appear only inside files that have "use client" at the top
 
+**Plans:** 1 plan
+
 Plans:
 
-- [ ] 11-01: TBD
+- [ ] 11-01-PLAN.md -- Dissolve page-content.tsx into server component page.tsx, internalize hero scroll parallax
 
 ### Phase 12: PPR & Image Optimization
 
@@ -123,4 +125,4 @@ Critical path: 9 -> 10 -> 11 -> 12
 
 ---
 
-_Last updated: 2026-02-07 -- Phase 10 complete (5/5 plans, all client boundaries extracted, verified 6/6 success criteria)_
+_Last updated: 2026-02-07 -- Phase 11 planned (1 plan, 1 wave)_
