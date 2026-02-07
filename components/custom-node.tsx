@@ -118,6 +118,8 @@ export function CustomNode({
     animationDelay?: number;
     animationType?: string;
     onHoverChange?: (nodeId: string, isEntering: boolean) => void;
+    onClickReveal?: () => void;
+    isRevealing?: boolean;
   };
   selected: boolean;
   id: string;
@@ -156,7 +158,7 @@ export function CustomNode({
           },
         }}
         className={cn(
-          "relative rounded-xl border-2 bg-gradient-to-br from-orange-500/20 to-stone-900 px-8 py-5 shadow-2xl transition-all",
+          "relative rounded-xl border-2 bg-gradient-to-br from-orange-500/20 to-stone-900 px-8 py-5 shadow-2xl transition-all cursor-pointer",
           selected
             ? "border-orange-500 shadow-orange-500/40 scale-105"
             : "border-orange-500/60 hover:border-orange-500 hover:shadow-orange-500/30",
@@ -165,6 +167,7 @@ export function CustomNode({
           scale: 1.03,
           boxShadow: "0 20px 40px rgba(249, 115, 22, 0.3)",
         }}
+        onClick={() => data.onClickReveal?.()}
       >
         <Handle
           type="source"
@@ -182,7 +185,19 @@ export function CustomNode({
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/20 ring-2 ring-orange-500/30">
             <User className="h-6 w-6 text-orange-500" />
           </div>
-          <div className="text-xl font-bold text-orange-400">{data.label}</div>
+          <div className="flex flex-col gap-1">
+            <div className="text-xl font-bold text-orange-400">
+              {data.label}
+            </div>
+            <motion.div
+              initial={{ opacity: 1 }}
+              animate={{ opacity: data.isRevealing ? 0 : 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-xs text-stone-500"
+            >
+              Click to explore career
+            </motion.div>
+          </div>
         </div>
       </motion.div>
     );

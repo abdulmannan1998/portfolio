@@ -18,8 +18,7 @@ import { getInitialNodes, getInitialEdges } from "@/lib/graph-utils";
 import { CustomNode } from "@/components/custom-node";
 import { AchievementNode } from "@/components/nodes/achievement-node";
 import { useGraphStore } from "@/lib/stores/graph-store";
-import { REVEAL_TIMING } from "@/lib/layout-constants";
-import { debounce } from "@/lib/debounce";
+import { REVEAL_SEQUENCE, SOFT_SKILL_NODE_IDS } from "@/lib/layout-constants";
 import { useHydrated } from "@/lib/use-hydrated";
 
 const nodeTypes = {
@@ -38,26 +37,6 @@ function GraphSectionInner() {
   const reactFlowInstance = useReactFlow();
   const allNodesRef = useRef<Node[]>([]);
   const allEdgesRef = useRef<Edge[]>([]);
-  const timersRef = useRef<NodeJS.Timeout[]>([]);
-
-  const debouncedFitView = useMemo(
-    () =>
-      debounce(() => {
-        reactFlowInstance?.fitView({
-          padding: 0.15,
-          duration: 800,
-          maxZoom: 0.85,
-          minZoom: 0.65,
-        });
-      }, 150),
-    [reactFlowInstance],
-  );
-
-  const addTimer = useCallback((callback: () => void, delay: number) => {
-    const id = setTimeout(callback, delay);
-    timersRef.current.push(id);
-    return id;
-  }, []);
 
   const { width: graphWidth, height: graphHeight } = graphDimensions;
 
@@ -69,7 +48,7 @@ function GraphSectionInner() {
     return getInitialEdges();
   }, []);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(
     allNodes.filter((n) => n.data?.type === "root"),
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -80,6 +59,7 @@ function GraphSectionInner() {
   }, [allNodes, allEdges]);
 
   const expandedNodes = useGraphStore((state) => state.expandedNodes);
+  const revealPhase = useGraphStore((state) => state.revealPhase);
 
   const achievementNodeHoverHandler = useCallback(
     (nodeId: string, isEntering: boolean) => {
@@ -109,7 +89,7 @@ function GraphSectionInner() {
       );
 
       if (achievementNodes.length > 0) {
-        const { isCompanyRevealed, markCompanyRevealed } =
+        const { isCompanyRevealed, markCompanyRevealed, registerRevealTimer } =
           useGraphStore.getState();
         if (isCompanyRevealed(nodeId)) return;
         markCompanyRevealed(nodeId);
@@ -126,7 +106,7 @@ function GraphSectionInner() {
 
         const totalAnimationTime = achievementNodes.length * 100 + 600;
 
-        addTimer(() => {
+        const timerId = setTimeout(() => {
           setEdges((prev) => {
             const existingEdge = prev.find((e) =>
               achievementIds.includes(e.target),
@@ -134,17 +114,11 @@ function GraphSectionInner() {
             if (existingEdge) return prev;
             return [...prev, ...achievementEdgesFiltered];
           });
-          debouncedFitView();
         }, totalAnimationTime);
+        registerRevealTimer(timerId);
       }
     },
-    [
-      setNodes,
-      setEdges,
-      debouncedFitView,
-      achievementNodeHoverHandler,
-      addTimer,
-    ],
+    [setNodes, setEdges, achievementNodeHoverHandler],
   );
 
   const addNodeAndEdges = useCallback(
@@ -162,7 +136,8 @@ function GraphSectionInner() {
         setNodes((prev) => [...prev, nodeWithHandler]);
 
         if (relatedEdges.length > 0) {
-          addTimer(() => {
+          const { registerRevealTimer } = useGraphStore.getState();
+          const timerId = setTimeout(() => {
             setEdges((prev) => {
               const newEdges = relatedEdges.filter(
                 (edge) => !prev.some((e) => e.id === edge.id),
@@ -170,51 +145,47 @@ function GraphSectionInner() {
               return [...prev, ...newEdges];
             });
           }, 500);
+          registerRevealTimer(timerId);
         }
       }
     },
-    [setNodes, setEdges, handleNodeHover, addTimer],
+    [setNodes, setEdges, handleNodeHover],
   );
 
-  const startRevealSequence = useCallback(() => {
-    const { hasStartedReveal, startReveal } = useGraphStore.getState();
-    if (hasStartedReveal) return;
-    startReveal();
+  const handleClickReveal = useCallback(() => {
+    const { revealPhase, beginReveal, advanceReveal, registerRevealTimer } =
+      useGraphStore.getState();
+    if (revealPhase !== "idle") return;
 
-    const softSkillNodes = [
-      "Problem-Solving",
-      "Collaboration",
-      "Quick-Learner",
-    ];
-    softSkillNodes.forEach((id, index) => {
-      addTimer(() => {
+    beginReveal();
+
+    // First reveal soft-skill nodes immediately (staggered)
+    SOFT_SKILL_NODE_IDS.forEach((id, index) => {
+      const timerId = setTimeout(() => {
         addNodeAndEdges(id);
       }, index * 200);
+      registerRevealTimer(timerId);
     });
 
-    addTimer(() => {
-      addNodeAndEdges("Bilkent");
-    }, REVEAL_TIMING.EDUCATION_DELAY_MS);
+    // After soft skills are done, begin the main REVEAL_SEQUENCE
+    const softSkillsDoneDelay = SOFT_SKILL_NODE_IDS.length * 200;
+    let cumulativeDelay = softSkillsDoneDelay;
 
-    addTimer(() => {
-      addNodeAndEdges("Layermark");
-    }, REVEAL_TIMING.LAYERMARK_DELAY_MS);
+    REVEAL_SEQUENCE.forEach((step, index) => {
+      const timerId = setTimeout(() => {
+        addNodeAndEdges(step.nodeId);
+        advanceReveal();
+      }, cumulativeDelay);
+      registerRevealTimer(timerId);
+      cumulativeDelay += step.delayMs;
+    });
 
-    addTimer(() => {
-      addNodeAndEdges("Intenseye");
-    }, REVEAL_TIMING.INTENSEYE_DELAY_MS);
-
-    addTimer(() => {
-      debouncedFitView();
-    }, REVEAL_TIMING.INTENSEYE_DELAY_MS + 500);
-  }, [addNodeAndEdges, debouncedFitView, addTimer]);
-
-  const handleGraphEnter = useCallback(() => {
-    const { hasStartedReveal } = useGraphStore.getState();
-    if (!hasStartedReveal) {
-      startRevealSequence();
-    }
-  }, [startRevealSequence]);
+    // Final timer to transition to 'revealed' state after last step completes
+    const finalTimerId = setTimeout(() => {
+      advanceReveal();
+    }, cumulativeDelay);
+    registerRevealTimer(finalTimerId);
+  }, [addNodeAndEdges]);
 
   useEffect(() => {
     if (!graphContainerRef.current) return;
@@ -250,9 +221,7 @@ function GraphSectionInner() {
           data: { ...n.data, onHoverChange: handleNodeHover },
         }));
     });
-
-    debouncedFitView();
-  }, [graphDimensions, setNodes, handleNodeHover, debouncedFitView]);
+  }, [graphDimensions, setNodes, handleNodeHover]);
 
   useEffect(() => {
     setNodes((nds) =>
@@ -263,13 +232,50 @@ function GraphSectionInner() {
     );
   }, [expandedNodes, setNodes]);
 
+  // Initialize root node with onClick handler on mount
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.data?.type === "root") {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              onClickReveal: handleClickReveal,
+              isRevealing: false,
+            },
+          };
+        }
+        return node;
+      }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Update root node isRevealing status when revealPhase changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.data?.type === "root") {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isRevealing: revealPhase !== "idle",
+            },
+          };
+        }
+        return node;
+      }),
+    );
+  }, [revealPhase, setNodes]);
+
   useEffect(() => {
     return () => {
-      timersRef.current.forEach(clearTimeout);
-      timersRef.current = [];
-      debouncedFitView.cancel();
+      const { abortReveal } = useGraphStore.getState();
+      abortReveal();
     };
-  }, [debouncedFitView]);
+  }, []);
 
   return (
     <div id="graph" className="relative lg:pt-[9.5rem]">
@@ -282,7 +288,6 @@ function GraphSectionInner() {
         key={isHydrated ? "animated" : "static"}
         ref={graphContainerRef}
         className="relative h-[500px] md:h-[700px] rounded-xl border border-stone-800 bg-stone-950/50 overflow-hidden"
-        onMouseEnter={handleGraphEnter}
       >
         <ReactFlow
           nodes={nodes}
@@ -291,13 +296,6 @@ function GraphSectionInner() {
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           connectionLineType={ConnectionLineType.SmoothStep}
-          fitView
-          fitViewOptions={{
-            padding: 0.15,
-            minZoom: 0.65,
-            maxZoom: 0.85,
-            duration: 800,
-          }}
           minZoom={0.5}
           maxZoom={1.5}
           elevateNodesOnSelect
