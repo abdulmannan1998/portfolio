@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 10 of 12 (Client Boundary Extraction) -- v1.2 SSR Migration in progress
-Plan: 3 of 3 in current phase (gap closure plan 10-03 complete)
+Plan: 4 of 4 in current phase (all section extractions complete)
 Status: Phase complete
-Last activity: 2026-02-06 -- Completed 10-03-PLAN.md (UAT gap closure: dead code removal, framer-motion revert, Next.js 16 compatibility)
+Last activity: 2026-02-07 -- Completed 10-04-PLAN.md (Hero and About section extraction)
 
-Progress: [█████████▓░░░░░░░░░░] 50% (3/6 v1.2 plans complete, 10/12 phases complete across all milestones)
+Progress: [██████████░░░░░░░░░░] 57% (4/7 v1.2 plans complete, 10/12 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -34,26 +34,26 @@ Progress: [█████████▓░░░░░░░░░░] 50% (3/
 
 **v1.2 Milestone (in progress):**
 
-- Total plans: 6 (target)
-- Plans complete: 4
-- Average duration: 5.3 min
-- Total execution time: 21 min
+- Total plans: 7 (target)
+- Plans complete: 5
+- Average duration: 4.9 min
+- Total execution time: 23.5 min
 - Phases: 4 (target), 2 complete
 
 **By Phase (cumulative):**
 
-| Phase                          | Milestone | Plans | Total | Avg/Plan |
-| ------------------------------ | --------- | ----- | ----- | -------- |
-| 01-dead-code-removal           | v1.0      | 1     | 3min  | 3min     |
-| 02-constants-extraction        | v1.0      | 1     | 3min  | 3min     |
-| 03-type-safety                 | v1.0      | 1     | 4min  | 4min     |
-| 04-state-management-refactor   | v1.0      | 1     | 4min  | 4min     |
-| 05-performance-optimization    | v1.0      | 2     | 8min  | 4min     |
-| 06-dead-code-directory-cleanup | v1.1      | 1     | 1min  | 1min     |
-| 07-code-splitting              | v1.1      | 2     | 7min  | 3.5min   |
-| 08-technical-debt              | v1.1      | 3     | 7min  | 2.3min   |
-| 09-server-side-github-fetching | v1.2      | 1     | 4min  | 4min     |
-| 10-client-boundary-extraction  | v1.2      | 3     | 17min | 5.7min   |
+| Phase                          | Milestone | Plans | Total   | Avg/Plan |
+| ------------------------------ | --------- | ----- | ------- | -------- |
+| 01-dead-code-removal           | v1.0      | 1     | 3min    | 3min     |
+| 02-constants-extraction        | v1.0      | 1     | 3min    | 3min     |
+| 03-type-safety                 | v1.0      | 1     | 4min    | 4min     |
+| 04-state-management-refactor   | v1.0      | 1     | 4min    | 4min     |
+| 05-performance-optimization    | v1.0      | 2     | 8min    | 4min     |
+| 06-dead-code-directory-cleanup | v1.1      | 1     | 1min    | 1min     |
+| 07-code-splitting              | v1.1      | 2     | 7min    | 3.5min   |
+| 08-technical-debt              | v1.1      | 3     | 7min    | 2.3min   |
+| 09-server-side-github-fetching | v1.2      | 1     | 4min    | 4min     |
+| 10-client-boundary-extraction  | v1.2      | 4     | 19.5min | 4.9min   |
 
 ## Accumulated Context
 
@@ -79,6 +79,8 @@ Recent decisions affecting current work:
 - [10-03]: Revert marquee to framer-motion (honors v1.2 strategy pivot after UAT)
 - [10-03]: Use nullable timestamp parameter to avoid Date.now() during Next.js 16 SSR prerendering
 - [10-03]: Show static date format during SSR (better caching), "ago" text appears after hydration
+- [10-04]: Extract Hero section with MotionValue props (parallax hooks stay in page-content)
+- [10-04]: Extract About section with backgroundPattern prop (module-level PRNG stays in page-content)
 
 ### Pending Todos
 
@@ -90,11 +92,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Stopped at: Phase 10 complete (gap closure 10-03 complete)
+Last session: 2026-02-07
+Stopped at: Phase 10 complete (all section extractions complete, 10-04 complete)
 Resume file: None
 
 ---
 
 _State initialized: 2026-02-05_
-_Last updated: 2026-02-06 -- Completed Phase 10-03: UAT gap closure (dead code removed, framer-motion restored, Next.js 16 compatibility)_
+_Last updated: 2026-02-07 -- Completed Phase 10-04: Hero and About section extraction into dedicated client wrappers_
